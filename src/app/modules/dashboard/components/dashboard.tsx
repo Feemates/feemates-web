@@ -15,6 +15,7 @@ import { JoinedTab } from './joined-tab';
 import { OwnedTab } from './owned-tab';
 import { useGetDashboard } from '@/api/dashboard-data';
 import { useGenerateOnboardUrl } from '@/api/verify-account';
+import Link from 'next/link';
 
 export function Dashboard() {
   const router = useRouter();
@@ -197,13 +198,14 @@ export function Dashboard() {
         <div className="mb-4">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">My Bundles</h3>
-            <Button
-              variant="ghost"
-              className="p-0 text-blue-600 hover:text-blue-800"
-              onClick={() => router.push('/subscriptions')}
-            >
-              See All
-            </Button>
+            <Link href="/subscriptions">
+              <Button
+                variant="ghost"
+                className="p-0 font-semibold text-blue-600 hover:text-blue-800"
+              >
+                See All
+              </Button>
+            </Link>
           </div>
 
           {/* Shadcn Tabs */}

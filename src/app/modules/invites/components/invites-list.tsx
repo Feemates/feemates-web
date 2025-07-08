@@ -10,7 +10,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useInviteList } from '../api/useInviteList';
 import { useDeclineInvite } from '../api/useDeclineInvite';
 import { useJoinInvite } from '../api/useJoinInvite';
-import { useRef, useCallback, useState } from 'react';
+import { useRef, useCallback, useState, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import {
   AlertDialog,
@@ -57,6 +57,10 @@ export function InvitesList() {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])();
 
+  useEffect(() => {
+    router.prefetch('/dashboard'); // Preload dashboard page
+  }, [router]);
+
   // Decline dialog state and mutation
   const [declineDialogOpen, setDeclineDialogOpen] = useState(false);
   const [selectedInviteId, setSelectedInviteId] = useState<number | null>(null);
@@ -67,7 +71,7 @@ export function InvitesList() {
   });
 
   const handleBackClick = () => {
-    router.push('/dashboard');
+    router.back();
   };
 
   const joinInviteMutation = useJoinInvite(() => {

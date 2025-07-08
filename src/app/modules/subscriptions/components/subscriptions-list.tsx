@@ -111,10 +111,6 @@ export function SubscriptionsList() {
     router.push('/dashboard');
   };
 
-  const handleSubscriptionClick = (id: number) => {
-    router.push(`/subscription/${id}`);
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -315,60 +311,61 @@ export function SubscriptionsList() {
             const availableSlots = subscription.max_no_of_participants - subscription.members_count;
 
             return (
-              <Card
+              <Link
                 key={subscription.id}
-                className="cursor-pointer border-0 bg-white py-0 shadow-sm transition-shadow hover:shadow-md"
-                onClick={() => handleSubscriptionClick(subscription.id)}
+                href={`/subscription/${subscription.id}`}
+                className="block"
               >
-                <CardContent className="p-4">
-                  <div className="mb-3 flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
-                      {/* <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
+                <Card className="cursor-pointer border-0 bg-white py-0 shadow-sm transition-shadow hover:shadow-md">
+                  <CardContent className="p-4">
+                    <div className="mb-3 flex items-start justify-between">
+                      <div className="flex items-center space-x-3">
+                        {/* <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
                         <Monitor className="h-6 w-6 text-blue-600" />
                       </div> */}
-                      <div className="min-w-0 flex-1 overflow-hidden">
-                        <h4 className="line-clamp-1 overflow-hidden font-semibold break-all text-gray-900">
-                          {subscription.name}
-                        </h4>
-                        <p className="text-sm text-gray-500">
-                          Created on {formatDate(subscription.createdAt)}
+                        <div className="min-w-0 flex-1 overflow-hidden">
+                          <h4 className="line-clamp-1 overflow-hidden font-semibold break-all text-gray-900">
+                            {subscription.name}
+                          </h4>
+                          <p className="text-sm text-gray-500">
+                            Created on {formatDate(subscription.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge
+                        variant="secondary"
+                        className={`capitalize ${
+                          subscription.status === 'active'
+                            ? 'bg-green-100 text-green-800'
+                            : subscription.status === 'expired'
+                              ? 'bg-orange-100 text-orange-800'
+                              : 'bg-gray-100 text-gray-800'
+                        } `}
+                      >
+                        {subscription.status}
+                      </Badge>
+                    </div>
+
+                    <div className="mb-3 grid grid-cols-3 gap-4">
+                      <div>
+                        {/* <p className="mb-1 text-sm text-gray-500">Total price</p> */}
+                        <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-green-100">
+                          <DollarSign className="h-3 w-3 text-green-600" />
+                        </div>
+                        <p className="font-semibold text-gray-900">
+                          ${Number(subscription.price).toFixed(2)}
                         </p>
                       </div>
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className={`capitalize ${
-                        subscription.status === 'active'
-                          ? 'bg-green-100 text-green-800'
-                          : subscription.status === 'expired'
-                            ? 'bg-orange-100 text-orange-800'
-                            : 'bg-gray-100 text-gray-800'
-                      } `}
-                    >
-                      {subscription.status}
-                    </Badge>
-                  </div>
-
-                  <div className="mb-3 grid grid-cols-3 gap-4">
-                    <div>
-                      {/* <p className="mb-1 text-sm text-gray-500">Total price</p> */}
-                      <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-green-100">
-                        <DollarSign className="h-3 w-3 text-green-600" />
+                      <div>
+                        {/* <p className="mb-1 text-sm text-gray-500">Members</p> */}
+                        <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-green-100">
+                          <Users className="mx-auto h-3 w-3 text-blue-600" />
+                        </div>
+                        <p className="font-semibold text-gray-900">
+                          {subscription.members_count}/{subscription.max_no_of_participants}
+                        </p>
                       </div>
-                      <p className="font-semibold text-gray-900">
-                        ${Number(subscription.price).toFixed(2)}
-                      </p>
-                    </div>
-                    <div>
-                      {/* <p className="mb-1 text-sm text-gray-500">Members</p> */}
-                      <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-green-100">
-                        <Users className="mx-auto h-3 w-3 text-blue-600" />
-                      </div>
-                      <p className="font-semibold text-gray-900">
-                        {subscription.members_count}/{subscription.max_no_of_participants}
-                      </p>
-                    </div>
-                    {/* <div>
+                      {/* <div>
                       <p className="mb-1 text-sm text-gray-500">Your share</p>
                       <p className="font-semibold text-green-600">
                         $
@@ -380,43 +377,44 @@ export function SubscriptionsList() {
                       </p>
                     </div> */}
 
-                    <div className="flex-shrink-0">
-                      <div className="relative h-16 w-24 overflow-hidden rounded-lg bg-gray-100">
-                        {subscription.thumbnail ? (
-                          <Image
-                            src={subscription.thumbnail || '/placeholder.svg'}
-                            alt={`${subscription.name} logo`}
-                            fill
-                            className="object-fit"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center rounded-lg bg-gray-200">
-                            <Monitor className="h-8 w-8 text-gray-400" />
-                          </div>
-                        )}
+                      <div className="flex-shrink-0">
+                        <div className="relative h-16 w-24 overflow-hidden rounded-lg bg-gray-100">
+                          {subscription.thumbnail ? (
+                            <Image
+                              src={subscription.thumbnail || '/placeholder.svg'}
+                              alt={`${subscription.name} logo`}
+                              fill
+                              className="object-fit"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center rounded-lg bg-gray-200">
+                              <Monitor className="h-8 w-8 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500">
-                      {availableSlots > 0
-                        ? `${availableSlots} slot${availableSlots !== 1 ? 's' : ''} available`
-                        : 'Bundle full'}
-                    </p>
-                    <Badge
-                      variant="secondary"
-                      className={`${
-                        subscription.is_owner
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-purple-100 text-purple-800'
-                      } `}
-                    >
-                      {subscription.is_owner ? 'Owner' : 'Member'}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-500">
+                        {availableSlots > 0
+                          ? `${availableSlots} slot${availableSlots !== 1 ? 's' : ''} available`
+                          : 'Bundle full'}
+                      </p>
+                      <Badge
+                        variant="secondary"
+                        className={`${
+                          subscription.is_owner
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-purple-100 text-purple-800'
+                        } `}
+                      >
+                        {subscription.is_owner ? 'Owner' : 'Member'}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
         </div>
