@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +39,7 @@ import { MemberTabContent } from './MemberTabContent';
 import { OverviewTabContent } from './OverviewTabContent';
 import { PaymentTabContent } from './PaymentTabContent';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSubscriptionStats } from '../api/useSubscriptionStats';
 
 interface SubscriptionDetailsProps {
   id: string;
@@ -57,6 +59,12 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
   const { mutateAsync: inviteByEmail, isOffline } = useInviteByEmail();
   const { mutateAsync: leaveBundle } = useLeaveBundle();
   const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  const shouldFetchStats = Boolean(id && subscriptionResponse?.data?.is_owner);
+  const { data: subscriptionStats } = useSubscriptionStats(
+    shouldFetchStats ? id : '',
+    shouldFetchStats ? true : undefined
+  );
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -498,6 +506,46 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
             </Card>
           )}
         </div>
+
+        {subscription?.isOwner && (
+          <div className="mb-6 grid grid-cols-2 gap-4">
+            <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+              <CardContent className="p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-medium text-green-700">Total paid </span>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
+                    <DollarSign className="h-4 w-4 text-green-600" />
+                  </div>
+                </div>
+                <div className="mb-1 text-2xl font-bold text-green-900">
+                  {typeof subscriptionStats?.total_paid === 'number' ? (
+                    `$${subscriptionStats.total_paid.toFixed(2)}`
+                  ) : (
+                    <Skeleton className="h-8 w-24" />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50">
+              <CardContent className="p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-medium text-blue-700">Savings per month</span>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+                    <Calendar className="h-4 w-4 text-blue-600" />
+                  </div>
+                </div>
+                <div className="mb-1 text-2xl font-bold text-blue-900">
+                  {typeof subscriptionStats?.savings === 'number' ? (
+                    `$${subscriptionStats.savings.toFixed(2)}`
+                  ) : (
+                    <Skeleton className="h-8 w-24" />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="mb-6 flex space-x-1 rounded-lg bg-gray-100 p-1">
