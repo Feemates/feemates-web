@@ -47,6 +47,8 @@ export interface GetSubscriptionsParams {
   name?: string;
   type?: 'owner' | 'member' | 'all';
   status?: 'active' | 'expired' | 'all';
+  sortBy?: 'name' | 'createdAt' | 'per_person_price';
+  sortOrder?: 'asc' | 'desc';
 }
 
 const getSubscriptionsApi = async (
@@ -57,10 +59,10 @@ const getSubscriptionsApi = async (
   if (params.page) searchParams.append('page', params.page.toString());
   if (params.limit) searchParams.append('limit', params.limit.toString());
   if (params.name) searchParams.append('name', params.name);
+  if (params.status && params.status !== 'all') searchParams.append('status', params.status);
   searchParams.append('type', params.type ?? 'all');
-  if (params.status && params.status !== 'all') {
-    searchParams.append('status', params.status);
-  }
+  searchParams.append('sortBy', params.sortBy ?? 'createdAt');
+  searchParams.append('sortOrder', params.sortOrder ?? 'asc');
 
   const data = await apiClient.get(`/subscriptions?${searchParams.toString()}`);
   return data as unknown as GetSubscriptionsResponse;

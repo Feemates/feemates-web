@@ -5,7 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Search, Filter, Loader2, Monitor, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  Search,
+  Filter,
+  Loader2,
+  Monitor,
+  X,
+  Calendar,
+  Type,
+  DollarSign,
+  ArrowUpDown,
+} from 'lucide-react';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
 import { useGetSubscriptionsList } from '../api/useGetSubscriptionsList';
 import { useInView } from 'react-intersection-observer';
@@ -14,12 +25,43 @@ import { toast } from '@/lib/toast';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+type SortType = 'name' | 'createdAt' | 'per_person_price';
+type SortOrder = 'asc' | 'desc';
+
+const sortOptions = [
+  { value: 'createdAt' as SortType, label: 'Date Created', icon: Calendar },
+  { value: 'name' as SortType, label: 'Name', icon: Type },
+  { value: 'per_person_price' as SortType, label: 'Price', icon: DollarSign },
+];
+
+const orderOptions = [
+  {
+    value: 'asc' as SortOrder,
+    label: 'Ascending',
+    description: 'A–Z, Oldest to Newest, Low to High',
+  },
+  {
+    value: 'desc' as SortOrder,
+    label: 'Descending',
+    description: 'Z–A, Newest to Oldest, High to Low',
+  },
+];
 
 export function SubscriptionsList() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'expired'>('all');
   const [popoverOpen, setPopoverOpen] = useState(false);
+
+  // sort state
+  const [sortBy, setSortBy] = useState<SortType>('createdAt');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
   // Debounced search term
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
@@ -32,12 +74,18 @@ export function SubscriptionsList() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  useEffect(() => {
+    console.log(`Sorting by: ${sortBy}, Order: ${sortOrder}`);
+  }, [sortBy, sortOrder]);
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
     useGetSubscriptionsList({
       name: debouncedSearchTerm || undefined,
       limit: 15,
       type: 'all',
       status: statusFilter,
+      sortBy,
+      sortOrder,
     });
 
   const { ref, inView } = useInView({
@@ -74,6 +122,21 @@ export function SubscriptionsList() {
     });
   };
 
+  //sort functionality
+  const handleSortChange = (newSortBy: SortType) => {
+    setSortBy(newSortBy);
+  };
+
+  const handleOrderChange = (newOrder: SortOrder) => {
+    setSortOrder(newOrder);
+  };
+
+  const getCurrentSortLabel = () => {
+    const sortOption = sortOptions.find((option) => option.value === sortBy);
+    const orderOption = orderOptions.find((option) => option.value === sortOrder);
+    return `${sortOption?.label} (${orderOption?.label})`;
+  };
+
   // Show error state
   if (error) {
     return (
@@ -107,59 +170,136 @@ export function SubscriptionsList() {
       {/* Main Content with bottom padding for navigation */}
       <main className="px-4 py-6 pb-24">
         {/* Search Bar */}
-        <div className="relative mb-6">
-          <Search className="absolute top-3 left-3 h-5 w-5 text-gray-400" />
-          <Input
-            placeholder="Search bundles..."
-            className="h-12 bg-white pr-14 pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          {searchTerm && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute top-2 right-8 h-8 w-8 p-0"
-              onClick={() => setSearchTerm('')}
-              tabIndex={-1}
-              aria-label="Clear search"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-            <PopoverTrigger asChild>
+        <div className="mb-6 flex items-center justify-between gap-2">
+          <div className="relative">
+            <Search className="absolute top-3 left-3 h-5 w-5 text-gray-400" />
+            <Input
+              placeholder="Search bundles..."
+              className="h-12 bg-white pr-14 pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
               <Button
-                variant={statusFilter === 'all' ? 'ghost' : 'secondary'}
+                variant="ghost"
                 size="sm"
-                className="absolute top-2 right-2 h-8 w-8 p-0"
-                aria-label="Filter status"
+                className="absolute top-2 right-8 h-8 w-8 p-0"
+                onClick={() => setSearchTerm('')}
+                tabIndex={-1}
+                aria-label="Clear search"
               >
-                <Filter className="h-4 w-4" />
+                <X className="h-4 w-4" />
               </Button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-40 p-0">
-              <div className="flex flex-col">
-                {[
-                  { label: 'All', value: 'all' },
-                  { label: 'Active', value: 'active' },
-                  { label: 'Expired', value: 'expired' },
-                ].map((option) => (
-                  <Button
-                    key={option.value}
-                    variant={statusFilter === option.value ? 'secondary' : 'ghost'}
-                    className="justify-start rounded-none px-4 py-2"
-                    onClick={() => {
-                      setStatusFilter(option.value as 'all' | 'active' | 'expired');
-                      setPopoverOpen(false);
-                    }}
-                  >
-                    {option.label}
-                  </Button>
-                ))}
+            )}
+            <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={statusFilter === 'all' ? 'ghost' : 'secondary'}
+                  size="sm"
+                  className="absolute top-2 right-2 h-8 w-8 p-0"
+                  aria-label="Filter status"
+                >
+                  <Filter className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-40 p-0">
+                <div className="flex flex-col">
+                  {[
+                    { label: 'All', value: 'all' },
+                    { label: 'Active', value: 'active' },
+                    { label: 'Expired', value: 'expired' },
+                  ].map((option) => (
+                    <Button
+                      key={option.value}
+                      variant={statusFilter === option.value ? 'secondary' : 'ghost'}
+                      className="justify-start rounded-none px-4 py-2"
+                      onClick={() => {
+                        setStatusFilter(option.value as 'all' | 'active' | 'expired');
+                        setPopoverOpen(false);
+                      }}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="h-12 justify-between bg-transparent">
+                <div className="flex items-center gap-2">
+                  <ArrowUpDown className="h-4 w-4" />
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 p-1" align="end">
+              {/* Sort By Section */}
+              <div className="p-1">
+                <div className="px-2 py-1 text-[10px] font-medium tracking-wide text-gray-500 uppercase">
+                  Sort by
+                </div>
+                <div className="space-y-0.5">
+                  {sortOptions.map((option) => {
+                    const Icon = option.icon;
+                    const isSelected = sortBy === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        className={`flex w-full items-center gap-2 rounded px-2 py-2 text-left text-sm transition-colors hover:bg-gray-50 ${
+                          isSelected ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+                        }`}
+                        onClick={() => handleSortChange(option.value)}
+                      >
+                        <Icon className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span className={`flex-1 ${isSelected ? 'font-medium' : ''}`}>
+                          {option.label}
+                        </span>
+                        {isSelected && (
+                          <div className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-600" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </PopoverContent>
-          </Popover>
+
+              {/* Divider */}
+              <div className="my-1 border-t border-gray-100" />
+
+              {/* Order Section */}
+              <div className="p-1">
+                <div className="px-2 py-1 text-[10px] font-medium tracking-wide text-gray-500 uppercase">
+                  Order
+                </div>
+                <div className="space-y-0.5">
+                  {orderOptions.map((option) => {
+                    const isSelected = sortOrder === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        className={`flex w-full items-center gap-2 rounded px-2 py-2 text-left text-sm transition-colors hover:bg-gray-50 ${
+                          isSelected ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+                        }`}
+                        onClick={() => handleOrderChange(option.value)}
+                      >
+                        <div className="flex-1">
+                          <div className={`${isSelected ? 'font-medium' : ''}`}>{option.label}</div>
+                          <div className="text-[10px] leading-tight text-gray-500">
+                            {option.description}
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <div className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-600" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         {/* Loading state */}
         {isLoading && (
