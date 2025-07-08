@@ -187,15 +187,17 @@ export function Dashboard() {
         <div className="mb-6 grid grid-cols-2 gap-4">
           <Card className="border-0 bg-white py-3 shadow-sm">
             <CardContent className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center justify-between space-x-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-                    <Briefcase className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-base font-semibold text-gray-900">Owned</span>
-                    <span className="text-2xl font-bold text-blue-600">{ownedCount}</span>
-                  </div>
+              <div className="flex items-center space-x-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
+                  <Briefcase className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium tracking-wide text-gray-600 uppercase">
+                    Owned
+                  </span>
+                  <span className="text-3xl font-bold text-blue-600 transition-colors duration-200">
+                    {ownedCount}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -203,15 +205,17 @@ export function Dashboard() {
 
           <Card className="border-0 bg-white py-3 shadow-sm">
             <CardContent className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
-                    <Users className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-base font-semibold text-gray-900">Joined</span>
-                    <span className="text-2xl font-bold text-purple-600">{joinedCount}</span>
-                  </div>
+              <div className="flex items-center space-x-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
+                  <Users className="h-6 w-6 text-purple-600" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium tracking-wide text-gray-600 uppercase">
+                    Joined
+                  </span>
+                  <span className="text-3xl font-bold text-purple-600 transition-colors duration-200">
+                    {joinedCount}
+                  </span>
                 </div>
               </div>
             </CardContent>
