@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +24,7 @@ import {
   X,
   Plus,
   Loader2,
+  Edit,
 } from 'lucide-react';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
 import { useGetSubscription } from '../api/useGetSubscription';
@@ -98,9 +99,28 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'payments'>('overview');
   const [resendingInvite, setResendingInvite] = useState<number | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [inviteEmails, setInviteEmails] = useState<string[]>(['']);
   const [inviteMessage, setInviteMessage] = useState('');
   const [sendingInvites, setSendingInvites] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
+        setShowMoreMenu(false);
+      }
+    };
+
+    if (showMoreMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMoreMenu]);
 
   // Show loading state
   if (isLoading) {
@@ -147,6 +167,15 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
 
   const handleBackClick = () => {
     router.push('/subscriptions');
+  };
+
+  const handleEditClick = () => {
+    setShowMoreMenu(false);
+    router.push(`/subscription/${id}/edit`);
+  };
+
+  const handleMoreClick = () => {
+    setShowMoreMenu(!showMoreMenu);
   };
 
   const handleInviteMembers = () => {
@@ -300,19 +329,40 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
             <Button variant="ghost" size="sm" onClick={handleBackClick} className="p-2">
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div className="flex items-center space-x-3">
+            <div className="flex min-w-0 flex-1 items-center space-x-3">
               {/* <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
                 <Monitor className="h-5 w-5 text-blue-600" />
               </div> */}
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">{subscription.name}</h1>
-                <p className="text-sm text-gray-500">Owned by {subscription.owner}</p>
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <h1 className="line-clamp-1 overflow-hidden text-xl font-bold break-all text-gray-900">
+                  {subscription.name}
+                </h1>
+                <p className="line-clamp-1 overflow-hidden text-sm break-all text-gray-500">
+                  Owned by {subscription.owner}
+                </p>
               </div>
             </div>
           </div>
-          <Button variant="ghost" size="sm" className="p-2">
-            <MoreVertical className="h-5 w-5" />
-          </Button>
+          {subscription.isOwner && (
+            <div className="relative" ref={moreMenuRef}>
+              <Button variant="ghost" size="sm" className="p-2" onClick={handleMoreClick}>
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+
+              {/* Dropdown Menu */}
+              {showMoreMenu && (
+                <div className="absolute top-10 right-0 z-50 w-48 rounded-md border border-gray-200 bg-white shadow-lg">
+                  <button
+                    onClick={handleEditClick}
+                    className="flex w-full items-center space-x-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <Edit className="h-4 w-4" />
+                    <span>Edit Subscription</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </header>
 

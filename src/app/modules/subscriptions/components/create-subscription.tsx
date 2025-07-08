@@ -100,14 +100,12 @@ export function CreateSubscription() {
     // Calculate per person price by dividing total price by max participants
     const totalPrice = Number(values.price);
     const maxParticipants = Number(values.maxParticipants);
-    const perPersonPrice = Number((totalPrice / maxParticipants).toFixed(2));
 
     const payload = {
       name: values.name,
       description: values.description || '',
       status: 'active' as const,
       price: totalPrice,
-      per_person_price: perPersonPrice,
       max_no_of_participants: maxParticipants,
       startDate: new Date(values.startDate).toISOString(),
       endDate: new Date(values.endDate).toISOString(),

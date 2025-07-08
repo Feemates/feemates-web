@@ -94,7 +94,6 @@ export const useGetSubscriptionsList = (params: Omit<GetSubscriptionsParams, 'pa
       }
       return failureCount < 3;
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
   // Handle errors separately

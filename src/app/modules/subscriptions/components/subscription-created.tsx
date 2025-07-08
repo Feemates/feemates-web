@@ -143,12 +143,14 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
             <CheckCircle className="h-8 w-8 text-green-600" />
           </div>
           <h1 className="mb-2 text-2xl font-bold text-gray-900">Subscription Created!</h1>
-          <p className="text-gray-600">Your {subscription.name} subscription is ready to share</p>
+          <p className="line-clamp-2 text-gray-600">
+            Your {subscription.name} subscription is ready to share
+          </p>
         </div>
 
         <Card className="mb-6 border-0 bg-white shadow-sm">
           <CardContent className="p-6 text-center">
-            <h3 className="mb-2 font-semibold text-gray-900">{subscription.name}</h3>
+            <h3 className="mb-2 line-clamp-2 font-semibold text-gray-900">{subscription.name}</h3>
             <div className="mb-3">
               <p className="mb-1 text-2xl font-bold text-green-600">
                 ${subscription.monthlyShare}/month
@@ -264,7 +266,7 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
 
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
                 <h4 className="mb-1 text-sm font-medium text-blue-900">Invitation Preview</h4>
-                <p className="text-xs text-blue-800">
+                <p className="line-clamp-2 overflow-hidden text-xs break-all text-blue-800">
                   &quot;Join my {subscription.name} subscription and pay only $
                   {subscription.monthlyShare}/month!&quot;
                 </p>

@@ -139,8 +139,10 @@ export function SubscriptionsList() {
                       {/* <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
                         <Monitor className="h-6 w-6 text-blue-600" />
                       </div> */}
-                      <div>
-                        <h4 className="font-semibold text-gray-900">{subscription.name}</h4>
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <h4 className="line-clamp-1 overflow-hidden font-semibold break-all text-gray-900">
+                          {subscription.name}
+                        </h4>
                         <p className="text-sm text-gray-500">
                           Created on {formatDate(subscription.createdAt)}
                         </p>
@@ -198,7 +200,7 @@ export function SubscriptionsList() {
                     </p>
                     <Badge
                       variant="secondary"
-                      className={`${
+                      className={`capitalize ${
                         subscription.status === 'active'
                           ? 'bg-green-100 text-green-800'
                           : 'bg-gray-100 text-gray-800'
@@ -219,7 +221,7 @@ export function SubscriptionsList() {
             <p className="mb-4 text-gray-500">
               {searchTerm
                 ? 'No subscriptions found matching your search'
-                : 'No subscriptions found'}
+                : 'You have no subscriptions yet. Create one to get started!'}
             </p>
             {searchTerm && (
               <Button variant="outline" onClick={() => setSearchTerm('')}>
