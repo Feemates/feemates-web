@@ -35,19 +35,23 @@ const formSchema = z.object({
   }),
   password: z
     .string()
-    .min(8, { message: 'Password must be at least 8 characters long.' })
+    .min(8, {
+      message:
+        'Password must be minimum of 8 characters, with upper and lowercase, and a number and a symbol.',
+    })
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]/, {
       message:
         'Password must be minimum of 8 characters, with upper and lowercase, and a number and a symbol.',
     }),
   agreeToTerms: z.boolean().refine((value) => value === true, {
-    message: '',
+    message: 'You must accept the terms and conditions to continue',
   }),
 });
 
 export function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const signupMutation = useSignup();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -64,6 +68,11 @@ export function SignupForm() {
     const { agreeToTerms, ...signupData } = values;
     signupMutation.mutate(signupData);
   };
+
+  const handleFormSubmit = form.handleSubmit(onSubmit, (errors) => {
+    // This runs when validation fails
+    setHasAttemptedSubmit(true);
+  });
 
   const handleGoogleSignup = async () => {
     setIsGoogleLoading(true);
@@ -83,7 +92,7 @@ export function SignupForm() {
         <CardDescription className="text-center">Sign up for your Feemates account</CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={handleFormSubmit}>
           <CardContent className="space-y-4">
             <FormField
               control={form.control}
@@ -167,37 +176,66 @@ export function SignupForm() {
             <FormField
               control={form.control}
               name="agreeToTerms"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-y-0 space-x-3 pt-2">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      className="mt-0.5"
-                      disabled={signupMutation.isPending}
-                    />
-                  </FormControl>
-                  <div className="min-w-0 flex-1 space-y-1 leading-none">
-                    <div className="cursor-pointer text-sm leading-relaxed text-gray-600">
-                      <span className="inline">I agree to the </span>
-                      <button
-                        type="button"
-                        className="inline font-medium text-blue-600 underline hover:text-blue-800"
+              render={({ field, fieldState }) => {
+                const shouldHighlight = (hasAttemptedSubmit && !field.value) || fieldState.error;
+                return (
+                  <FormItem
+                    className={`flex flex-row items-start space-y-0 space-x-3 pt-2 transition-all duration-200 ${
+                      shouldHighlight
+                        ? 'animate-pulse rounded-lg border-2 border-red-300 bg-red-50/50 p-3 shadow-sm'
+                        : ''
+                    }`}
+                  >
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked);
+                          // Reset highlight when user checks the box
+                          if (checked && hasAttemptedSubmit) {
+                            setHasAttemptedSubmit(false);
+                          }
+                        }}
+                        className={`mt-0.5 transition-all duration-200 ${
+                          shouldHighlight ? 'border-red-400 shadow-md ring-2 ring-red-200' : ''
+                        }`}
+                        disabled={signupMutation.isPending}
+                      />
+                    </FormControl>
+                    <div className="min-w-0 flex-1 space-y-1 leading-none">
+                      <div
+                        className={`cursor-pointer text-sm leading-relaxed transition-colors duration-200 ${
+                          shouldHighlight ? 'font-medium text-red-700' : 'text-gray-600'
+                        }`}
+                        onClick={() => {
+                          const newValue = !field.value;
+                          field.onChange(newValue);
+                          if (newValue && hasAttemptedSubmit) {
+                            setHasAttemptedSubmit(false);
+                          }
+                        }}
                       >
-                        Terms of Service
-                      </button>
-                      <span className="inline"> and </span>
-                      <button
-                        type="button"
-                        className="inline font-medium text-blue-600 underline hover:text-blue-800"
-                      >
-                        Privacy Policy
-                      </button>
+                        <span className="inline">I agree to the </span>
+                        <button
+                          type="button"
+                          className="inline font-medium text-blue-600 underline hover:text-blue-800"
+                        >
+                          Terms of Service
+                        </button>
+                        <span className="inline"> and </span>
+                        <button
+                          type="button"
+                          className="inline font-medium text-blue-600 underline hover:text-blue-800"
+                        >
+                          Privacy Policy
+                        </button>
+                      </div>
+
+                      <FormMessage />
                     </div>
-                    <FormMessage />
-                  </div>
-                </FormItem>
-              )}
+                  </FormItem>
+                );
+              }}
             />
 
             <Button

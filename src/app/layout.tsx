@@ -5,6 +5,7 @@ import './globals.css';
 import { QueryProvider } from './QueryProvider';
 import { Suspense } from 'react';
 import { Toaster } from '@/components/ui/sonner';
+import NextTopLoader from 'nextjs-toploader';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className={inter.className}>
+        <NextTopLoader color="#393766" showSpinner={false} />
         <QueryProvider>
           <Suspense>{children}</Suspense>
         </QueryProvider>
