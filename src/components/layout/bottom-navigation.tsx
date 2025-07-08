@@ -14,7 +14,7 @@ export function BottomNavigation() {
   // Set active tab based on current page
   useEffect(() => {
     const path = window.location.pathname;
-    if (path.includes('/subscriptions')) {
+    if (path.includes('/subscriptions') || path.includes('/subscription/')) {
       setActiveTab('subscriptions');
     } else if (path.includes('/invites')) {
       setActiveTab('invites');

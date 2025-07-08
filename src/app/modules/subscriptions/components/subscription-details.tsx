@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   ArrowLeft,
-  Music,
+  Monitor,
   Users,
   DollarSign,
   Calendar,
@@ -23,25 +23,15 @@ import {
   Send,
   X,
   Plus,
+  Loader2,
 } from 'lucide-react';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
+import { useGetSubscription } from '../api/useGetSubscription';
+import { useRouter } from 'nextjs-toploader/app';
 
-// Mock subscription data
-const subscription = {
-  id: 1,
-  name: 'Music Premium',
-  icon: Music,
-  createdDate: 'Mar 10, 2023',
-  monthlyCost: 14.99,
-  members: 3,
-  maxMembers: 5,
-  yourShare: 5.0,
-  status: 'Active',
-  nextPayment: 'Apr 10, 2024',
-  description: 'Premium music streaming with offline downloads and high-quality audio',
-  owner: 'Alex Johnson',
-  isOwner: true,
-};
+interface SubscriptionDetailsProps {
+  id: string;
+}
 
 // Mock members data with different statuses
 const members = [
@@ -102,7 +92,9 @@ const members = [
   },
 ];
 
-export function SubscriptionDetails() {
+export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
+  const router = useRouter();
+  const { data: subscriptionResponse, isLoading, error } = useGetSubscription(id);
   const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'payments'>('overview');
   const [resendingInvite, setResendingInvite] = useState<number | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -110,8 +102,51 @@ export function SubscriptionDetails() {
   const [inviteMessage, setInviteMessage] = useState('');
   const [sendingInvites, setSendingInvites] = useState(false);
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600" />
+          <p className="mt-2 text-gray-600">Loading subscription details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error || !subscriptionResponse?.data) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="mb-4 text-red-600">Failed to load subscription details</p>
+          <Button onClick={() => router.push('/subscriptions')}>Back to Subscriptions</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const subscriptionData = subscriptionResponse.data;
+  const subscription = {
+    id: subscriptionData.id,
+    name: subscriptionData.name,
+    description: subscriptionData.description,
+    monthlyCost: Number(subscriptionData.price).toFixed(2),
+    members: subscriptionData.members_count,
+    maxMembers: subscriptionData.max_no_of_participants,
+    yourShare: Number(
+      subscriptionData.is_owner ? subscriptionData.owner_share : subscriptionData.per_person_price
+    ).toFixed(2),
+    status: subscriptionData.status,
+    owner: subscriptionData.owner.name,
+    isOwner: subscriptionData.is_owner,
+    startDate: subscriptionData.startDate,
+    endDate: subscriptionData.endDate,
+    createdAt: subscriptionData.createdAt,
+  };
+
   const handleBackClick = () => {
-    window.location.href = '/subscriptions';
+    router.push('/subscriptions');
   };
 
   const handleInviteMembers = () => {
@@ -145,7 +180,7 @@ export function SubscriptionDetails() {
   };
 
   const addEmailField = () => {
-    if (inviteEmails.length < subscription.maxMembers - subscription.members) {
+    if (inviteEmails.length < Number(subscription.maxMembers) - Number(subscription.members)) {
       setInviteEmails([...inviteEmails, '']);
     }
   };
@@ -194,7 +229,15 @@ export function SubscriptionDetails() {
     setInviteMessage('');
   };
 
-  const availableSlots = subscription.maxMembers - subscription.members;
+  const availableSlots = Number(subscription.maxMembers) - Number(subscription.members);
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
 
   const getPaymentStatusIcon = (status: string | null) => {
     switch (status) {
@@ -258,9 +301,9 @@ export function SubscriptionDetails() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
-                <Music className="h-5 w-5 text-blue-600" />
-              </div>
+              {/* <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
+                <Monitor className="h-5 w-5 text-blue-600" />
+              </div> */}
               <div>
                 <h1 className="text-xl font-bold text-gray-900">{subscription.name}</h1>
                 <p className="text-sm text-gray-500">Owned by {subscription.owner}</p>
@@ -378,7 +421,7 @@ export function SubscriptionDetails() {
       {/* Main Content with bottom padding for navigation */}
       <main className="px-4 py-6 pb-24">
         {/* Quick Stats */}
-        <div className="mb-6 grid grid-cols-3 gap-4">
+        <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3">
           <Card className="border-0 bg-white shadow-sm">
             <CardContent className="p-4 text-center">
               <DollarSign className="mx-auto mb-2 h-6 w-6 text-green-600" />
@@ -454,19 +497,38 @@ export function SubscriptionDetails() {
                   <span className="text-gray-600">Your Share</span>
                   <span className="font-semibold text-green-600">${subscription.yourShare}</span>
                 </div>
+
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status</span>
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                  <Badge
+                    variant="secondary"
+                    className={`capitalize ${
+                      subscription.status === 'active'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
                     {subscription.status}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Next Payment</span>
-                  <span className="font-semibold">{subscription.nextPayment}</span>
+                  <span className="text-gray-600">Start Date</span>
+                  <span className="font-semibold">{formatDate(subscription.startDate)}</span>
                 </div>
-                <div className="pt-2">
-                  <p className="text-sm text-gray-600">{subscription.description}</p>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">End Date</span>
+                  <span className="font-semibold">{formatDate(subscription.endDate)}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Created On</span>
+                  <span className="font-semibold">{formatDate(subscription.createdAt)}</span>
+                </div>
+                {subscription.description && (
+                  <div className="border-t pt-2">
+                    <span className="mb-2 block text-gray-600">Description</span>
+                    <p className="text-sm text-gray-900">{subscription.description}</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -608,9 +670,7 @@ export function SubscriptionDetails() {
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">{member.name}</p>
-                          <p className="text-sm text-gray-500">
-                            ${subscription.yourShare.toFixed(2)}
-                          </p>
+                          <p className="text-sm text-gray-500">${subscription.yourShare}</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">

@@ -1,72 +1,84 @@
 'use client';
 
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Search, Filter, Music, Monitor, Tv, Gamepad2 } from 'lucide-react';
+import { ArrowLeft, Search, Filter, Loader2, Monitor } from 'lucide-react';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
-
-// Mock data for subscriptions
-const subscriptions = [
-  {
-    id: 1,
-    name: 'Music Premium',
-    icon: Music,
-    createdDate: 'Mar 10, 2023',
-    monthlyCost: 14.99,
-    members: 3,
-    yourShare: 5.0,
-    status: 'Active',
-    slotsAvailable: 2,
-    type: 'owned',
-  },
-  {
-    id: 2,
-    name: 'Streaming Plus',
-    icon: Monitor,
-    createdDate: 'Feb 20, 2023',
-    monthlyCost: 19.99,
-    members: 5,
-    yourShare: 4.0,
-    status: 'Active',
-    slotsAvailable: 0,
-    type: 'owned',
-  },
-  {
-    id: 3,
-    name: 'TV Streaming',
-    icon: Tv,
-    createdDate: 'Jan 15, 2023',
-    monthlyCost: 12.99,
-    members: 4,
-    yourShare: 3.25,
-    status: 'Active',
-    slotsAvailable: 1,
-    type: 'joined',
-  },
-  {
-    id: 4,
-    name: 'Gaming Plus',
-    icon: Gamepad2,
-    createdDate: 'Dec 5, 2022',
-    monthlyCost: 9.99,
-    members: 2,
-    yourShare: 5.0,
-    status: 'Active',
-    slotsAvailable: 3,
-    type: 'joined',
-  },
-];
+import { useGetSubscriptionsList } from '../api/useGetSubscriptionsList';
+import { useInView } from 'react-intersection-observer';
+import { useRouter } from 'nextjs-toploader/app';
+import { toast } from '@/lib/toast';
 
 export function SubscriptionsList() {
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Debounced search term
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
+    useGetSubscriptionsList({
+      name: debouncedSearchTerm || undefined,
+      limit: 15,
+    });
+
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: '100px',
+  });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Flatten all pages of data
+  const subscriptions = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) || [];
+  }, [data]);
+
+  const totalCount = data?.pages?.[0]?.meta?.total || 0;
+
   const handleBackClick = () => {
-    window.location.href = '/dashboard';
+    router.push('/dashboard');
   };
 
   const handleSubscriptionClick = (id: number) => {
-    window.location.href = `/subscription/${id}`;
+    router.push(`/subscription/${id}`);
   };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="mb-4 text-red-600">Failed to load subscriptions</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+        <BottomNavigation />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -78,7 +90,11 @@ export function SubscriptionsList() {
           </Button>
           <div>
             <h1 className="text-xl font-bold text-gray-900">My Subscriptions</h1>
-            <p className="text-sm text-gray-500">{subscriptions.length} active subscriptions</p>
+            <p className="text-sm text-gray-500">
+              {isLoading
+                ? 'Loading...'
+                : `${totalCount} subscription${totalCount !== 1 ? 's' : ''}`}
+            </p>
           </div>
         </div>
       </header>
@@ -88,16 +104,29 @@ export function SubscriptionsList() {
         {/* Search Bar */}
         <div className="relative mb-6">
           <Search className="absolute top-3 left-3 h-5 w-5 text-gray-400" />
-          <Input placeholder="Search subscriptions..." className="h-12 bg-white pr-12 pl-10" />
+          <Input
+            placeholder="Search subscriptions..."
+            className="h-12 bg-white pr-12 pl-10"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <Button variant="ghost" size="sm" className="absolute top-2 right-2 h-8 w-8 p-0">
             <Filter className="h-4 w-4" />
           </Button>
         </div>
 
+        {/* Loading state */}
+        {isLoading && (
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+          </div>
+        )}
+
         {/* Subscription Cards */}
         <div className="space-y-4">
           {subscriptions.map((subscription) => {
-            const IconComponent = subscription.icon;
+            const availableSlots = subscription.max_no_of_participants - subscription.members_count;
+
             return (
               <Card
                 key={subscription.id}
@@ -107,54 +136,73 @@ export function SubscriptionsList() {
                 <CardContent className="p-4">
                   <div className="mb-3 flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-                        <IconComponent className="h-6 w-6 text-blue-600" />
-                      </div>
+                      {/* <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
+                        <Monitor className="h-6 w-6 text-blue-600" />
+                      </div> */}
                       <div>
                         <h4 className="font-semibold text-gray-900">{subscription.name}</h4>
                         <p className="text-sm text-gray-500">
-                          Created on {subscription.createdDate}
+                          Created on {formatDate(subscription.createdAt)}
                         </p>
                       </div>
                     </div>
                     <Badge
                       variant="secondary"
                       className={`${
-                        subscription.type === 'owned'
+                        subscription.is_owner
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-purple-100 text-purple-800'
                       } hover:bg-current`}
                     >
-                      {subscription.type === 'owned' ? 'Owner' : 'Member'}
+                      {subscription.is_owner ? 'Owner' : 'Member'}
                     </Badge>
                   </div>
 
                   <div className="mb-3 grid grid-cols-3 gap-4">
                     <div>
-                      <p className="mb-1 text-sm text-gray-500">Monthly cost</p>
-                      <p className="font-semibold text-gray-900">${subscription.monthlyCost}</p>
+                      <p className="mb-1 text-sm text-gray-500">Total price</p>
+                      <p className="font-semibold text-gray-900">
+                        ${Number(subscription.price).toFixed(2)}
+                      </p>
                     </div>
                     <div>
                       <p className="mb-1 text-sm text-gray-500">Members</p>
-                      <p className="font-semibold text-gray-900">{subscription.members}</p>
+                      <p className="font-semibold text-gray-900">
+                        {subscription.members_count}/{subscription.max_no_of_participants}
+                      </p>
                     </div>
                     <div>
                       <p className="mb-1 text-sm text-gray-500">Your share</p>
                       <p className="font-semibold text-green-600">
-                        ${subscription.yourShare.toFixed(2)}
+                        $
+                        {Number(
+                          subscription.is_owner
+                            ? subscription.owner_share
+                            : subscription.per_person_price
+                        ).toFixed(2)}
                       </p>
                     </div>
                   </div>
 
+                  {subscription.description && (
+                    <div className="mb-3">
+                      <p className="text-sm text-gray-600">{subscription.description}</p>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-gray-500">
-                      {subscription.slotsAvailable > 0
-                        ? `${subscription.slotsAvailable} slots available`
+                      {availableSlots > 0
+                        ? `${availableSlots} slot${availableSlots !== 1 ? 's' : ''} available`
                         : 'Bundle full'}
                     </p>
                     <Badge
                       variant="secondary"
-                      className="bg-green-100 text-green-800 hover:bg-green-100"
+                      className={`${
+                        subscription.status === 'active'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      } hover:bg-current`}
                     >
                       {subscription.status}
                     </Badge>
@@ -164,6 +212,32 @@ export function SubscriptionsList() {
             );
           })}
         </div>
+
+        {/* Empty state */}
+        {!isLoading && subscriptions.length === 0 && (
+          <div className="py-8 text-center">
+            <p className="mb-4 text-gray-500">
+              {searchTerm
+                ? 'No subscriptions found matching your search'
+                : 'No subscriptions found'}
+            </p>
+            {searchTerm && (
+              <Button variant="outline" onClick={() => setSearchTerm('')}>
+                Clear search
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Load more indicator */}
+        {isFetchingNextPage && (
+          <div className="flex justify-center py-4">
+            <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+          </div>
+        )}
+
+        {/* Intersection observer target */}
+        {hasNextPage && !isFetchingNextPage && <div ref={ref} className="h-4" />}
       </main>
 
       {/* Bottom Navigation */}
