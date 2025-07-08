@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useInviteByEmail } from '../api/useInviteByEmail';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,9 +27,10 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
   const router = useRouter();
   const { data: subscriptionResponse, isLoading, error } = useGetSubscription(id);
   const [inviteEmails, setInviteEmails] = useState<string[]>(['']);
-  const [inviteMessage, setInviteMessage] = useState('');
+  const [inviteEmailErrors, setInviteEmailErrors] = useState<string[]>(['']);
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [sendingInvites, setSendingInvites] = useState(false);
+  const { mutateAsync: inviteByEmail } = useInviteByEmail();
 
   // Show loading state
   if (isLoading) {
@@ -57,9 +59,28 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
   }
 
   const subscriptionData = subscriptionResponse.data;
+
+  // Redirect non-owners to subscriptions page (fix: useEffect)
+  const [notOwner, setNotOwner] = useState(false);
+  useEffect(() => {
+    if (subscriptionData && !subscriptionData.is_owner) {
+      setNotOwner(true);
+    }
+  }, [subscriptionData]);
+
+  useEffect(() => {
+    if (notOwner) {
+      router.push('/subscriptions');
+    }
+  }, [notOwner, router]);
+
+  if (notOwner) {
+    return null;
+  }
+
   const subscription = {
     name: subscriptionData.name,
-    shareLink: `https://feemates.app/join/${subscriptionData.id}`,
+    shareLink: `${window.location.origin}/invites`,
     monthlyShare: Number(subscriptionData.per_person_price.toFixed(2)),
     maxMembers: subscriptionData.max_no_of_participants,
     currentMembers: subscriptionData.members_count,
@@ -103,37 +124,58 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
     const newEmails = [...inviteEmails];
     newEmails[index] = value;
     setInviteEmails(newEmails);
+
+    // Clear error for this field on change
+    const newErrors = [...inviteEmailErrors];
+    newErrors[index] = '';
+    setInviteEmailErrors(newErrors);
+  };
+
+  const validateEmail = (email: string) => {
+    // Simple email regex for demonstration
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   };
 
   const handleSendInvites = async () => {
-    const validEmails = inviteEmails.filter((email) => email.trim() && email.includes('@'));
+    const errors = inviteEmails.map((email) => {
+      if (!email.trim()) return 'Email is required';
+      if (!validateEmail(email)) return 'Invalid email address';
+      return '';
+    });
 
-    if (validEmails.length === 0) {
-      alert('Please enter at least one valid email address');
+    setInviteEmailErrors(errors);
+
+    const hasError = errors.some((err) => err);
+    if (hasError) {
       return;
     }
 
     setSendingInvites(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    console.log('Sending invites to:', validEmails);
-    console.log('Custom message:', inviteMessage);
-
-    setIsEmailSent(true);
-    setSendingInvites(false);
-
-    setTimeout(() => {
-      setIsEmailSent(false);
+    try {
+      const validEmails = inviteEmails.filter((email) => email.trim() && validateEmail(email));
+      await inviteByEmail({
+        subscription_id: Number(id),
+        emails: validEmails,
+      });
+      setIsEmailSent(true);
       setInviteEmails(['']);
-      setInviteMessage('');
-    }, 3000);
+      setInviteEmailErrors(['']);
+      setTimeout(() => {
+        setIsEmailSent(false);
+      }, 3000);
+    } catch (e) {
+      // error handled by mutation
+    } finally {
+      setSendingInvites(false);
+    }
   };
 
   const handleDone = () => {
     router.push('/subscriptions');
   };
 
-  const isFormValid = inviteEmails.some((email) => email.trim() && email.includes('@'));
+  const isFormValid = inviteEmails.some((email, idx) => email.trim() && !inviteEmailErrors[idx]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
@@ -216,24 +258,35 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
               <div className="space-y-3">
                 <Label>Email Addresses</Label>
                 {inviteEmails.map((email, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => updateEmail(index, e.target.value)}
-                      placeholder="Enter email address"
-                      className="h-12 flex-1"
-                    />
-                    {inviteEmails.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeEmailField(index)}
-                        className="p-2 text-red-600 hover:bg-red-50"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                  <div key={index} className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => updateEmail(index, e.target.value)}
+                        placeholder="Enter email address"
+                        className={`h-12 flex-1 ${inviteEmailErrors[index] ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                        aria-invalid={!!inviteEmailErrors[index]}
+                        aria-describedby={
+                          inviteEmailErrors[index] ? `email-error-${index}` : undefined
+                        }
+                      />
+                      {inviteEmails.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeEmailField(index)}
+                          className="p-2 text-red-600 hover:bg-red-50"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    {inviteEmailErrors[index] && (
+                      <p id={`email-error-${index}`} className="mt-1 text-xs text-red-600">
+                        {inviteEmailErrors[index]}
+                      </p>
                     )}
                   </div>
                 ))}
@@ -252,17 +305,7 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="inviteMessage">Custom Message (Optional)</Label>
-                <textarea
-                  id="inviteMessage"
-                  value={inviteMessage}
-                  onChange={(e) => setInviteMessage(e.target.value)}
-                  placeholder="Add a personal message to your invitation..."
-                  className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-20 w-full resize-none rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                  rows={3}
-                />
-              </div>
+              <div className="space-y-2"></div>
 
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
                 <h4 className="mb-1 text-sm font-medium text-blue-900">Invitation Preview</h4>

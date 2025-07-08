@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useInviteByEmail } from '../api/useInviteByEmail';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -101,8 +102,9 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [inviteEmails, setInviteEmails] = useState<string[]>(['']);
-  const [inviteMessage, setInviteMessage] = useState('');
+  const [inviteEmailErrors, setInviteEmailErrors] = useState<string[]>(['']);
   const [sendingInvites, setSendingInvites] = useState(false);
+  const { mutateAsync: inviteByEmail, isOffline } = useInviteByEmail();
   const moreMenuRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -183,7 +185,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
   };
 
   const handleShareLink = () => {
-    const shareUrl = `${window.location.origin}/join/subscription-${subscription.id}`;
+    const shareUrl = `${window.location.origin}/invites`;
     if (navigator.share) {
       navigator.share({
         title: `Join ${subscription.name} subscription`,
@@ -225,37 +227,52 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
     const newEmails = [...inviteEmails];
     newEmails[index] = value;
     setInviteEmails(newEmails);
+
+    // Clear error for this field on change
+    const newErrors = [...inviteEmailErrors];
+    newErrors[index] = '';
+    setInviteEmailErrors(newErrors);
+  };
+
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   };
 
   const handleSendInvites = async () => {
-    const validEmails = inviteEmails.filter((email) => email.trim() && email.includes('@'));
+    const errors = inviteEmails.map((email) => {
+      if (!email.trim()) return 'Email is required';
+      if (!validateEmail(email)) return 'Invalid email address';
+      return '';
+    });
 
-    if (validEmails.length === 0) {
-      alert('Please enter at least one valid email address');
+    setInviteEmailErrors(errors);
+
+    const hasError = errors.some((err) => err);
+    if (hasError) {
       return;
     }
 
     setSendingInvites(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    console.log('Sending invites to:', validEmails);
-    console.log('Custom message:', inviteMessage);
-
-    alert(`Invitations sent to ${validEmails.length} email${validEmails.length > 1 ? 's' : ''}!`);
-
-    // Reset form
-    setInviteEmails(['']);
-    setInviteMessage('');
-    setShowInviteModal(false);
-    setSendingInvites(false);
+    try {
+      const validEmails = inviteEmails.filter((email) => email.trim() && validateEmail(email));
+      await inviteByEmail({
+        subscription_id: Number(id),
+        emails: validEmails,
+      });
+      setInviteEmails(['']);
+      setInviteEmailErrors(['']);
+      setShowInviteModal(false);
+    } catch (e) {
+      // error handled by mutation
+    } finally {
+      setSendingInvites(false);
+    }
   };
 
   const closeInviteModal = () => {
     setShowInviteModal(false);
     setInviteEmails(['']);
-    setInviteMessage('');
   };
 
   const availableSlots = Number(subscription.maxMembers) - Number(subscription.members);
@@ -385,23 +402,34 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
               <div className="space-y-3">
                 <Label>Email Addresses</Label>
                 {inviteEmails.map((email, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => updateEmail(index, e.target.value)}
-                      placeholder="Enter email address"
-                      className="flex-1"
-                    />
-                    {inviteEmails.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeEmailField(index)}
-                        className="p-2 text-red-600 hover:bg-red-50"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                  <div key={index} className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => updateEmail(index, e.target.value)}
+                        placeholder="Enter email address"
+                        className={`flex-1 ${inviteEmailErrors[index] ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                        aria-invalid={!!inviteEmailErrors[index]}
+                        aria-describedby={
+                          inviteEmailErrors[index] ? `email-error-${index}` : undefined
+                        }
+                      />
+                      {inviteEmails.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeEmailField(index)}
+                          className="p-2 text-red-600 hover:bg-red-50"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    {inviteEmailErrors[index] && (
+                      <p id={`email-error-${index}`} className="mt-1 text-xs text-red-600">
+                        {inviteEmailErrors[index]}
+                      </p>
                     )}
                   </div>
                 ))}
@@ -419,17 +447,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="inviteMessage">Custom Message (Optional)</Label>
-                <textarea
-                  id="inviteMessage"
-                  value={inviteMessage}
-                  onChange={(e) => setInviteMessage(e.target.value)}
-                  placeholder="Add a personal message to your invitation..."
-                  className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-20 w-full resize-none rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                  rows={3}
-                />
-              </div>
+              <div className="space-y-2"></div>
 
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
                 <h4 className="mb-1 text-sm font-medium text-blue-900">Invitation Preview</h4>
