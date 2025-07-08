@@ -43,8 +43,8 @@ export interface GetSubscriptionsResponse {
 export interface GetSubscriptionsParams {
   page?: number;
   limit?: number;
-  own_subscription?: boolean;
   name?: string;
+  type?: 'owner' | 'member' | 'all';
 }
 
 const getSubscriptionsApi = async (
@@ -54,9 +54,8 @@ const getSubscriptionsApi = async (
 
   if (params.page) searchParams.append('page', params.page.toString());
   if (params.limit) searchParams.append('limit', params.limit.toString());
-  if (params.own_subscription !== undefined)
-    searchParams.append('own_subscription', params.own_subscription.toString());
   if (params.name) searchParams.append('name', params.name);
+  searchParams.append('type', params.type ?? 'all');
 
   const data = await apiClient.get(`/subscriptions?${searchParams.toString()}`);
   return data as unknown as GetSubscriptionsResponse;

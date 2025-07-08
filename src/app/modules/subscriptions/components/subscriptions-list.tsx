@@ -31,6 +31,7 @@ export function SubscriptionsList() {
     useGetSubscriptionsList({
       name: debouncedSearchTerm || undefined,
       limit: 15,
+      type: 'all',
     });
 
   const { ref, inView } = useInView({

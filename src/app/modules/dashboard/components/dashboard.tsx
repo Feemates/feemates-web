@@ -41,7 +41,7 @@ export function Dashboard() {
     error: ownedError,
     refetch: refetchOwned,
   } = useGetSubscriptionsList({
-    own_subscription: true,
+    type: 'owner',
     name: searchQuery || undefined,
     limit: 10,
   });
@@ -56,7 +56,7 @@ export function Dashboard() {
     error: joinedError,
     refetch: refetchJoined,
   } = useGetSubscriptionsList({
-    own_subscription: false,
+    type: 'member',
     name: searchQuery || undefined,
     limit: 10,
   });
