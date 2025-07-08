@@ -3,11 +3,28 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Share2, UserPlus } from 'lucide-react';
 
+export interface OverviewSubscription {
+  id: number;
+  name: string;
+  description: string;
+  monthlyCost: string;
+  members: number;
+  maxMembers: number;
+  yourShare: string;
+  status: string;
+  owner: string;
+  isOwner: boolean;
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+}
+
 interface OverviewTabContentProps {
-  subscription: any;
+  subscription: OverviewSubscription;
   formatDate: (dateString: string) => string;
   handleInviteMembers: () => void;
   handleShareLink: () => void;
+  availableSlots: number;
 }
 
 export function OverviewTabContent({
@@ -15,6 +32,7 @@ export function OverviewTabContent({
   formatDate,
   handleInviteMembers,
   handleShareLink,
+  availableSlots,
 }: OverviewTabContentProps) {
   return (
     <div className="space-y-6">
@@ -68,7 +86,7 @@ export function OverviewTabContent({
           )}
         </CardContent>
       </Card>
-      {subscription.isOwner && subscription.status !== 'expired' && (
+      {subscription.isOwner && subscription.status !== 'expired' && availableSlots > 0 && (
         <div className="flex space-x-3">
           <Button onClick={handleInviteMembers} className="flex-1">
             <UserPlus className="mr-2 h-4 w-4" />

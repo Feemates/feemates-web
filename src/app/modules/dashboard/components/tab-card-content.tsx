@@ -66,7 +66,9 @@ export function TabCardContent({
               </div>
               <div>
                 <p className="mb-1 text-sm text-gray-500">Members</p>
-                <p className="font-semibold text-gray-900">{subscription.members_count}</p>
+                <p className="font-semibold text-gray-900">
+                  {subscription.members_count + '/' + subscription.max_no_of_participants}
+                </p>
               </div>
               <div>
                 <p className="mb-1 text-sm text-gray-500">Your share</p>

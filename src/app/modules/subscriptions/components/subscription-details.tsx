@@ -102,6 +102,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
     startDate: subscriptionData.startDate,
     endDate: subscriptionData.endDate,
     createdAt: subscriptionData.createdAt,
+    nextPaymentDate: subscriptionData.member?.next_due_date,
   };
 
   const handleBackClick = () => {
@@ -421,13 +422,20 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
               <p className="text-sm text-gray-500">Members</p>
             </CardContent>
           </Card>
-          <Card className="border-0 bg-white shadow-sm">
-            <CardContent className="p-4 text-center">
-              <Calendar className="mx-auto mb-2 h-6 w-6 text-purple-600" />
-              <p className="text-sm font-bold text-gray-900">Apr 10</p>
-              <p className="text-sm text-gray-500">Next payment</p>
-            </CardContent>
-          </Card>
+          {subscription?.nextPaymentDate && (
+            <Card className="border-0 bg-white shadow-sm">
+              <CardContent className="p-4 text-center">
+                <Calendar className="mx-auto mb-2 h-6 w-6 text-purple-600" />
+                <p className="text-sm font-bold text-gray-900">
+                  {new Date(subscription.nextPaymentDate).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </p>
+                <p className="text-sm text-gray-500">Next payment</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Tabs */}
@@ -471,6 +479,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
             formatDate={formatDate}
             handleInviteMembers={handleInviteMembers}
             handleShareLink={handleShareLink}
+            availableSlots={availableSlots}
           />
         )}
 

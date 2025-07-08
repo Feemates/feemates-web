@@ -19,6 +19,9 @@ export interface SubscriptionData {
   deletedAt: string | null;
   createdAt: string;
   is_owner: boolean;
+  member: {
+    next_due_date: string;
+  };
   owner: {
     id: number;
     name: string;

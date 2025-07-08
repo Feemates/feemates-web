@@ -75,9 +75,9 @@ export function Dashboard() {
               <Bell className="h-6 w-6 text-gray-600" />
               <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500"></div>
             </div> */}
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
+            {/* <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
               <User className="h-6 w-6 text-gray-600" />
-            </div>
+            </div> */}
           </div>
         </div>
       </header>
