@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
 import { useAuthStore } from '@/store/auth-store';
+import { EngagespotNotification } from '@/lib/engagespot-notification';
 
 // Mock data for subscriptions
 const subscriptions = [
@@ -81,10 +82,11 @@ export function Dashboard() {
             <h1 className="text-xl font-bold text-gray-900">Feemates</h1>
           </div>
           <div className="flex items-center space-x-3">
-            <div className="relative">
+            {userDetails?.email && <EngagespotNotification userId={userDetails?.email} />}
+            {/* <div className="relative">
               <Bell className="h-6 w-6 text-gray-600" />
               <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500"></div>
-            </div>
+            </div> */}
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
               <User className="h-6 w-6 text-gray-600" />
             </div>
