@@ -24,13 +24,11 @@ export const useLeaveBundle = () => {
       const response = await apiClient.patch(
         `/subscriptions/${subscriptionId}/members/${memberId}/leave`
       );
-      return response.data;
+      return response;
     },
-    onSuccess: (data, variables) => {
-      // Invalidate member list query
-
-      // Show success message
-      toast.success(data.message || 'You have left the subscription');
+    onSuccess: (response) => {
+      //@ts-ignore
+      toast.success(response?.message || 'You have left the subscription');
       router.push('/dashboard');
     },
     onError: (error: any) => {

@@ -23,6 +23,7 @@ export interface SubscriptionData {
   member: {
     next_due_date: string;
     user_id: number;
+    id: number;
   };
   owner: {
     id: number;

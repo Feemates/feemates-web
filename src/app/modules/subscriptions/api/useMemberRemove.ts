@@ -23,9 +23,11 @@ export const useMemberRemove = () => {
       const response = await apiClient.patch(
         `/subscriptions/${subscriptionId}/members/${memberId}/remove`
       );
-      return response.data;
+
+      // Return the full response instead of just response.data
+      return response;
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (response, variables) => {
       // Invalidate member list query
       queryClient.invalidateQueries({
         queryKey: ['member-list', variables.subscriptionId],
@@ -35,8 +37,8 @@ export const useMemberRemove = () => {
         queryKey: ['subscription', variables.subscriptionId.toString()],
       });
 
-      // Show success message
-      toast.success(data.message || 'Participant removed successfully');
+      //@ts-ignore
+      toast.success(response?.message || 'Participant removed successfully');
     },
     onError: (error: any) => {
       // Handle different types of errors
