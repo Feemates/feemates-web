@@ -373,24 +373,6 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
                   </>
                 )}
               </Button>
-
-              {isEmailSent && (
-                <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-3">
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <p className="text-sm font-medium text-green-800">
-                      Invitations sent successfully to{' '}
-                      {inviteEmails.filter((email) => email.trim() && email.includes('@')).length}{' '}
-                      recipient
-                      {inviteEmails.filter((email) => email.trim() && email.includes('@')).length >
-                      1
-                        ? 's'
-                        : ''}
-                      !
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
