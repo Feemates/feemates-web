@@ -13,10 +13,13 @@ import { useRouter } from 'nextjs-toploader/app';
 import { toast } from '@/lib/toast';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 
 export function SubscriptionsList() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'expired'>('all');
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   // Debounced search term
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
@@ -34,6 +37,7 @@ export function SubscriptionsList() {
       name: debouncedSearchTerm || undefined,
       limit: 15,
       type: 'all',
+      status: statusFilter,
     });
 
   const { ref, inView } = useInView({
@@ -107,7 +111,7 @@ export function SubscriptionsList() {
           <Search className="absolute top-3 left-3 h-5 w-5 text-gray-400" />
           <Input
             placeholder="Search bundles..."
-            className="h-12 bg-white pr-12 pl-10"
+            className="h-12 bg-white pr-14 pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -115,7 +119,7 @@ export function SubscriptionsList() {
             <Button
               variant="ghost"
               size="sm"
-              className="absolute top-2 right-2 h-8 w-8 p-0"
+              className="absolute top-2 right-8 h-8 w-8 p-0"
               onClick={() => setSearchTerm('')}
               tabIndex={-1}
               aria-label="Clear search"
@@ -123,6 +127,39 @@ export function SubscriptionsList() {
               <X className="h-4 w-4" />
             </Button>
           )}
+          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant={statusFilter === 'all' ? 'ghost' : 'secondary'}
+                size="sm"
+                className="absolute top-2 right-2 h-8 w-8 p-0"
+                aria-label="Filter status"
+              >
+                <Filter className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-40 p-0">
+              <div className="flex flex-col">
+                {[
+                  { label: 'All', value: 'all' },
+                  { label: 'Active', value: 'active' },
+                  { label: 'Expired', value: 'expired' },
+                ].map((option) => (
+                  <Button
+                    key={option.value}
+                    variant={statusFilter === option.value ? 'secondary' : 'ghost'}
+                    className="justify-start rounded-none px-4 py-2"
+                    onClick={() => {
+                      setStatusFilter(option.value as 'all' | 'active' | 'expired');
+                      setPopoverOpen(false);
+                    }}
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
         {/* Loading state */}
         {isLoading && (
