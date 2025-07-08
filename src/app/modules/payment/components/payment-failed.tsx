@@ -62,7 +62,7 @@ export const PaymentFailed = () => {
               }`}
             >
               <h1 className="mb-4 text-4xl font-bold text-gray-900">Payment Failed</h1>
-              <p className="mb-8 text-xl text-gray-600">We couldn't process your payment</p>
+              <p className="mb-8 text-xl text-gray-600">We couldn&apos;t process your payment</p>
             </div>
           </div>
 
