@@ -10,10 +10,13 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "axios": "^1.10.0",
     "next": "15.3.3",
     "prettier-plugin-tailwindcss": "^0.6.12",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "zod": "^3.25.67",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
