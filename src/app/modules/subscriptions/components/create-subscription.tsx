@@ -191,6 +191,13 @@ export function CreateSubscription() {
                             placeholder="0.00"
                             className="h-12 pl-8"
                             {...field}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              // Allow empty or valid number with up to 2 decimals
+                              if (value === '' || /^\d+(\.\d{0,2})?$/.test(value)) {
+                                field.onChange(value);
+                              }
+                            }}
                           />
                         </div>
                       </FormControl>
