@@ -186,11 +186,11 @@ export function SubscriptionsList() {
                     </div>
                   </div>
 
-                  {subscription.description && (
+                  {/* {subscription.description && (
                     <div className="mb-3">
                       <p className="text-sm text-gray-600">{subscription.description}</p>
                     </div>
-                  )}
+                  )} */}
 
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-gray-500">

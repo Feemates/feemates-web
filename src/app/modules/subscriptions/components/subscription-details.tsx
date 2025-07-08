@@ -575,7 +575,9 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
                 </div>
                 {subscription.description && (
                   <div className="border-t pt-2">
-                    <span className="mb-2 block text-gray-600">Description</span>
+                    <span className="mb-2 line-clamp-1 block overflow-hidden break-all text-gray-600">
+                      Description
+                    </span>
                     <p className="text-sm text-gray-900">{subscription.description}</p>
                   </div>
                 )}
