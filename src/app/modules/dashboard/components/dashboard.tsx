@@ -94,12 +94,10 @@ export function Dashboard() {
                     <AlertTriangle className="h-5 w-5 text-orange-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="mb-1 font-medium text-orange-900">
-                      Bank Account Verification Pending
-                    </h3>
+                    <h3 className="mb-1 font-medium text-orange-900">Verification Pending</h3>
                     <p className="mb-3 text-sm text-orange-800">
-                      Verify your bank account to enable secure payments and withdrawals. This helps
-                      us process your subscription payments safely.
+                      Verify your bank account to create subscriptions and enable secure payments
+                      and withdrawals
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <Button
@@ -144,11 +142,8 @@ export function Dashboard() {
                     <AlertTriangle className="h-5 w-5 text-yellow-600" />
                   </div>
                   <div>
-                    <h3 className="mb-1 font-medium text-yellow-900">KYC Approval Pending</h3>
-                    <p className="text-sm text-yellow-800">
-                      Your KYC details have been submitted and are pending admin approval. You’ll be
-                      notified once your verification is complete.
-                    </p>
+                    <h3 className="mb-1 font-medium text-yellow-900">Approval Pending</h3>
+                    <p className="text-sm text-yellow-800">KYC details pending approval.</p>
                   </div>
                 </div>
                 <div className="absolute top-1 right-0">
