@@ -126,7 +126,13 @@ export function MemberTabContent({
 
         const avatar = (
           <Avatar className="h-10 w-10">
-            {member.user?.avatar ? <AvatarImage src={member?.user?.avatar} alt={name} /> : null}
+            {member.user?.avatar ? (
+              <AvatarImage
+                className="object-cover object-center"
+                src={member?.user?.avatar}
+                alt={name}
+              />
+            ) : null}
             <AvatarFallback>{getInitials(name)}</AvatarFallback>
           </Avatar>
         );
