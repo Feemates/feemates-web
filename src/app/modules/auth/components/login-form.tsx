@@ -1,5 +1,8 @@
 'use client';
 import { useState } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
+import { useAuthStore } from '@/store/auth-store';
+import { toast } from '@/lib/toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -27,6 +30,7 @@ import { Eye, EyeOff, Mail, Lock, Loader2, WifiOff, Wifi } from 'lucide-react';
 import { GoogleIcon } from '@/components/common/google-icon';
 import { useRouter } from 'nextjs-toploader/app';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { env } from '@/config/env';
 
 const formSchema = z.object({
   email: z.string().email({
@@ -46,6 +50,7 @@ export function LoginForm() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const loginMutation = useLogin();
   const { isOffline } = useNetworkStatus();
+  const { setToken, setUserId, setUserDetails } = useAuthStore();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(formSchema),
@@ -56,12 +61,63 @@ export function LoginForm() {
     },
   });
 
-  const handleGoogleLogin = async () => {
-    setIsGoogleLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log('Google login attempt');
-    router.push('/dashboard');
-    setIsGoogleLoading(false);
+  const googleLogin = useGoogleLogin({
+    flow: 'implicit',
+    onSuccess: async (codeResponse) => {
+      console.log(codeResponse);
+      // try {
+      //   setIsGoogleLoading(true);
+
+      //   // Send the authorization code to your backend
+      //   const response = await fetch(`${env?.NEXT_PUBLIC_BASE_API_URL}/auth/google/callback`, {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //     body: JSON.stringify({
+      //       access_token: codeResponse.access_token,
+      //     }),
+      //   });
+
+      //   if (!response.ok) {
+      //     const errorData = await response.json();
+      //     throw new Error(errorData.message || 'Google authentication failed');
+      //   }
+
+      //   const data = await response.json();
+
+      //   // Store tokens and user details
+      //   setToken(data.access_token, data.refresh_token);
+      //   setUserId(data.user.id.toString());
+      //   setUserDetails(data.user);
+
+      //   // Handle redirection
+      //   setTimeout(() => {
+      //     if (data.invited_subscriptions && data.invited_subscriptions > 0) {
+      //       router.push('/invites');
+      //     } else {
+      //       router.push('/dashboard');
+      //     }
+      //   }, 100);
+
+      //   // Show success message
+      //   toast.success(data.message || 'Login successful! Welcome back.');
+      // } catch (error: any) {
+      //   toast.error(error);
+      // } finally {
+      //   setIsGoogleLoading(false);
+      // }
+    },
+    onError: (error) => {
+      toast.error(error);
+      setIsGoogleLoading(false);
+    },
+  });
+
+  const handleGoogleLogin = () => {
+    if (!isOffline) {
+      googleLogin();
+    }
   };
 
   const onSubmit = async (values: LoginFormData) => {
