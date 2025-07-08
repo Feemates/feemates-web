@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ArrowLeft, CheckCircle, User, CreditCard, Building } from 'lucide-react';
+import { useRouter } from 'nextjs-toploader/app';
 
 const personalInfoSchema = z.object({
   firstName: z.string().min(2, {
@@ -73,6 +74,7 @@ const bankAccountSchema = z.object({
 });
 
 export function KycVerification() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
 
   const personalForm = useForm<z.infer<typeof personalInfoSchema>>({
@@ -107,7 +109,7 @@ export function KycVerification() {
   });
 
   const handleBackClick = () => {
-    window.location.href = '/dashboard';
+    router.push('/dashboard');
   };
 
   const handleNextStep = async () => {
@@ -138,7 +140,7 @@ export function KycVerification() {
     alert(
       "Bank account verification submitted successfully! We'll send micro-deposits to your account within 1-2 business days for verification."
     );
-    window.location.href = '/dashboard';
+    router.push('/dashboard');
   };
 
   return (

@@ -24,6 +24,7 @@ import {
 import { ArrowLeft, Mail, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useForgotPassword } from '../api/useForgotPassword';
 import { errorParser } from '@/lib/error-parser';
+import { useRouter } from 'nextjs-toploader/app';
 
 const formSchema = z.object({
   email: z.string().email({
@@ -32,6 +33,7 @@ const formSchema = z.object({
 });
 
 export function ForgotPasswordForm() {
+  const router = useRouter();
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const { mutate: forgotPassword, isPending } = useForgotPassword();
 
@@ -62,7 +64,7 @@ export function ForgotPasswordForm() {
   };
 
   const handleBackToLogin = () => {
-    window.location.href = '/';
+    router.push('/');
   };
 
   return (

@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Music, Tv, Gamepad2, Users, DollarSign } from 'lucide-react';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
+import { useRouter } from 'nextjs-toploader/app';
 
 // Mock invites data
 const invites = [
@@ -47,8 +48,9 @@ const invites = [
 ];
 
 export function InvitesList() {
+  const router = useRouter();
   const handleBackClick = () => {
-    window.location.href = '/dashboard';
+    router.push('/dashboard');
   };
 
   const handleJoinSubscription = (inviteId: number) => {

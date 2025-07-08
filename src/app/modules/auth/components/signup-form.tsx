@@ -26,6 +26,7 @@ import { Eye, EyeOff, Mail, Lock, User, Loader2, WifiOff, Wifi } from 'lucide-re
 import { GoogleIcon } from '@/components/common/google-icon';
 import { useSignup } from '../api/useSignup';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { useRouter } from 'nextjs-toploader/app';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -50,6 +51,7 @@ const formSchema = z.object({
 });
 
 export function SignupForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
@@ -84,7 +86,7 @@ export function SignupForm() {
   };
 
   const handleSigninClick = () => {
-    window.location.href = '/';
+    router.push('/');
   };
 
   return (
