@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -71,7 +72,7 @@ const payoutData = {
 };
 
 export function Profile() {
-  const { reset } = useAuthStore();
+  const { reset, userDetails } = useAuthStore();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -173,22 +174,36 @@ export function Profile() {
           <CardContent className="p-6">
             <div className="mb-4 flex items-center space-x-4">
               <div className="relative">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100">
-                  <span className="text-2xl font-bold text-blue-600">{userData.avatar}</span>
-                </div>
-                <button className="absolute -right-1 -bottom-1 flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 shadow-lg">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage
+                    src={userDetails?.avatar || ''}
+                    alt={userDetails?.name || 'Profile'}
+                  />
+                  <AvatarFallback className="bg-blue-100 text-2xl font-bold text-blue-600">
+                    {userDetails?.name?.charAt(0).toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                {/* <button className="absolute -right-1 -bottom-1 flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 shadow-lg">
                   <Camera className="h-4 w-4 text-white" />
-                </button>
+                </button> */}
               </div>
               <div className="flex-1">
                 <div className="mb-1 flex items-center space-x-2">
-                  <h2 className="text-xl font-bold text-gray-900">{userData.name}</h2>
+                  <h2 className="text-xl font-bold text-gray-900">{userDetails?.name || 'User'}</h2>
                   <Button onClick={handleEditProfile} variant="ghost" size="sm" className="p-1">
                     <Edit className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="mb-1 text-gray-600">{userData.email}</p>
-                <p className="text-sm text-gray-500">Member since {userData.joinDate}</p>
+                <p className="mb-1 text-gray-600">{userDetails?.email || 'No email'}</p>
+                <p className="text-sm text-gray-500">
+                  Member since{' '}
+                  {userDetails?.createdAt
+                    ? new Date(userDetails.createdAt).toLocaleDateString('en-US', {
+                        month: 'long',
+                        year: 'numeric',
+                      })
+                    : 'Unknown'}
+                </p>
               </div>
             </div>
 

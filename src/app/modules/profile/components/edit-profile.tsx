@@ -2,9 +2,11 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useRef, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   Form,
   FormControl,
@@ -14,41 +16,96 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { ArrowLeft, Camera, User } from 'lucide-react';
+import { useGetMe } from '@/api/get-user';
+import { useUploadFile } from '@/api/s3-operations';
+import { useUpdateProfile } from '@/app/modules/profile/api/update-profile';
+import { toast } from '@/lib/toast';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'nextjs-toploader/app';
 
 const formSchema = z.object({
-  firstName: z.string().min(2, {
-    message: 'First name must be at least 2 characters.',
-  }),
-  lastName: z.string().min(2, {
-    message: 'Last name must be at least 2 characters.',
+  name: z.string().min(2, {
+    message: 'Name must be at least 2 characters.',
   }),
   email: z.string().email({
     message: 'Please enter a valid email address.',
   }),
-  phone: z.string().min(10, {
-    message: 'Phone number must be at least 10 characters.',
-  }),
 });
 
 export function EditProfile() {
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const { data: userData, isLoading } = useGetMe();
+  const uploadFile = useUploadFile();
+  const updateProfile = useUpdateProfile();
+  const queryClient = useQueryClient();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: 'Alex',
-      lastName: 'Johnson',
-      email: 'alex.johnson@example.com',
-      phone: '+1 (555) 123-4567',
+      name: '',
+      email: '',
     },
   });
 
+  // Prefill form with user data when loaded
+  useEffect(() => {
+    if (userData?.user) {
+      form.reset({
+        name: userData.user.name || '',
+        email: userData.user.email || '',
+      });
+      setProfileImage(userData.user.avatar);
+    }
+  }, [userData, form]);
+
   const handleBackClick = () => {
-    window.location.href = '/profile';
+    router.push('/profile');
+  };
+
+  const handleImageUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      // Create object URL for preview
+      const objectUrl = URL.createObjectURL(file);
+      setProfileImage(objectUrl);
+    }
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log('Updating profile:', values);
-    alert('Profile updated successfully!');
-    window.location.href = '/profile';
+    try {
+      let avatarUrl = userData?.user?.avatar || undefined;
+
+      // If there's a new image file, upload it first
+      if (selectedFile) {
+        const uploadResult = await uploadFile.mutateAsync({ file: selectedFile });
+        console.log(uploadResult);
+        avatarUrl = uploadResult.file_url;
+      }
+
+      // Update profile
+      await updateProfile.mutateAsync({
+        name: values.name,
+        ...(avatarUrl && { avatar: avatarUrl }),
+      });
+
+      toast.success('Profile updated successfully!');
+
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+
+      router.push('/profile');
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -69,16 +126,31 @@ export function EditProfile() {
         <Card className="mb-6 border-0 bg-white shadow-sm">
           <CardContent className="p-6 text-center">
             <div className="relative mb-4 inline-block">
-              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-blue-100">
-                <span className="text-3xl font-bold text-blue-600">AJ</span>
-              </div>
-              <button className="absolute -right-2 -bottom-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 shadow-lg">
+              <Avatar className="h-32 w-32">
+                <AvatarImage
+                  src={profileImage || undefined}
+                  alt="Profile"
+                  className="object-cover"
+                />
+                <AvatarFallback className="bg-blue-100 text-3xl font-bold text-blue-600">
+                  {userData?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <button
+                type="button"
+                onClick={handleImageUpload}
+                className="absolute -right-2 -bottom-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 shadow-lg transition-colors hover:bg-blue-700"
+              >
                 <Camera className="h-5 w-5 text-white" />
               </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
             </div>
-            <Button variant="outline" size="sm">
-              Change Photo
-            </Button>
           </CardContent>
         </Card>
 
@@ -92,43 +164,14 @@ export function EditProfile() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First Name</FormLabel>
-                        <FormControl>
-                          <Input className="h-12" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last Name</FormLabel>
-                        <FormControl>
-                          <Input className="h-12" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email Address</FormLabel>
+                      <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input type="email" className="h-12" {...field} />
+                        <Input className="h-12" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -137,12 +180,12 @@ export function EditProfile() {
 
                 <FormField
                   control={form.control}
-                  name="phone"
+                  name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
+                      <FormLabel>Email Address</FormLabel>
                       <FormControl>
-                        <Input type="tel" className="h-12" {...field} />
+                        <Input type="email" className="h-12" disabled {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -155,11 +198,16 @@ export function EditProfile() {
                     variant="outline"
                     onClick={handleBackClick}
                     className="flex-1"
+                    disabled={uploadFile.isPending || updateProfile.isPending}
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" className="flex-1">
-                    Save Changes
+                  <Button
+                    type="submit"
+                    className="flex-1"
+                    disabled={uploadFile.isPending || updateProfile.isPending || isLoading}
+                  >
+                    {uploadFile.isPending || updateProfile.isPending ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
               </form>
