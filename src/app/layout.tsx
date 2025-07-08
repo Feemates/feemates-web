@@ -7,6 +7,7 @@ import { Suspense } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import NextTopLoader from 'nextjs-toploader';
 import { NetworkStatusBanner } from '@/components/common/network-status-banner';
+import { PWAInstallPrompt } from '@/components/layout/pwa-install-prompt';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -33,7 +34,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="shortcut icon" href="/favicon.ico" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -41,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={inter.className}>
         <NextTopLoader color="#393766" showSpinner={false} />
         <NetworkStatusBanner />
+        <PWAInstallPrompt />
         <QueryProvider>
           <Suspense>{children}</Suspense>
         </QueryProvider>
