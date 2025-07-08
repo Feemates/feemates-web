@@ -234,6 +234,16 @@ export function MemberTabContent({
                       <span className="ml-1 capitalize">{memberStatus}</span>
                     </Badge>
                   </div>
+                  {memberStatus === 'active' && role !== 'Owner' && member?.next_due_date && (
+                    <p className="text-xs text-gray-500">
+                      Next due:{' '}
+                      {new Date(member.next_due_date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric',
+                      })}
+                    </p>
+                  )}
                   {subscription.isOwner &&
                     role !== 'Owner' &&
                     memberStatus === 'invited' &&

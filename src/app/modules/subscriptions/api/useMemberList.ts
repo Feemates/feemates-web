@@ -16,6 +16,7 @@ export interface MemberItem {
   invited_email: string;
   status: string;
   user_type: string;
+  next_due_date: string;
   payment_status: string;
   price: number;
   joined_at: string | null;
