@@ -12,18 +12,17 @@ import {
   Loader2,
 } from 'lucide-react';
 
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useMemberList } from '../api/useMemberList';
 import { useInView } from 'react-intersection-observer';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/helper-functions';
+import { useResentInvite } from '../api/useResentInvite';
 
 interface MemberTabContentProps {
   subscriptionId: number;
   subscription: any;
   availableSlots: number;
-  resendingInvite: number | null;
-  handleResendInvite: (memberId: number, memberName: string, memberEmail: string) => void;
   handleInviteMembers: () => void;
 }
 
@@ -31,12 +30,20 @@ export function MemberTabContent({
   subscriptionId,
   subscription,
   availableSlots,
-  resendingInvite,
-  handleResendInvite,
   handleInviteMembers,
 }: MemberTabContentProps) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
     useMemberList(subscriptionId);
+
+  const [resendingInvite, setResendingInvite] = useState<number | null>(null);
+  const { mutate: resendInvite } = useResentInvite();
+
+  const handleResendInvite = (memberId: number) => {
+    setResendingInvite(memberId);
+    resendInvite(memberId, {
+      onSettled: () => setResendingInvite(null),
+    });
+  };
 
   // Flatten paginated data
   const members = data?.pages.flatMap((page) => page.data) || [];
@@ -170,7 +177,7 @@ export function MemberTabContent({
                   <div className="flex items-center space-x-2">
                     {memberStatus === 'invited' && (
                       <Button
-                        onClick={() => handleResendInvite(member.id, name, email)}
+                        onClick={() => handleResendInvite(member.id)}
                         size="sm"
                         variant="outline"
                         className="border-blue-200 text-blue-600 hover:bg-blue-50"

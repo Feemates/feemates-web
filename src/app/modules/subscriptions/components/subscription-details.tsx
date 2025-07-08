@@ -93,7 +93,6 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
   const router = useRouter();
   const { data: subscriptionResponse, isLoading, error } = useGetSubscription(id);
   const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'payments'>('overview');
-  const [resendingInvite, setResendingInvite] = useState<number | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [inviteEmails, setInviteEmails] = useState<string[]>(['']);
@@ -191,18 +190,6 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
       navigator.clipboard.writeText(shareUrl);
       alert('Invitation link copied to clipboard!');
     }
-  };
-
-  const handleResendInvite = async (memberId: number, memberName: string, memberEmail: string) => {
-    setResendingInvite(memberId);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    console.log(`Resending invite to ${memberName} (${memberEmail})`);
-    alert(`Invitation resent to ${memberName}!`);
-
-    setResendingInvite(null);
   };
 
   const addEmailField = () => {
@@ -507,8 +494,6 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
             subscriptionId={Number(id)}
             subscription={subscription}
             availableSlots={availableSlots}
-            resendingInvite={resendingInvite}
-            handleResendInvite={handleResendInvite}
             handleInviteMembers={handleInviteMembers}
           />
         )}
