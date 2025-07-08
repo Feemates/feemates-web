@@ -118,6 +118,18 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
     if (inviteEmails.length > 1) {
       const newEmails = inviteEmails.filter((_, i) => i !== index);
       setInviteEmails(newEmails);
+
+      // Recalculate errors for the new email list
+      const normalizedEmails = newEmails.map((email) => email.trim().toLowerCase());
+      const newErrors = newEmails.map((email, idx) => {
+        if (!email.trim()) return 'Email is required';
+        if (!validateEmail(email)) return 'Invalid email address';
+        if (normalizedEmails.filter((e) => e === normalizedEmails[idx]).length > 1) {
+          return 'Duplicate email';
+        }
+        return '';
+      });
+      setInviteEmailErrors(newErrors);
     }
   };
 
@@ -173,8 +185,7 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
         emails: validEmails,
       });
       setIsEmailSent(true);
-      setInviteEmails(['']);
-      setInviteEmailErrors(['']);
+      resetInviteForm();
       setTimeout(() => {
         setIsEmailSent(false);
       }, 3000);
@@ -183,6 +194,12 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
     } finally {
       setSendingInvites(false);
     }
+  };
+
+  // Utility to reset invite form fields and errors
+  const resetInviteForm = () => {
+    setInviteEmails(['']);
+    setInviteEmailErrors(['']);
   };
 
   const handleDone = () => {

@@ -204,6 +204,18 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
     if (inviteEmails.length > 1) {
       const newEmails = inviteEmails.filter((_, i) => i !== index);
       setInviteEmails(newEmails);
+
+      // Recalculate errors for the new email list
+      const normalizedEmails = newEmails.map((email) => email.trim().toLowerCase());
+      const newErrors = newEmails.map((email, idx) => {
+        if (!email.trim()) return 'Email is required';
+        if (!validateEmail(email)) return 'Invalid email address';
+        if (normalizedEmails.filter((e) => e === normalizedEmails[idx]).length > 1) {
+          return 'Duplicate email';
+        }
+        return '';
+      });
+      setInviteEmailErrors(newErrors);
     }
   };
 
@@ -279,6 +291,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
   const closeInviteModal = () => {
     setShowInviteModal(false);
     setInviteEmails(['']);
+    setInviteEmailErrors(['']);
   };
 
   const availableSlots = Number(subscription.maxMembers) - Number(subscription.members);
