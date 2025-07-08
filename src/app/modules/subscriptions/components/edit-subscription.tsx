@@ -21,12 +21,27 @@ import { useGetSubscription } from '../api/useGetSubscription';
 import { useUploadFile } from '@/api/s3-operations';
 import Image from 'next/image';
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: 'Subscription name must be at least 2 characters.',
-  }),
-  description: z.string().optional(),
-});
+const formSchema = z
+  .object({
+    name: z.string().min(2, {
+      message: 'Subscription name must be at least 2 characters.',
+    }),
+    description: z.string().optional(),
+    startDate: z.string(),
+    endDate: z.string().min(1, {
+      message: 'End date is required.',
+    }),
+  })
+  .refine(
+    (data) => {
+      if (!data.startDate || !data.endDate) return true;
+      return data.endDate > data.startDate;
+    },
+    {
+      message: 'End date must be after start date.',
+      path: ['endDate'],
+    }
+  );
 
 interface EditSubscriptionProps {
   id: string;
@@ -51,6 +66,8 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
     defaultValues: {
       name: '', // placeholder
       description: '',
+      startDate: '',
+      endDate: '',
     },
   });
 
@@ -60,6 +77,8 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
       form.reset({
         name: subscriptionResponse.data.name,
         description: subscriptionResponse.data.description || '',
+        startDate: new Date(subscriptionResponse.data.startDate).toISOString().split('T')[0],
+        endDate: new Date(subscriptionResponse.data.endDate).toISOString().split('T')[0],
       });
       // Set thumbnail preview if exists
       if (subscriptionResponse.data.thumbnail) {
@@ -133,18 +152,15 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
       const payload = {
         name: values.name,
         description: values.description || '',
+        endDate: new Date(values.endDate).toISOString(),
         ...(thumbnail && { thumbnail }),
       };
 
       // Set redirecting state when mutation starts
       setIsRedirecting(true);
       updateSubscriptionMutation.mutate(payload, {
-        onSettled: () => {
-          // Reset redirecting state if mutation completes (success or error)
-          // Note: On success, user will be redirected, so this mainly handles errors
-          if (updateSubscriptionMutation.isError) {
-            setIsRedirecting(false);
-          }
+        onError: () => {
+          setIsRedirecting(false);
         },
       });
     } catch (error) {
@@ -226,6 +242,30 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                       <p className="text-sm text-gray-500">
                         Optional details about the bundle or sharing arrangement
                       </p>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Date *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          className="h-12"
+                          min={
+                            form.getValues('startDate') > new Date().toISOString().split('T')[0]
+                              ? form.getValues('startDate')
+                              : new Date().toISOString().split('T')[0]
+                          }
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      <p className="text-sm text-gray-500">Must be after start date</p>
                     </FormItem>
                   )}
                 />
@@ -318,7 +358,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                     </div>
 
                     <div>
-                      <FormLabel className="text-gray-500">End Date</FormLabel>
+                      <FormLabel className="text-gray-500">Current End Date</FormLabel>
                       <Input
                         value={formatDate(subscriptionData.endDate)}
                         disabled
