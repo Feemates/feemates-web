@@ -42,7 +42,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className={inter.className}>
-        <NextTopLoader color="#393766" showSpinner={false} />
+        <NextTopLoader
+          color="#3b82f6"
+          initialPosition={0.08}
+          height={3}
+          crawl={true}
+          showSpinner={true}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #3b82f6,0 0 5px #3b82f6"
+          template={
+            '<div class="bar" role="bar"><div class="peg"></div></div><div class="spinner" role="spinner"><div class="spinner-icon"></div></div>'
+          }
+          zIndex={1600}
+        />
         <NetworkStatusBanner />
         <ServiceWorkerRegister />
         <PWAInstallPrompt />
