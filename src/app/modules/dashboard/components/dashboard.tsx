@@ -13,12 +13,21 @@ import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { JoinedTab } from './joined-tab';
 import { OwnedTab } from './owned-tab';
+import { useGetDashboard } from '@/api/dashboard-data';
 
 export function Dashboard() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showKycBanner, setShowKycBanner] = useState(true);
   const [tab, setTab] = useState<'owned' | 'joined'>('owned');
+
+  // Dashboard counts
+  const { data: dashboardData, isLoading: dashboardLoading } = useGetDashboard();
+  const dashboardCounts = {
+    owned_subscriptions: dashboardData?.owned_subscriptions ?? 0,
+    member_subscriptions: dashboardData?.member_subscriptions ?? 0,
+    invited_subscriptions: dashboardData?.invited_subscriptions ?? 0,
+  };
 
   // Get user details from auth store
   const { userDetails } = useAuthStore();
@@ -31,66 +40,9 @@ export function Dashboard() {
     }
   }, [userDetails]);
 
-  // Owned subscriptions
-  const {
-    data: ownedData,
-    fetchNextPage: fetchOwnedNext,
-    hasNextPage: ownedHasNext,
-    isFetchingNextPage: ownedFetchingNext,
-    isLoading: ownedLoading,
-    error: ownedError,
-    refetch: refetchOwned,
-  } = useGetSubscriptionsList({
-    type: 'owner',
-    name: searchQuery || undefined,
-    limit: 10,
-  });
-
-  // Joined subscriptions
-  const {
-    data: joinedData,
-    fetchNextPage: fetchJoinedNext,
-    hasNextPage: joinedHasNext,
-    isFetchingNextPage: joinedFetchingNext,
-    isLoading: joinedLoading,
-    error: joinedError,
-    refetch: refetchJoined,
-  } = useGetSubscriptionsList({
-    type: 'member',
-    name: searchQuery || undefined,
-    limit: 10,
-  });
-
-  // Refetch data when tab changes
-  useEffect(() => {
-    if (tab === 'owned') {
-      refetchOwned();
-    } else if (tab === 'joined') {
-      refetchJoined();
-    }
-  }, [tab, refetchOwned, refetchJoined]);
-
-  // Infinite scroll refs
-  const { ref: ownedRef, inView: ownedInView } = useInView({ threshold: 0, rootMargin: '100px' });
-  const { ref: joinedRef, inView: joinedInView } = useInView({ threshold: 0, rootMargin: '100px' });
-
-  useEffect(() => {
-    if (tab === 'owned' && ownedInView && ownedHasNext && !ownedFetchingNext) {
-      fetchOwnedNext();
-    }
-  }, [ownedInView, ownedHasNext, ownedFetchingNext, fetchOwnedNext, tab]);
-
-  useEffect(() => {
-    if (tab === 'joined' && joinedInView && joinedHasNext && !joinedFetchingNext) {
-      fetchJoinedNext();
-    }
-  }, [joinedInView, joinedHasNext, joinedFetchingNext, fetchJoinedNext, tab]);
-
-  // Flatten data
-  const ownedSubscriptions = ownedData?.pages.flatMap((page) => page.data) || [];
-  const joinedSubscriptions = joinedData?.pages.flatMap((page) => page.data) || [];
-  const ownedCount = ownedData?.pages?.[0]?.meta?.total || 0;
-  const joinedCount = joinedData?.pages?.[0]?.meta?.total || 0;
+  // (Owned/joined subscriptions logic removed; now handled in tab components)
+  const ownedCount = dashboardCounts.owned_subscriptions;
+  const joinedCount = dashboardCounts.member_subscriptions;
 
   const handleKycVerification = () => {
     router.push('/kyc-verification');
@@ -266,24 +218,10 @@ export function Dashboard() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="owned">
-              <OwnedTab
-                subscriptions={ownedSubscriptions}
-                isLoading={ownedLoading}
-                error={ownedError}
-                hasNextPage={ownedHasNext}
-                isFetchingNextPage={ownedFetchingNext}
-                fetchNextPageRef={ownedRef}
-              />
+              <OwnedTab />
             </TabsContent>
             <TabsContent value="joined">
-              <JoinedTab
-                subscriptions={joinedSubscriptions}
-                isLoading={joinedLoading}
-                error={joinedError}
-                hasNextPage={joinedHasNext}
-                isFetchingNextPage={joinedFetchingNext}
-                fetchNextPageRef={joinedRef}
-              />
+              <JoinedTab />
             </TabsContent>
           </Tabs>
         </div>

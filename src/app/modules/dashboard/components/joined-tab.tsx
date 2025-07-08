@@ -1,22 +1,26 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 import { TabCardContent } from './tab-card-content';
+import { useGetSubscriptionsList } from '@/app/modules/subscriptions/api/useGetSubscriptionsList';
+import { useInView } from 'react-intersection-observer';
 
-export function JoinedTab({
-  subscriptions,
-  isLoading,
-  error,
-  hasNextPage,
-  isFetchingNextPage,
-  fetchNextPageRef,
-}: {
-  subscriptions: any[];
-  isLoading: boolean;
-  error: any;
-  hasNextPage: boolean;
-  isFetchingNextPage: boolean;
-  fetchNextPageRef: (node?: Element | null) => void;
-}) {
+export function JoinedTab() {
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
+    useGetSubscriptionsList({
+      type: 'member',
+      limit: 10,
+    });
+
+  const { ref, inView } = useInView({ threshold: 0, rootMargin: '100px' });
+
+  React.useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const subscriptions = data?.pages.flatMap((page) => page.data) || [];
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
@@ -36,7 +40,7 @@ export function JoinedTab({
   return (
     <TabCardContent
       subscriptions={subscriptions}
-      fetchNextPageRef={fetchNextPageRef}
+      fetchNextPageRef={ref}
       hasNextPage={hasNextPage}
       isFetchingNextPage={isFetchingNextPage}
     />

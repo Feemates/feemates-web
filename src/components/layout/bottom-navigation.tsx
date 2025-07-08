@@ -4,12 +4,17 @@ import { useState, useEffect } from 'react';
 import { Home, List, Plus, Mail, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'nextjs-toploader/app';
+import { useGetDashboard } from '@/api/dashboard-data';
 
 type TabType = 'home' | 'subscriptions' | 'invites' | 'profile';
 
 export function BottomNavigation() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('home');
+  const { data: dashboardData } = useGetDashboard();
+  const invitedCount = dashboardData?.invited_subscriptions || 0;
+
+  console.log(dashboardData, 'invitedCount from dashboardData');
 
   // Set active tab based on current page
   useEffect(() => {
@@ -91,7 +96,9 @@ export function BottomNavigation() {
         >
           <div className="relative">
             <Mail className={`h-5 w-5 ${activeTab === 'invites' ? 'fill-current' : ''}`} />
-            <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500"></div>
+            {invitedCount > 0 && (
+              <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500"></div>
+            )}
           </div>
           <span className="text-xs font-medium">Invites</span>
         </button>
