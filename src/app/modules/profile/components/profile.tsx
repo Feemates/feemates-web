@@ -40,58 +40,13 @@ import { useRouter } from 'nextjs-toploader/app';
 import { getInitials } from '@/lib/helper-functions';
 import { useGetDashboard } from '@/api/dashboard-data';
 import { useGenerateOnboardUrl } from '@/api/verify-account';
-
-// Mock user data
-const userData = {
-  name: 'Alex Johnson',
-  email: 'alex.johnson@example.com',
-  phone: '+1 (555) 123-4567',
-  joinDate: 'March 2023',
-  avatar: 'AJ',
-  bankAccountStatus: 'pending', // pending, verified, rejected
-  memberSince: '8 months',
-  totalSavings: 247.5,
-  activeSubscriptions: 12,
-  trustScore: 4.8,
-};
-
-// Mock payout data
-const payoutData = {
-  totalEarnings: 1247.5,
-  pendingPayouts: 89.25,
-  lastPayout: {
-    amount: 156.75,
-    date: 'March 15, 2024',
-    status: 'completed',
-  },
-  monthlyEarnings: 312.4,
-  payoutHistory: [
-    { id: 1, amount: 156.75, date: 'Mar 15, 2024', status: 'completed', subscriptions: 3 },
-    { id: 2, amount: 203.5, date: 'Feb 15, 2024', status: 'completed', subscriptions: 4 },
-    { id: 3, amount: 178.25, date: 'Jan 15, 2024', status: 'completed', subscriptions: 3 },
-    { id: 4, amount: 145.8, date: 'Dec 15, 2023', status: 'completed', subscriptions: 2 },
-  ],
-  nextPayoutDate: 'April 15, 2024',
-  payoutMethod: 'Bank Account ****1234',
-};
+import Link from 'next/link';
 
 export function Profile() {
   const { reset, userDetails } = useAuthStore();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { data: dashboardData, isLoading: dashboardLoading } = useGetDashboard();
-
-  const handleEditProfile = () => {
-    router.push('/profile/edit');
-  };
-
-  const handleBankVerification = () => {
-    router.push('/kyc-verification');
-  };
-
-  const handleSettings = () => {
-    router.push('/settings');
-  };
 
   const handleSupport = () => {
     router.push('/support');
@@ -113,18 +68,6 @@ export function Profile() {
       console.error('Logout error:', error);
       setIsLoggingOut(false);
     }
-  };
-
-  const handleChangePassword = () => {
-    router.push('/change-password');
-  };
-
-  const handlePrivacyPolicy = () => {
-    router.push('/privacy-policy');
-  };
-
-  const handleTermsConditions = () => {
-    router.push('/terms-conditions');
   };
 
   const getBankStatusColor = (status: string) => {
@@ -195,9 +138,11 @@ export function Profile() {
                   <h2 className="line-clamp-2 overflow-hidden text-xl font-bold break-all text-gray-900">
                     {userDetails?.name || 'User'}
                   </h2>
-                  <Button onClick={handleEditProfile} variant="ghost" size="sm" className="p-1">
-                    <Edit className="h-4 w-4" />
-                  </Button>
+                  <Link href="/profile/edit">
+                    <Button variant="ghost" size="sm" className="p-1">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
                 <p className="mb-1 text-gray-600">{userDetails?.email || 'No email'}</p>
                 <p className="text-sm text-gray-500">
@@ -220,7 +165,7 @@ export function Profile() {
               </div>
               <div className="flex items-center space-x-2">
                 {dashboardData?.is_kyc_verified === false ? (
-                  <Button onClick={handleBankVerification} size="sm" variant="outline">
+                  <Button onClick={bankRedirection} size="sm" variant="outline">
                     Verify
                   </Button>
                 ) : dashboardData?.is_kyc_verified === true ? (
@@ -376,27 +321,25 @@ export function Profile() {
             <CardTitle className="text-lg font-semibold">Account Settings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
-            <button
-              onClick={handleEditProfile}
-              className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50"
-            >
-              <div className="flex items-center space-x-3">
-                <User className="h-5 w-5 text-gray-500" />
-                <span className="font-medium text-gray-900">Edit Profile</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
-            </button>
+            <Link href="/profile/edit">
+              <button className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50">
+                <div className="flex items-center space-x-3">
+                  <User className="h-5 w-5 text-gray-500" />
+                  <span className="font-medium text-gray-900">Edit Profile</span>
+                </div>
+                <ChevronRight className="h-5 w-5 text-gray-400" />
+              </button>
+            </Link>
 
-            <button
-              onClick={handleChangePassword}
-              className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50"
-            >
-              <div className="flex items-center space-x-3">
-                <Lock className="h-5 w-5 text-gray-500" />
-                <span className="font-medium text-gray-900">Change Password</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
-            </button>
+            <Link href="/change-password">
+              <button className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50">
+                <div className="flex items-center space-x-3">
+                  <Lock className="h-5 w-5 text-gray-500" />
+                  <span className="font-medium text-gray-900">Change Password</span>
+                </div>
+                <ChevronRight className="h-5 w-5 text-gray-400" />
+              </button>
+            </Link>
 
             <button
               onClick={bankRedirection}
@@ -454,27 +397,25 @@ export function Profile() {
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </button>
 
-            <button
-              onClick={handlePrivacyPolicy}
-              className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50"
-            >
-              <div className="flex items-center space-x-3">
-                <Shield className="h-5 w-5 text-gray-500" />
-                <span className="font-medium text-gray-900">Privacy Policy</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
-            </button>
+            <Link href="/privacy-policy">
+              <button className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50">
+                <div className="flex items-center space-x-3">
+                  <Shield className="h-5 w-5 text-gray-500" />
+                  <span className="font-medium text-gray-900">Privacy Policy</span>
+                </div>
+                <ChevronRight className="h-5 w-5 text-gray-400" />
+              </button>
+            </Link>
 
-            <button
-              onClick={handleTermsConditions}
-              className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50"
-            >
-              <div className="flex items-center space-x-3">
-                <HelpCircle className="h-5 w-5 text-gray-500" />
-                <span className="font-medium text-gray-900">Terms & Conditions</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
-            </button>
+            <Link href="/terms-conditions">
+              <button className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50">
+                <div className="flex items-center space-x-3">
+                  <HelpCircle className="h-5 w-5 text-gray-500" />
+                  <span className="font-medium text-gray-900">Terms & Conditions</span>
+                </div>
+                <ChevronRight className="h-5 w-5 text-gray-400" />
+              </button>
+            </Link>
           </CardContent>
         </Card>
 

@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useTemplateList } from '../api/useTemplateList';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export const SelectTemplate = () => {
   const router = useRouter();
@@ -29,12 +30,12 @@ export const SelectTemplate = () => {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  useEffect(() => {
+    router.prefetch('/create-subscription'); // Preload create subscription page
+  }, [router]);
+
   const handleBackClick = () => {
     router.back();
-  };
-
-  const handleCreateCustom = () => {
-    router.push('/create-subscription');
   };
 
   const handleSelectTemplate = (template: any) => {
@@ -105,12 +106,11 @@ export const SelectTemplate = () => {
         <div className="mb-8 text-center">
           <h2 className="mb-2 text-lg font-semibold text-gray-900">Create a custom bundle</h2>
           <p className="mb-6 text-gray-600">Add your own bundle</p>
-          <Button
-            onClick={handleCreateCustom}
-            className="h-12 w-full max-w-sm text-[16px] font-medium text-white"
-          >
-            Create Bundle
-          </Button>
+          <Link href="/create-subscription">
+            <Button className="h-12 w-full max-w-sm text-[16px] font-medium text-white">
+              Create Bundle
+            </Button>
+          </Link>
         </div>
 
         {/* Divider */}
