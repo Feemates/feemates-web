@@ -3,6 +3,51 @@ import { env } from '@/config/env';
 import { useAuthStore } from '@/store/auth-store';
 import { toast } from '@/lib/toast';
 
+// Network error types
+export const NETWORK_ERROR_TYPES = {
+  TIMEOUT: 'NETWORK_TIMEOUT',
+  NO_CONNECTION: 'NO_CONNECTION',
+  SERVER_ERROR: 'SERVER_ERROR',
+} as const;
+
+export type NetworkErrorType = (typeof NETWORK_ERROR_TYPES)[keyof typeof NETWORK_ERROR_TYPES];
+
+export interface NetworkError extends Error {
+  type: NetworkErrorType;
+  originalError?: any;
+}
+
+// Create a custom network error
+const createNetworkError = (
+  type: NetworkErrorType,
+  message: string,
+  originalError?: any
+): NetworkError => {
+  const error = new Error(message) as NetworkError;
+  error.type = type;
+  error.originalError = originalError;
+  return error;
+};
+
+// Check if error is a network connectivity issue
+export const isNetworkError = (error: any): boolean => {
+  if (!error) return false;
+
+  // Check for axios network errors
+  if (error.code === 'NETWORK_ERR' || error.code === 'ERR_NETWORK') return true;
+  if (error.message?.includes('Network Error')) return true;
+  if (error.message?.includes('ERR_INTERNET_DISCONNECTED')) return true;
+
+  // Check for timeout errors
+  if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') return true;
+  if (error.message?.includes('timeout')) return true;
+
+  // Check for connection refused
+  if (error.code === 'ECONNREFUSED') return true;
+
+  return false;
+};
+
 // Request interceptor function
 const requestInterceptor = (config: InternalAxiosRequestConfig) => {
   if (config.headers && typeof window !== 'undefined') {
@@ -23,6 +68,26 @@ const responseInterceptor = (response: AxiosResponse) => {
 
 // Response error interceptor function
 const responseErrorInterceptor = async (error: AxiosError) => {
+  // Handle network connectivity errors first
+  if (isNetworkError(error)) {
+    const networkError = createNetworkError(
+      NETWORK_ERROR_TYPES.NO_CONNECTION,
+      'No internet connection. Please check your network and try again.',
+      error
+    );
+    return Promise.reject(networkError);
+  }
+
+  // Handle timeout errors
+  if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+    const timeoutError = createNetworkError(
+      NETWORK_ERROR_TYPES.TIMEOUT,
+      'Request timed out. Please check your connection and try again.',
+      error
+    );
+    return Promise.reject(timeoutError);
+  }
+
   if (error.response?.status === 401) {
     const authState = useAuthStore.getState();
     const refreshToken = authState.refreshToken;
@@ -42,6 +107,7 @@ const responseErrorInterceptor = async (error: AxiosError) => {
             headers: {
               Authorization: `Bearer ${refreshToken}`,
             },
+            timeout: 10000, // 10 second timeout for refresh token request
           });
 
           const refreshResponse = response.data as unknown as {
@@ -81,7 +147,10 @@ const responseErrorInterceptor = async (error: AxiosError) => {
 
 // Factory function to create API clients
 export const createApiClient = (baseURL: string): AxiosInstance => {
-  const client = axios.create({ baseURL });
+  const client = axios.create({
+    baseURL,
+    timeout: 15000, // 15 second timeout for all requests
+  });
 
   // Add interceptors
   client.interceptors.request.use(requestInterceptor, requestErrorInterceptor);

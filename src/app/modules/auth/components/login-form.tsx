@@ -23,9 +23,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Eye, EyeOff, Mail, Lock, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Loader2, WifiOff, Wifi } from 'lucide-react';
 import { GoogleIcon } from '@/components/common/google-icon';
 import { useRouter } from 'nextjs-toploader/app';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 const formSchema = z.object({
   email: z.string().email({
@@ -44,6 +45,7 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const loginMutation = useLogin();
+  const { isOffline } = useNetworkStatus();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(formSchema),
@@ -83,6 +85,12 @@ export function LoginForm() {
       <CardHeader className="space-y-1 pb-6">
         <CardTitle className="text-center text-2xl font-semibold">Welcome back</CardTitle>
         <CardDescription className="text-center">Sign in to your Feemates account</CardDescription>
+        {isOffline && (
+          <div className="flex items-center justify-center gap-2 rounded-md bg-red-50 p-2 text-sm text-red-600">
+            <WifiOff className="h-4 w-4" />
+            <span>No internet connection</span>
+          </div>
+        )}
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -170,14 +178,23 @@ export function LoginForm() {
             <Button
               type="submit"
               className="h-12 w-full text-base font-medium"
-              disabled={loginMutation.isPending}
+              disabled={loginMutation.isPending || isOffline}
             >
-              {loginMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {loginMutation.isRedirecting
-                ? 'Signing in...'
-                : loginMutation.isPending
-                  ? 'Signing in...'
-                  : 'Sign In'}
+              {isOffline ? (
+                <>
+                  <WifiOff className="mr-2 h-4 w-4" />
+                  No Internet Connection
+                </>
+              ) : (
+                <>
+                  {loginMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {loginMutation.isRedirecting
+                    ? 'Signing in...'
+                    : loginMutation.isPending
+                      ? 'Signing in...'
+                      : 'Sign In'}
+                </>
+              )}
             </Button>
 
             <div className="relative">
@@ -194,10 +211,19 @@ export function LoginForm() {
               variant="outline"
               className="h-12 w-full border-gray-300 hover:bg-gray-50"
               onClick={handleGoogleLogin}
-              disabled={isGoogleLoading || loginMutation.isPending}
+              disabled={isGoogleLoading || loginMutation.isPending || isOffline}
             >
-              <GoogleIcon className="mr-2 h-4 w-4" />
-              {isGoogleLoading ? 'Signing in...' : 'Continue with Google'}
+              {isOffline ? (
+                <>
+                  <WifiOff className="mr-2 h-4 w-4" />
+                  No Internet Connection
+                </>
+              ) : (
+                <>
+                  <GoogleIcon className="mr-2 h-4 w-4" />
+                  {isGoogleLoading ? 'Signing in...' : 'Continue with Google'}
+                </>
+              )}
             </Button>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 pt-6">

@@ -1,9 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, isNetworkError, NetworkError, NETWORK_ERROR_TYPES } from '@/lib/api-client';
 import { useAuthStore } from '@/store/auth-store';
 import { toast } from '@/lib/toast';
 import { useState } from 'react';
 import { useRouter } from 'nextjs-toploader/app';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 export interface LoginPayload {
   email: string;
@@ -42,9 +43,18 @@ export const useLogin = () => {
   const { setToken, setUserId, setUserDetails, setRememberMe } = useAuthStore();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
+  const { isOffline } = useNetworkStatus();
 
   const mutation = useMutation({
-    mutationFn: loginApi,
+    mutationFn: async (payload: LoginPayload) => {
+      // Check network status before making API call
+      if (isOffline) {
+        throw new Error(
+          'No internet connection. Please check your network and try again.'
+        ) as NetworkError;
+      }
+      return loginApi(payload);
+    },
     onSuccess: (data: LoginResponse, variables: LoginPayload) => {
       // Set redirecting state to true to keep loader active
       setIsRedirecting(true);
@@ -66,8 +76,26 @@ export const useLogin = () => {
     onError: (error: any) => {
       // Reset redirecting state on error
       setIsRedirecting(false);
-      // Show error message
-      toast.error(error);
+
+      // Handle different types of errors
+      if (isNetworkError(error) || (error as NetworkError)?.type) {
+        const networkError = error as NetworkError;
+        switch (networkError.type) {
+          case NETWORK_ERROR_TYPES.NO_CONNECTION:
+            toast.error('No internet connection. Please check your network and try again.');
+            break;
+          case NETWORK_ERROR_TYPES.TIMEOUT:
+            toast.error('Request timed out. Please check your connection and try again.');
+            break;
+          default:
+            toast.error('Network error occurred. Please try again.');
+        }
+      } else if (error.message?.includes('No internet connection')) {
+        toast.error('No internet connection. Please check your network and try again.');
+      } else {
+        // Show original error message for other types of errors
+        toast.error(error);
+      }
     },
   });
 
@@ -75,5 +103,6 @@ export const useLogin = () => {
     ...mutation,
     isPending: mutation.isPending || isRedirecting,
     isRedirecting,
+    isOffline,
   };
 };

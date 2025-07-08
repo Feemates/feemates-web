@@ -22,9 +22,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Eye, EyeOff, Mail, Lock, User, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Loader2, WifiOff, Wifi } from 'lucide-react';
 import { GoogleIcon } from '@/components/common/google-icon';
 import { useSignup } from '../api/useSignup';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -53,6 +54,7 @@ export function SignupForm() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const signupMutation = useSignup();
+  const { isOffline } = useNetworkStatus();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -90,6 +92,12 @@ export function SignupForm() {
       <CardHeader className="space-y-1 pb-6">
         <CardTitle className="text-center text-2xl font-semibold">Create account</CardTitle>
         <CardDescription className="text-center">Sign up for your Feemates account</CardDescription>
+        {isOffline && (
+          <div className="flex items-center justify-center gap-2 rounded-md bg-red-50 p-2 text-sm text-red-600">
+            <WifiOff className="h-4 w-4" />
+            <span>No internet connection</span>
+          </div>
+        )}
       </CardHeader>
       <Form {...form}>
         <form onSubmit={handleFormSubmit}>
@@ -241,14 +249,23 @@ export function SignupForm() {
             <Button
               type="submit"
               className="h-12 w-full text-base font-medium"
-              disabled={signupMutation.isPending}
+              disabled={signupMutation.isPending || isOffline}
             >
-              {signupMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {signupMutation.isRedirecting
-                ? 'Creating account...'
-                : signupMutation.isPending
-                  ? 'Creating account...'
-                  : 'Create Account'}
+              {isOffline ? (
+                <>
+                  <WifiOff className="mr-2 h-4 w-4" />
+                  No Internet Connection
+                </>
+              ) : (
+                <>
+                  {signupMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {signupMutation.isRedirecting
+                    ? 'Creating account...'
+                    : signupMutation.isPending
+                      ? 'Creating account...'
+                      : 'Create Account'}
+                </>
+              )}
             </Button>
 
             <div className="relative">
@@ -265,10 +282,19 @@ export function SignupForm() {
               variant="outline"
               className="h-12 w-full border-gray-300 hover:bg-gray-50"
               onClick={handleGoogleSignup}
-              disabled={isGoogleLoading || signupMutation.isPending}
+              disabled={isGoogleLoading || signupMutation.isPending || isOffline}
             >
-              <GoogleIcon className="mr-2 h-4 w-4" />
-              {isGoogleLoading ? 'Signing up...' : 'Continue with Google'}
+              {isOffline ? (
+                <>
+                  <WifiOff className="mr-2 h-4 w-4" />
+                  No Internet Connection
+                </>
+              ) : (
+                <>
+                  <GoogleIcon className="mr-2 h-4 w-4" />
+                  {isGoogleLoading ? 'Signing up...' : 'Continue with Google'}
+                </>
+              )}
             </Button>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 pt-6">
