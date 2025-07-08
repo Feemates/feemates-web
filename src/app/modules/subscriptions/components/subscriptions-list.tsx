@@ -167,8 +167,8 @@ export function SubscriptionsList() {
       {/* Main Content with bottom padding for navigation */}
       <main className="px-4 py-6 pb-24">
         {/* Search Bar */}
-        <div className="mb-6 flex items-center justify-between gap-2">
-          <div className="relative">
+        <div className="mb-6 flex w-full items-center justify-between gap-2">
+          <div className="relative w-full">
             <Search className="absolute top-3 left-3 h-5 w-5 text-gray-400" />
             <Input
               placeholder="Search bundles..."
