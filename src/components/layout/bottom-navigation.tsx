@@ -14,8 +14,6 @@ export function BottomNavigation() {
   const { data: dashboardData } = useGetDashboard();
   const invitedCount = dashboardData?.invited_subscriptions || 0;
 
-  console.log(dashboardData, 'invitedCount from dashboardData');
-
   // Set active tab based on current page
   useEffect(() => {
     const path = window.location.pathname;

@@ -167,7 +167,7 @@ export function Profile() {
     } else if (dashboardData?.is_kyc_verified === false) {
       handleBankVerification();
     } else if (dashboardData?.is_kyc_verified === true) {
-      router.push('/bank-account');
+      router.push('/bank-details');
     }
   };
 
