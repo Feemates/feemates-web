@@ -86,42 +86,45 @@ export function SignupForm() {
   const googleLogin = useGoogleLogin({
     flow: 'implicit',
     onSuccess: async (codeResponse) => {
-      // try {
-      //   setIsGoogleLoading(true);
-      //   // Send the authorization code to your backend
-      //   const response = await fetch(`${env?.NEXT_PUBLIC_BASE_API_URL}/auth/google/callback`, {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //     body: JSON.stringify({
-      //       access_token: codeResponse.access_token,
-      //     }),
-      //   });
-      //   if (!response.ok) {
-      //     const errorData = await response.json();
-      //     throw new Error(errorData.message || 'Google authentication failed');
-      //   }
-      //   const data = await response.json();
-      //   // Store tokens and user details
-      //   setToken(data.access_token, data.refresh_token);
-      //   setUserId(data.user.id.toString());
-      //   setUserDetails(data.user);
-      //   // Handle redirection
-      //   setTimeout(() => {
-      //     if (data.invited_subscriptions && data.invited_subscriptions > 0) {
-      //       router.push('/invites');
-      //     } else {
-      //       router.push('/dashboard');
-      //     }
-      //   }, 100);
-      //   // Show success message
-      //   toast.success(data.message || 'Account created successfully! Welcome to Feemates.');
-      // } catch (error: any) {
-      //   toast.error(error);
-      // } finally {
-      //   setIsGoogleLoading(false);
-      // }
+      try {
+        setIsGoogleLoading(true);
+        // Send the authorization code to your backend
+        const response = await fetch(
+          `${env?.NEXT_PUBLIC_BASE_API_URL}/auth/google/login-or-signup`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              access_token: codeResponse.access_token,
+            }),
+          }
+        );
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Google authentication failed');
+        }
+        const data = await response.json();
+        // Store tokens and user details
+        setToken(data.access_token, data.refresh_token);
+        setUserId(data.user.id.toString());
+        setUserDetails(data.user);
+        // Handle redirection
+        setTimeout(() => {
+          if (data.invited_subscriptions && data.invited_subscriptions > 0) {
+            router.push('/invites');
+          } else {
+            router.push('/dashboard');
+          }
+        }, 100);
+        // Show success message
+        toast.success(data.message || 'Account created successfully! Welcome to Feemates.');
+      } catch (error: any) {
+        toast.error(error);
+      } finally {
+        setIsGoogleLoading(false);
+      }
     },
     onError: (error) => {
       toast.error(error);
