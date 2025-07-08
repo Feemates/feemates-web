@@ -100,22 +100,16 @@ export function Profile() {
     setIsLoggingOut(true);
 
     try {
-      // Clear only auth-related data
-      reset();
-
-      // Remove specific auth-related items from storage
+      // Remove specific auth-related items from storage first
       localStorage.removeItem('auth-store');
 
-      // Use Next.js router for navigation
-      await router.push('/');
+      // Clear auth store data
+      reset();
 
-      // Reload the page after navigation is complete
-      window.location.reload();
+      // Use replace to prevent back navigation
+      router.replace('/');
     } catch (error) {
       console.error('Logout error:', error);
-      // Fallback to simple navigation on error
-      router.push('/');
-    } finally {
       setIsLoggingOut(false);
     }
   };
@@ -187,7 +181,7 @@ export function Profile() {
               <div className="relative">
                 <Avatar className="h-20 w-20">
                   <AvatarImage
-                    src={userDetails?.avatar || ''}
+                    src={userDetails?.avatar || undefined}
                     alt={userDetails?.name || 'Profile'}
                     className="object-cover object-center"
                   />
