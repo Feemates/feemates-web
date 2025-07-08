@@ -47,7 +47,7 @@ export function OwnedTab() {
           Start a group bundle and invite friends to split the cost easily
         </p>
         <Button asChild>
-          <Link href="/create-subscription">Create Bundle</Link>
+          <Link href="/select-template">Create Bundle</Link>
         </Button>
       </div>
     );

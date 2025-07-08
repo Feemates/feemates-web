@@ -49,7 +49,7 @@ export function BottomNavigation() {
   };
 
   const handlePlusClick = () => {
-    router.push('/create-subscription');
+    router.push('/select-template');
   };
 
   return (

@@ -1,8 +1,9 @@
 import { SubscriptionsList } from './components/subscriptions-list';
 import { SubscriptionDetails } from './components/subscription-details';
-import { CreateSubscription } from './components/create-subscription';
 import { EditSubscription } from './components/edit-subscription';
 import { SubscriptionCreated } from './components/subscription-created';
+import { SelectTemplate } from './components/select-template';
+import { CreateSubscription } from './components/create-subscription2';
 
 export const SubscriptionsModule = {
   SubscriptionsList,
@@ -10,4 +11,5 @@ export const SubscriptionsModule = {
   CreateSubscription,
   EditSubscription,
   SubscriptionCreated,
+  SelectTemplate,
 };
