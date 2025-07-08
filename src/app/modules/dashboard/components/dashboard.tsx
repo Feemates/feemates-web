@@ -19,6 +19,7 @@ export function Dashboard() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showKycBanner, setShowKycBanner] = useState(true);
+  const [kycPendingBanner, setKycPendingBanner] = useState(true);
   const [tab, setTab] = useState<'owned' | 'joined'>('owned');
 
   // Dashboard counts
@@ -33,12 +34,15 @@ export function Dashboard() {
   const { userDetails } = useAuthStore();
 
   useEffect(() => {
-    if (userDetails && userDetails?.is_kyc_verified) {
+    if (dashboardData && dashboardData?.kyc && dashboardData?.kyc.status === 'pending') {
+      setKycPendingBanner(true);
+      setShowKycBanner(false);
+    } else if (dashboardData && dashboardData?.is_kyc_verified) {
       setShowKycBanner(false);
     } else {
       setShowKycBanner(true);
     }
-  }, [userDetails]);
+  }, [dashboardData]);
 
   // (Owned/joined subscriptions logic removed; now handled in tab components)
   const ownedCount = dashboardCounts.owned_subscriptions;
@@ -119,6 +123,35 @@ export function Dashboard() {
                   variant="ghost"
                   size="sm"
                   className="h-auto p-1 text-orange-600 hover:bg-orange-100"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {kycPendingBanner && (
+          <Card className="mb-6 border-yellow-200 bg-yellow-50 py-0">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start space-x-3">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100">
+                    <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                  </div>
+                  <div>
+                    <h3 className="mb-1 font-medium text-yellow-900">KYC Approval Pending</h3>
+                    <p className="text-sm text-yellow-800">
+                      Your KYC details have been submitted and are pending admin approval. You’ll be
+                      notified once your verification is complete.
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setKycPendingBanner(false)}
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto p-1 text-yellow-600 hover:bg-yellow-100"
                 >
                   <X className="h-4 w-4" />
                 </Button>

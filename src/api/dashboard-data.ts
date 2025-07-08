@@ -5,6 +5,11 @@ export interface GetDashboardResponse {
   owned_subscriptions: number;
   member_subscriptions: number;
   invited_subscriptions: number;
+  kyc: {
+    id: number;
+    status: string;
+  } | null;
+  is_kyc_verified: boolean;
 }
 
 export const getDashboardData = async (): Promise<GetDashboardResponse> => {
