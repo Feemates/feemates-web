@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Monitor } from 'lucide-react';
 import { useRouter } from 'nextjs-toploader/app';
+import Image from 'next/image';
 
 interface TabCardContentProps {
   subscriptions: any[];
@@ -70,7 +71,27 @@ export function TabCardContent({
                   {subscription.members_count + '/' + subscription.max_no_of_participants}
                 </p>
               </div>
-              <div>
+              <div className="flex-shrink-0">
+                <div className="flex h-16 w-24 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
+                  <div className="flex-shrink-0">
+                    <div className="relative h-16 w-24 overflow-hidden rounded-lg bg-gray-100">
+                      {subscription.thumbnail ? (
+                        <Image
+                          src={subscription.thumbnail || '/placeholder.svg'}
+                          alt={`${subscription.name} logo`}
+                          fill
+                          className="object-fit"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center rounded-lg bg-gray-200">
+                          <Monitor className="h-8 w-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* <div>
                 <p className="mb-1 text-sm text-gray-500">Your share</p>
                 <p className="font-semibold text-green-600">
                   $
@@ -78,7 +99,7 @@ export function TabCardContent({
                     subscription.is_owner ? subscription.owner_share : subscription.per_person_price
                   ).toFixed(2)}
                 </p>
-              </div>
+              </div> */}
             </div>
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-500">

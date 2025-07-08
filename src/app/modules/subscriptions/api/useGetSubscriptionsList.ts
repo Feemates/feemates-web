@@ -24,6 +24,7 @@ export interface SubscriptionItem {
   endDate: string;
   deletedAt: string | null;
   createdAt: string;
+  thumbnail: string;
   owner: SubscriptionOwner;
   is_owner: boolean;
 }

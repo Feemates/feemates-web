@@ -16,6 +16,9 @@ import {
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCreateSubscription } from '../api/useCreateSubscription';
+import { useUploadFile } from '@/api/s3-operations';
+import { useRef, useState } from 'react';
+import Image from 'next/image';
 
 const formSchema = z
   .object({
@@ -79,6 +82,10 @@ const formSchema = z
 export function CreateSubscription() {
   const router = useRouter();
   const createSubscriptionMutation = useCreateSubscription();
+  const uploadFile = useUploadFile();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [thumbnailImage, setThumbnailImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -96,22 +103,49 @@ export function CreateSubscription() {
     router.push('/dashboard');
   };
 
+  const handleImageUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      // Create object URL for preview
+      const objectUrl = URL.createObjectURL(file);
+      setThumbnailImage(objectUrl);
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // Calculate per person price by dividing total price by max participants
-    const totalPrice = Number(values.price);
-    const maxParticipants = Number(values.maxParticipants);
+    try {
+      // Calculate per person price by dividing total price by max participants
+      const totalPrice = Number(values.price);
+      const maxParticipants = Number(values.maxParticipants);
 
-    const payload = {
-      name: values.name,
-      description: values.description || '',
-      status: 'active' as const,
-      price: totalPrice,
-      max_no_of_participants: maxParticipants,
-      startDate: new Date(values.startDate).toISOString(),
-      endDate: new Date(values.endDate).toISOString(),
-    };
+      let thumbnail = undefined;
 
-    createSubscriptionMutation.mutate(payload);
+      // If there's a new image file, upload it first
+      if (selectedFile) {
+        const uploadResult = await uploadFile.mutateAsync({ file: selectedFile });
+        thumbnail = uploadResult.key;
+      }
+
+      const payload = {
+        name: values.name,
+        description: values.description || '',
+        status: 'active' as const,
+        price: totalPrice,
+        max_no_of_participants: maxParticipants,
+        startDate: new Date(values.startDate).toISOString(),
+        endDate: new Date(values.endDate).toISOString(),
+        ...(thumbnail && { thumbnail }),
+      };
+
+      createSubscriptionMutation.mutate(payload);
+    } catch (error) {
+      console.error('Error creating subscription:', error);
+    }
   };
 
   return (
@@ -141,7 +175,7 @@ export function CreateSubscription() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>bundle Name *</FormLabel>
+                      <FormLabel>Bundle Name *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., Netflix Premium, Spotify Family"
@@ -269,6 +303,25 @@ export function CreateSubscription() {
                     </FormItem>
                   )}
                 />
+
+                <FormItem>
+                  <FormLabel>Thumbnail Image (Optional)</FormLabel>
+                  <FormControl>
+                    <Input type="file" accept="image/*" onChange={handleFileChange} className="" />
+                  </FormControl>
+                  {thumbnailImage && (
+                    <div className="mt-2">
+                      <Image
+                        src={thumbnailImage}
+                        alt="Thumbnail preview"
+                        className="h-20 w-20 rounded object-cover"
+                        width={40}
+                        height={40}
+                      />
+                    </div>
+                  )}
+                  <p className="text-sm text-gray-500">Upload a thumbnail image for your bundle</p>
+                </FormItem>
 
                 <Button
                   type="submit"

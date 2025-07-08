@@ -19,6 +19,7 @@ export interface SubscriptionData {
   deletedAt: string | null;
   createdAt: string;
   is_owner: boolean;
+  thumbnail?: string;
   member: {
     next_due_date: string;
     user_id: number;

@@ -18,6 +18,8 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useUpdateSubscription } from '../api/useUpdateSubscription';
 import { useGetSubscription } from '../api/useGetSubscription';
+import { useUploadFile } from '@/api/s3-operations';
+import Image from 'next/image';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -38,7 +40,10 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
     error,
   } = useGetSubscription(id);
   const updateSubscriptionMutation = useUpdateSubscription(id);
+  const uploadFile = useUploadFile();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [thumbnailImage, setThumbnailImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Always call useForm at the top
   const form = useForm<z.infer<typeof formSchema>>({
@@ -56,8 +61,22 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
         name: subscriptionResponse.data.name,
         description: subscriptionResponse.data.description || '',
       });
+      // Set thumbnail preview if exists
+      if (subscriptionResponse.data.thumbnail) {
+        setThumbnailImage(subscriptionResponse.data.thumbnail);
+      }
     }
   }, [subscriptionResponse?.data, form]);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      // Create object URL for preview
+      const objectUrl = URL.createObjectURL(file);
+      setThumbnailImage(objectUrl);
+    }
+  };
 
   // Show loading state while fetching subscription data
   if (isLoadingSubscription) {
@@ -102,22 +121,36 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const payload = {
-      name: values.name,
-      description: values.description || '',
-    };
+    try {
+      let thumbnail = undefined;
 
-    // Set redirecting state when mutation starts
-    setIsRedirecting(true);
-    updateSubscriptionMutation.mutate(payload, {
-      onSettled: () => {
-        // Reset redirecting state if mutation completes (success or error)
-        // Note: On success, user will be redirected, so this mainly handles errors
-        if (updateSubscriptionMutation.isError) {
-          setIsRedirecting(false);
-        }
-      },
-    });
+      // If there's a new image file, upload it first
+      if (selectedFile) {
+        const uploadResult = await uploadFile.mutateAsync({ file: selectedFile });
+        thumbnail = uploadResult.key;
+      }
+
+      const payload = {
+        name: values.name,
+        description: values.description || '',
+        ...(thumbnail && { thumbnail }),
+      };
+
+      // Set redirecting state when mutation starts
+      setIsRedirecting(true);
+      updateSubscriptionMutation.mutate(payload, {
+        onSettled: () => {
+          // Reset redirecting state if mutation completes (success or error)
+          // Note: On success, user will be redirected, so this mainly handles errors
+          if (updateSubscriptionMutation.isError) {
+            setIsRedirecting(false);
+          }
+        },
+      });
+    } catch (error) {
+      console.error('Error updating subscription:', error);
+      setIsRedirecting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -196,6 +229,41 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                     </FormItem>
                   )}
                 />
+
+                <FormItem>
+                  <FormLabel>Thumbnail Image (Optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="placeholder:text-muted-foreground"
+                    />
+                  </FormControl>
+                  {thumbnailImage && (
+                    // <div className="mt-2">
+                    //   <Image
+                    //     src={thumbnailImage}
+                    //     alt="Thumbnail preview"
+                    //     className="h-20 w-20 rounded object-cover"
+                    //     width={40}
+                    //     height={40}
+                    //   />
+                    // </div>
+
+                    <div className="mt-2 flex-shrink-0">
+                      <div className="relative h-16 w-24 overflow-hidden rounded-lg bg-gray-100">
+                        <Image
+                          src={thumbnailImage}
+                          alt={`Thumbnail preview`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <p className="text-sm text-gray-500">Upload a thumbnail image for your bundle</p>
+                </FormItem>
 
                 {/* Read-only Fields */}
                 <div className="space-y-4 border-t border-gray-200 pt-4">

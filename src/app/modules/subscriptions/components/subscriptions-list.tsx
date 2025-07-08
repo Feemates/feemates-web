@@ -183,7 +183,7 @@ export function SubscriptionsList() {
                         {subscription.members_count}/{subscription.max_no_of_participants}
                       </p>
                     </div>
-                    <div>
+                    {/* <div>
                       <p className="mb-1 text-sm text-gray-500">Your share</p>
                       <p className="font-semibold text-green-600">
                         $
@@ -193,14 +193,25 @@ export function SubscriptionsList() {
                             : subscription.per_person_price
                         ).toFixed(2)}
                       </p>
+                    </div> */}
+
+                    <div className="flex-shrink-0">
+                      <div className="relative h-16 w-24 overflow-hidden rounded-lg bg-gray-100">
+                        {subscription.thumbnail ? (
+                          <Image
+                            src={subscription.thumbnail || '/placeholder.svg'}
+                            alt={`${subscription.name} logo`}
+                            fill
+                            className="object-fit"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center rounded-lg bg-gray-200">
+                            <Monitor className="h-8 w-8 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  {/* {subscription.description && (
-                    <div className="mb-3">
-                      <p className="text-sm text-gray-600">{subscription.description}</p>
-                    </div>
-                  )} */}
 
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-gray-500">
