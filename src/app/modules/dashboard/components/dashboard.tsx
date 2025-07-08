@@ -19,7 +19,7 @@ export function Dashboard() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showKycBanner, setShowKycBanner] = useState(true);
-  const [kycPendingBanner, setKycPendingBanner] = useState(true);
+  const [kycPendingBanner, setKycPendingBanner] = useState(false);
   const [tab, setTab] = useState<'owned' | 'joined'>('owned');
 
   // Dashboard counts

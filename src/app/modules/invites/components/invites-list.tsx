@@ -9,6 +9,7 @@ import { useRouter } from 'nextjs-toploader/app';
 
 import { useInviteList } from '../api/useInviteList';
 import { useDeclineInvite } from '../api/useDeclineInvite';
+import { useJoinInvite } from '../api/useJoinInvite';
 import { useRef, useCallback, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import {
@@ -68,9 +69,15 @@ export function InvitesList() {
     router.push('/dashboard');
   };
 
-  const handleJoinSubscription = (inviteId: number) => {
-    // TODO: Implement join logic
-    alert('Successfully joined the subscription!');
+  const joinInviteMutation = useJoinInvite(() => {
+    queryClient.invalidateQueries({ queryKey: ['invite-list'] });
+  });
+
+  const handleJoinSubscription = (inviteId: number, subscriptionId: number) => {
+    const baseUrl = window.location.origin;
+    const successUrl = `${baseUrl}/payment-success?subscription_id=${subscriptionId}`;
+    const cancelUrl = `${baseUrl}/payment-failed`;
+    joinInviteMutation.mutate({ inviteId, baseUrl, successUrl, cancelUrl });
   };
 
   const handleDeclineInvite = (inviteId: number) => {
@@ -129,6 +136,19 @@ export function InvitesList() {
             {invites.map((invite) => {
               // Fallback icon
               // const IconComponent = iconMap['Music'];
+
+              const handleJoin = () => {
+                const baseUrl = window.location.origin;
+                const successUrl = `${baseUrl}/payment-success?subscription_id=${invite.subscription_id}`;
+                const cancelUrl = `${baseUrl}/payment-failed`;
+                joinInviteMutation.mutate({
+                  inviteId: invite.id,
+                  baseUrl,
+                  successUrl,
+                  cancelUrl,
+                });
+              };
+
               return (
                 <Card key={invite.id} className="border-0 bg-white shadow-sm">
                   <CardContent className="p-4">
@@ -179,7 +199,7 @@ export function InvitesList() {
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-3">
+                    {/* <div className="flex items-center space-x-3">
                       <div className="flex items-center space-x-2">
                         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200">
                           <span className="text-xs font-medium text-gray-600">
@@ -189,11 +209,11 @@ export function InvitesList() {
                         <span className="text-sm text-gray-600">{invite.owner_name}</span>
                       </div>
                       <span className="text-sm text-gray-400">wants you to join</span>
-                    </div>
+                    </div> */}
 
                     <div className="mt-4 flex space-x-3">
                       <Button
-                        onClick={() => handleJoinSubscription(invite.id)}
+                        onClick={() => handleJoinSubscription(invite.id, invite.subscription_id)}
                         className="flex-1 bg-green-600 hover:bg-green-700"
                       >
                         Join & Pay

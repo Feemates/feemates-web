@@ -213,7 +213,7 @@ export function MemberTabContent({
 
       {hasNextPage && !isFetchingNextPage && <div ref={ref} className="h-4" />}
 
-      {availableSlots > 0 && (
+      {subscription.isOwner && availableSlots > 0 && (
         <Card className="border-blue-200 bg-blue-50">
           <CardContent className="p-4 text-center">
             <UserPlus className="mx-auto mb-2 h-8 w-8 text-blue-600" />
