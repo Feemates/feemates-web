@@ -164,7 +164,7 @@ export function SubscriptionsList() {
                         subscription.is_owner
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-purple-100 text-purple-800'
-                      } hover:bg-current`}
+                      } `}
                     >
                       {subscription.is_owner ? 'Owner' : 'Member'}
                     </Badge>
@@ -216,7 +216,7 @@ export function SubscriptionsList() {
                           : subscription.status === 'expired'
                             ? 'bg-orange-100 text-orange-800'
                             : 'bg-gray-100 text-gray-800'
-                      } hover:bg-current`}
+                      } `}
                     >
                       {subscription.status}
                     </Badge>

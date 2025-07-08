@@ -46,7 +46,13 @@ export function TabCardContent({
               </div>
               <Badge
                 variant="secondary"
-                className="bg-green-100 text-green-800 capitalize hover:bg-green-100"
+                className={`capitalize ${
+                  subscription.status === 'active'
+                    ? 'bg-green-100 text-green-800'
+                    : subscription.status === 'expired'
+                      ? 'bg-orange-100 text-orange-800'
+                      : 'bg-gray-100 text-gray-800'
+                } `}
               >
                 {subscription.status}
               </Badge>
