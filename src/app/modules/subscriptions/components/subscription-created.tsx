@@ -26,11 +26,26 @@ interface SubscriptionCreatedProps {
 export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
   const router = useRouter();
   const { data: subscriptionResponse, isLoading, error } = useGetSubscription(id);
+
+  // All hooks must be called unconditionally before any return
   const [inviteEmails, setInviteEmails] = useState<string[]>(['']);
   const [inviteEmailErrors, setInviteEmailErrors] = useState<string[]>(['']);
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [sendingInvites, setSendingInvites] = useState(false);
   const { mutateAsync: inviteByEmail } = useInviteByEmail();
+  const [notOwner, setNotOwner] = useState(false);
+
+  useEffect(() => {
+    if (subscriptionResponse?.data && !subscriptionResponse.data.is_owner) {
+      setNotOwner(true);
+    }
+  }, [subscriptionResponse]);
+
+  useEffect(() => {
+    if (notOwner) {
+      router.push('/subscriptions');
+    }
+  }, [notOwner, router]);
 
   // Show loading state
   if (isLoading) {
@@ -58,25 +73,11 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
     );
   }
 
-  const subscriptionData = subscriptionResponse.data;
-
-  // Redirect non-owners to subscriptions page (fix: useEffect)
-  const [notOwner, setNotOwner] = useState(false);
-  useEffect(() => {
-    if (subscriptionData && !subscriptionData.is_owner) {
-      setNotOwner(true);
-    }
-  }, [subscriptionData]);
-
-  useEffect(() => {
-    if (notOwner) {
-      router.push('/subscriptions');
-    }
-  }, [notOwner, router]);
-
   if (notOwner) {
     return null;
   }
+
+  const subscriptionData = subscriptionResponse.data;
 
   const subscription = {
     name: subscriptionData.name,

@@ -49,7 +49,6 @@ export function InvitesList() {
   });
 
   // Fetch next page when inView changes to true
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useCallback(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
