@@ -199,8 +199,7 @@ export function SignupForm() {
                 </FormItem>
               )}
             />
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4 pt-6">
+
             <Button
               type="submit"
               className="h-12 w-full text-base font-medium"
@@ -233,7 +232,8 @@ export function SignupForm() {
               <GoogleIcon className="mr-2 h-4 w-4" />
               {isGoogleLoading ? 'Signing up...' : 'Continue with Google'}
             </Button>
-
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4 pt-6">
             <div className="text-center text-sm text-gray-600">
               Already have an account?{' '}
               <button

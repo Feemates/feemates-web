@@ -171,6 +171,19 @@ export function LoginForm() {
               </button>
             </div>
 
+            <Button
+              type="submit"
+              className="h-12 w-full text-base font-medium"
+              disabled={loginMutation.isPending}
+            >
+              {loginMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {loginMutation.isRedirecting
+                ? 'Signing in...'
+                : loginMutation.isPending
+                  ? 'Signing in...'
+                  : 'Sign In'}
+            </Button>
+
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-gray-300" />
@@ -192,18 +205,6 @@ export function LoginForm() {
             </Button>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 pt-6">
-            <Button
-              type="submit"
-              className="h-12 w-full text-base font-medium"
-              disabled={loginMutation.isPending}
-            >
-              {loginMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {loginMutation.isRedirecting
-                ? 'Signing in...'
-                : loginMutation.isPending
-                  ? 'Signing in...'
-                  : 'Sign In'}
-            </Button>
             <div className="text-center text-sm text-gray-600">
               {"Don't have an account? "}
               <button
