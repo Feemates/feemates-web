@@ -43,7 +43,7 @@ export function NetworkStatusBanner() {
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             <WifiOff className="h-5 w-5" />
-            <span className="font-medium">You're offline</span>
+            <span className="font-medium">You&apos;re offline</span>
             <span className="text-red-100">Check your internet connection</span>
           </div>
           <Button
@@ -65,7 +65,7 @@ export function NetworkStatusBanner() {
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             <Wifi className="h-5 w-5" />
-            <span className="font-medium">You're back online</span>
+            <span className="font-medium">You&apos;re back online</span>
             <span className="text-green-100">Connection restored</span>
           </div>
           <Button
