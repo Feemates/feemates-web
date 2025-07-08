@@ -22,8 +22,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Loader2 } from 'lucide-react';
 import { GoogleIcon } from '@/components/common/google-icon';
+import { useSignup } from '../api/useSignup';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -32,18 +33,29 @@ const formSchema = z.object({
   email: z.string().email({
     message: 'Please enter a valid email address.',
   }),
-  password: z.string().min(8, {
-    message: 'Password must be at least 8 characters.',
-  }),
+  password: z.string().refine(
+    (password) => {
+      if (password.length < 8) return false;
+      const hasUpper = /[A-Z]/.test(password);
+      const hasLower = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSymbol = /[^A-Za-z0-9]/.test(password);
+      return hasUpper && hasLower && hasNumber && hasSymbol;
+    },
+    {
+      message:
+        'Password must be minimum of 8 characters, with upper and lowercase, and a number and a symbol.',
+    }
+  ),
   agreeToTerms: z.boolean().refine((value) => value === true, {
-    message: 'You must agree to the Terms of Service and Privacy Policy.',
+    message: '',
   }),
 });
 
 export function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const signupMutation = useSignup();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,10 +68,8 @@ export function SignupForm() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log('Signup attempt:', values);
-    setIsLoading(false);
+    const { agreeToTerms, ...signupData } = values;
+    signupMutation.mutate(signupData);
   };
 
   const handleGoogleSignup = async () => {
@@ -90,11 +100,12 @@ export function SignupForm() {
                   <FormLabel className="text-sm font-medium">Full Name</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <User className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+                      <User className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                       <Input
                         type="text"
                         placeholder="Enter your full name"
                         className="h-12 pl-10"
+                        disabled={signupMutation.isPending}
                         {...field}
                       />
                     </div>
@@ -111,11 +122,12 @@ export function SignupForm() {
                   <FormLabel className="text-sm font-medium">Email</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Mail className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+                      <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                       <Input
                         type="email"
                         placeholder="Enter your email"
                         className="h-12 pl-10"
+                        disabled={signupMutation.isPending}
                         {...field}
                       />
                     </div>
@@ -132,17 +144,19 @@ export function SignupForm() {
                   <FormLabel className="text-sm font-medium">Password</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Lock className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+                      <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                       <Input
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Create a password"
                         className="h-12 pr-10 pl-10"
+                        disabled={signupMutation.isPending}
                         {...field}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute top-3 right-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                        disabled={signupMutation.isPending}
+                        className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -161,27 +175,32 @@ export function SignupForm() {
               control={form.control}
               name="agreeToTerms"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-y-0 space-x-3">
+                <FormItem className="flex flex-row items-start space-y-0 space-x-3 pt-2">
                   <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      className="mt-0.5"
+                      disabled={signupMutation.isPending}
+                    />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="cursor-pointer text-sm text-gray-600">
-                      I agree to the{' '}
+                  <div className="min-w-0 flex-1 space-y-1 leading-none">
+                    <div className="cursor-pointer text-sm leading-relaxed text-gray-600">
+                      <span className="inline">I agree to the </span>
                       <button
                         type="button"
-                        className="font-medium text-blue-600 hover:text-blue-800"
+                        className="inline font-medium text-blue-600 underline hover:text-blue-800"
                       >
                         Terms of Service
-                      </button>{' '}
-                      and{' '}
+                      </button>
+                      <span className="inline"> and </span>
                       <button
                         type="button"
-                        className="font-medium text-blue-600 hover:text-blue-800"
+                        className="inline font-medium text-blue-600 underline hover:text-blue-800"
                       >
                         Privacy Policy
                       </button>
-                    </FormLabel>
+                    </div>
                     <FormMessage />
                   </div>
                 </FormItem>
@@ -192,9 +211,14 @@ export function SignupForm() {
             <Button
               type="submit"
               className="h-12 w-full text-base font-medium"
-              disabled={isLoading}
+              disabled={signupMutation.isPending}
             >
-              {isLoading ? 'Creating account...' : 'Create Account'}
+              {signupMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {signupMutation.isRedirecting
+                ? 'Creating account...'
+                : signupMutation.isPending
+                  ? 'Creating account...'
+                  : 'Create Account'}
             </Button>
 
             <div className="relative">
@@ -211,7 +235,7 @@ export function SignupForm() {
               variant="outline"
               className="h-12 w-full border-gray-300 hover:bg-gray-50"
               onClick={handleGoogleSignup}
-              disabled={isGoogleLoading}
+              disabled={isGoogleLoading || signupMutation.isPending}
             >
               <GoogleIcon className="mr-2 h-4 w-4" />
               {isGoogleLoading ? 'Signing up...' : 'Continue with Google'}

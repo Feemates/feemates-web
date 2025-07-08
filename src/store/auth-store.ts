@@ -6,6 +6,8 @@ export type UserDetails = {
   email: string;
   name: string;
   roles: string[];
+  is_kyc_verified?: boolean;
+  status?: string;
 };
 
 type AuthState = {
