@@ -13,74 +13,107 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'nextjs-toploader/app';
+import { useCreateSubscription } from '../api/useCreateSubscription';
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: 'Subscription name must be at least 2 characters.',
-  }),
-  type: z.string().min(1, {
-    message: 'Please select a subscription type.',
-  }),
-  price: z
-    .string()
-    .min(1, {
-      message: 'Price is required.',
-    })
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: 'Price must be a valid positive number.',
+const formSchema = z
+  .object({
+    name: z.string().min(2, {
+      message: 'Subscription name must be at least 2 characters.',
     }),
-  maxParticipants: z
-    .string()
-    .min(1, {
-      message: 'Maximum participants is required.',
-    })
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && num >= 2 && num <= 10;
-      },
-      {
-        message: 'Maximum participants must be between 2 and 10.',
-      }
-    ),
-  startDate: z.string().min(1, {
-    message: 'Start date is required.',
-  }),
-  endDate: z.string().min(1, {
-    message: 'End date is required.',
-  }),
-  description: z.string().optional(),
-});
+    description: z.string().optional(),
+    price: z
+      .string()
+      .min(1, {
+        message: 'Price is required.',
+      })
+      .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+        message: 'Price must be a valid positive number.',
+      }),
+    maxParticipants: z
+      .string()
+      .min(1, {
+        message: 'Maximum participants is required.',
+      })
+      .refine(
+        (val) => {
+          const num = Number(val);
+          return !isNaN(num) && num >= 2;
+        },
+        {
+          message: 'Maximum participants must be at least 2.',
+        }
+      ),
+    startDate: z
+      .string()
+      .min(1, {
+        message: 'Start date is required.',
+      })
+      .refine(
+        (val) => {
+          const selectedDate = new Date(val);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0); // Reset time to start of day
+          return selectedDate >= today;
+        },
+        {
+          message: 'Start date cannot be in the past.',
+        }
+      ),
+    endDate: z.string().min(1, {
+      message: 'End date is required.',
+    }),
+  })
+  .refine(
+    (data) => {
+      if (!data.startDate || !data.endDate) return true;
+      return new Date(data.endDate) > new Date(data.startDate);
+    },
+    {
+      message: 'End date must be after start date.',
+      path: ['endDate'],
+    }
+  );
 
 export function CreateSubscription() {
+  const router = useRouter();
+  const createSubscriptionMutation = useCreateSubscription();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      type: '',
+      description: '',
       price: '',
       maxParticipants: '',
       startDate: '',
       endDate: '',
-      description: '',
     },
   });
 
   const handleBackClick = () => {
-    window.location.href = '/dashboard';
+    router.push('/dashboard');
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log('Creating subscription:', values);
-    window.location.href = '/subscription-created';
+    // Calculate per person price by dividing total price by max participants
+    const totalPrice = Number(values.price);
+    const maxParticipants = Number(values.maxParticipants);
+    const perPersonPrice = Number((totalPrice / maxParticipants).toFixed(2));
+
+    const payload = {
+      name: values.name,
+      description: values.description || '',
+      status: 'active' as const,
+      price: totalPrice,
+      per_person_price: perPersonPrice,
+      max_no_of_participants: maxParticipants,
+      startDate: new Date(values.startDate).toISOString(),
+      endDate: new Date(values.endDate).toISOString(),
+    };
+
+    createSubscriptionMutation.mutate(payload);
   };
 
   return (
@@ -110,7 +143,7 @@ export function CreateSubscription() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Subscription Name</FormLabel>
+                      <FormLabel>Subscription Name *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., Netflix Premium, Spotify Family"
@@ -119,91 +152,6 @@ export function CreateSubscription() {
                         />
                       </FormControl>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Subscription Type</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="h-12">
-                            <SelectValue placeholder="Select subscription type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="streaming">Streaming Services</SelectItem>
-                          <SelectItem value="music">Music Services</SelectItem>
-                          <SelectItem value="gaming">Gaming Services</SelectItem>
-                          <SelectItem value="productivity">Productivity Tools</SelectItem>
-                          <SelectItem value="cloud">Cloud Storage</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <span className="absolute top-3 left-3 text-gray-500">$</span>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            placeholder="0.00"
-                            className="h-12 pl-8"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="startDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Start Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" className="h-12" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="endDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>End Date</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="date"
-                          className="h-12"
-                          min={form.watch('startDate')}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      <p className="text-sm text-gray-500">
-                        When this subscription sharing will end
-                      </p>
                     </FormItem>
                   )}
                 />
@@ -232,15 +180,78 @@ export function CreateSubscription() {
 
                 <FormField
                   control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Total Price *</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <span className="absolute top-3 left-3 text-gray-500">$</span>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            className="h-12 pl-8"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                      <p className="text-sm text-gray-500">Total subscription cost</p>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Date *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          className="h-12"
+                          min={new Date().toISOString().split('T')[0]}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      <p className="text-sm text-gray-500">Subscription cannot start in the past</p>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Date *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          className="h-12"
+                          min={form.watch('startDate') || new Date().toISOString().split('T')[0]}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      <p className="text-sm text-gray-500">Must be after start date</p>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="maxParticipants"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Maximum Number of Participants</FormLabel>
+                      <FormLabel>Maximum Number of Participants *</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           min="2"
-                          max="10"
                           placeholder="e.g., 5"
                           className="h-12"
                           {...field}
@@ -248,14 +259,18 @@ export function CreateSubscription() {
                       </FormControl>
                       <FormMessage />
                       <p className="text-sm text-gray-500">
-                        Including yourself (2-10 participants)
+                        Including yourself (minimum 2 participants)
                       </p>
                     </FormItem>
                   )}
                 />
 
-                <Button type="submit" className="h-12 w-full text-base font-medium">
-                  Create Subscription
+                <Button
+                  type="submit"
+                  className="h-12 w-full text-base font-medium"
+                  disabled={createSubscriptionMutation.isPending}
+                >
+                  {createSubscriptionMutation.isPending ? 'Creating...' : 'Create Subscription'}
                 </Button>
               </form>
             </Form>

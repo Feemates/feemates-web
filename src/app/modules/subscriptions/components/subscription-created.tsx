@@ -4,20 +4,67 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CheckCircle, Copy, Share2, Mail, MessageSquare, Plus, X, Clock } from 'lucide-react';
+import {
+  CheckCircle,
+  Copy,
+  Share2,
+  Mail,
+  MessageSquare,
+  Plus,
+  X,
+  Clock,
+  Loader2,
+} from 'lucide-react';
+import { useGetSubscription } from '../api/useGetSubscription';
+import { useRouter } from 'nextjs-toploader/app';
 
-export function SubscriptionCreated() {
+interface SubscriptionCreatedProps {
+  id: string;
+}
+
+export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
+  const router = useRouter();
+  const { data: subscriptionResponse, isLoading, error } = useGetSubscription(id);
   const [inviteEmails, setInviteEmails] = useState<string[]>(['']);
   const [inviteMessage, setInviteMessage] = useState('');
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [sendingInvites, setSendingInvites] = useState(false);
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600" />
+          <p className="mt-2 text-gray-600">Loading subscription details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error || !subscriptionResponse?.data) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-red-600">Failed to load subscription details</p>
+          <Button onClick={() => router.push('/dashboard')} className="mt-4">
+            Back to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const subscriptionData = subscriptionResponse.data;
   const subscription = {
-    name: 'Netflix Premium',
-    shareLink: 'https://feemates.app/join/abc123xyz',
-    monthlyShare: 4.99,
-    maxMembers: 5,
-    currentMembers: 1,
+    name: subscriptionData.name,
+    shareLink: `https://feemates.app/join/${subscriptionData.id}`,
+    monthlyShare: Number(subscriptionData.per_person_price.toFixed(2)),
+    maxMembers: subscriptionData.max_no_of_participants,
+    currentMembers: subscriptionData.members_count,
+    totalPrice: Number(subscriptionData.price.toFixed(2)),
+    description: subscriptionData.description,
   };
 
   const availableSlots = subscription.maxMembers - subscription.currentMembers;
@@ -83,7 +130,7 @@ export function SubscriptionCreated() {
   };
 
   const handleDone = () => {
-    window.location.href = '/dashboard';
+    router.push('/subscriptions');
   };
 
   const isFormValid = inviteEmails.some((email) => email.trim() && email.includes('@'));
@@ -102,10 +149,28 @@ export function SubscriptionCreated() {
         <Card className="mb-6 border-0 bg-white shadow-sm">
           <CardContent className="p-6 text-center">
             <h3 className="mb-2 font-semibold text-gray-900">{subscription.name}</h3>
-            <p className="mb-1 text-2xl font-bold text-green-600">
-              ${subscription.monthlyShare}/month
-            </p>
-            <p className="text-sm text-gray-500">per person when shared</p>
+            <div className="mb-3">
+              <p className="mb-1 text-2xl font-bold text-green-600">
+                ${subscription.monthlyShare}/month
+              </p>
+              <p className="text-sm text-gray-500">per person when shared</p>
+            </div>
+            <div className="text-sm text-gray-600">
+              <p className="mb-1">
+                Total Price: <span className="font-medium">${subscription.totalPrice}</span>
+              </p>
+              <p className="mb-1">
+                Max Participants: <span className="font-medium">{subscription.maxMembers}</span>
+              </p>
+              <p>
+                Current Members: <span className="font-medium">{subscription.currentMembers}</span>
+              </p>
+            </div>
+            {subscription.description && (
+              <div className="mt-3 border-t border-gray-100 pt-3">
+                <p className="text-sm text-gray-600">{subscription.description}</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
