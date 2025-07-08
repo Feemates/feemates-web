@@ -100,24 +100,21 @@ export function Profile() {
     setIsLoggingOut(true);
 
     try {
-      // Clear auth store state
+      // Clear only auth-related data
       reset();
 
-      // Clear all localStorage data for complete logout
-      localStorage.clear();
+      // Remove specific auth-related items from storage
+      localStorage.removeItem('auth-store');
 
-      // Clear sessionStorage as well for complete cleanup
-      sessionStorage.clear();
+      // Use Next.js router for navigation
+      await router.push('/');
 
-      // Small delay to ensure state cleanup
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Redirect to login page
-      window.location.href = '/'; // Force reload to clear any cached state
+      // Reload the page after navigation is complete
+      window.location.reload();
     } catch (error) {
       console.error('Logout error:', error);
-      // Even if there's an error, still redirect to login
-      window.location.href = '/';
+      // Fallback to simple navigation on error
+      router.push('/');
     } finally {
       setIsLoggingOut(false);
     }
@@ -192,7 +189,7 @@ export function Profile() {
                   <AvatarImage
                     src={userDetails?.avatar || ''}
                     alt={userDetails?.name || 'Profile'}
-                    className="object-fit"
+                    className="object-cover object-center"
                   />
                   <AvatarFallback className="bg-blue-100 text-2xl font-bold text-blue-600">
                     {getInitials(userDetails?.name)}
