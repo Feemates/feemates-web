@@ -190,11 +190,14 @@ export function PaymentTabContent({ subscriptionId }: PaymentTabContentProps) {
                       : ''}
                   </p>
                 </div>
-                <div className="flex items-center space-x-2">
-                  {getPaymentStatusIcon(txn.status)}
-                  <Badge variant="secondary" className={getPaymentStatusColor(txn.status)}>
-                    {txn.status || 'N/A'}
-                  </Badge>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    {getPaymentStatusIcon(txn.status)}
+                    <Badge variant="secondary" className={getPaymentStatusColor(txn.status)}>
+                      {(txn.status === 'completed' && 'Paid') || 'N/A'}
+                    </Badge>
+                  </div>
+                  <p className="pt-1 text-sm text-gray-500"> ${Number(txn.amount).toFixed(2)}</p>
                 </div>
               </div>
             ))}
