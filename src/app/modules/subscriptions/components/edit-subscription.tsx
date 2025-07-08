@@ -65,7 +65,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
           <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600" />
-          <p className="mt-2 text-gray-600">Loading subscription details...</p>
+          <p className="mt-2 text-gray-600">Loading bundle details...</p>
         </div>
       </div>
     );
@@ -76,8 +76,8 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="mb-4 text-red-600">Failed to load subscription details</p>
-          <Button onClick={() => router.push(`/subscription/${id}`)}>Back to Subscription</Button>
+          <p className="mb-4 text-red-600">Failed to load bundle details</p>
+          <Button onClick={() => router.push(`/subscription/${id}`)}>Back to Bundle</Button>
         </div>
       </div>
     );
@@ -90,9 +90,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="mb-4 text-red-600">
-            You don&apos;t have permission to edit this subscription
-          </p>
+          <p className="mb-4 text-red-600">You don&apos;t have permission to edit this bundle</p>
           <Button onClick={() => router.push(`/subscription/${id}`)}>Back to Subscription</Button>
         </div>
       </div>
@@ -142,7 +140,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="min-w-0 flex-1 overflow-hidden">
-            <h1 className="text-xl font-bold text-gray-900">Edit Subscription</h1>
+            <h1 className="text-xl font-bold text-gray-900">Edit Bundle</h1>
             <p className="line-clamp-1 overflow-hidden text-sm break-all text-gray-500">
               Update {subscriptionData.name}
             </p>
@@ -153,7 +151,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
       <main className="px-4 py-6">
         <Card className="border-0 bg-white shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg">Subscription Details</CardTitle>
+            <CardTitle className="text-lg">Bundle Details</CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -164,7 +162,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Subscription Name *</FormLabel>
+                      <FormLabel>Bundle Name *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., Netflix Premium, Spotify Family"
@@ -185,7 +183,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                       <FormLabel>Description (Optional)</FormLabel>
                       <FormControl>
                         <textarea
-                          placeholder="Add any additional details about this subscription..."
+                          placeholder="Add any additional details about this bundle..."
                           className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-24 w-full resize-none rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                           rows={3}
                           {...field}
@@ -193,7 +191,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                       </FormControl>
                       <FormMessage />
                       <p className="text-sm text-gray-500">
-                        Optional details about the subscription or sharing arrangement
+                        Optional details about the bundle or sharing arrangement
                       </p>
                     </FormItem>
                   )}

@@ -5,6 +5,7 @@ import { Home, List, Plus, Mail, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'nextjs-toploader/app';
 import { useGetDashboard } from '@/api/dashboard-data';
+import Image from 'next/image';
 
 type TabType = 'home' | 'subscriptions' | 'invites' | 'profile';
 
@@ -73,16 +74,17 @@ export function BottomNavigation() {
           }`}
         >
           <List className={`h-5 w-5 ${activeTab === 'subscriptions' ? 'fill-current' : ''}`} />
-          <span className="text-xs font-medium">Subscriptions</span>
+          <span className="text-xs font-medium">Bundle</span>
         </button>
 
         {/* Plus Button */}
         <Button
           onClick={handlePlusClick}
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 shadow-lg hover:bg-blue-700"
+          className="-mt-8 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 shadow-lg hover:bg-blue-700"
           size="sm"
         >
-          <Plus className="h-6 w-6 text-white" />
+          {/* <Plus className="h-6 w-6 text-white" /> */}
+          <Image src="/plus-square.svg" alt="+" height={30} width={30} />
         </Button>
 
         {/* Invites */}

@@ -96,8 +96,8 @@ export function Dashboard() {
                   <div className="flex-1">
                     <h3 className="mb-1 font-medium text-orange-900">Verification Pending</h3>
                     <p className="mb-3 text-sm text-orange-800">
-                      Verify your bank account to create subscriptions and enable secure payments
-                      and withdrawals
+                      Verify your bank account to create bundles and enable secure payments and
+                      withdrawals
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <Button
@@ -166,7 +166,7 @@ export function Dashboard() {
           <h2 className="mb-1 text-2xl font-bold text-gray-900">
             Hello, {userDetails?.name || 'User'}!
           </h2>
-          <p className="text-gray-600">Manage your subscription fees and sharing</p>
+          <p className="text-gray-600">Manage your bundle fees and sharing</p>
         </div>
 
         {/* Search Bar */}
@@ -185,35 +185,35 @@ export function Dashboard() {
 
         {/* Stats Cards */}
         <div className="mb-6 grid grid-cols-2 gap-4">
-          <Card className="border-0 bg-white shadow-sm">
+          <Card className="border-0 bg-white py-3 shadow-sm">
             <CardContent className="p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Owned</span>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
-                  <Briefcase className="h-4 w-4 text-blue-600" />
+              <div className="flex items-start justify-between">
+                <div className="flex items-center justify-between space-x-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+                    <Briefcase className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-base font-semibold text-gray-900">Owned</span>
+                    <span className="text-2xl font-bold text-blue-600">{ownedCount}</span>
+                  </div>
                 </div>
               </div>
-              <div className="mb-1 text-2xl font-bold text-gray-900">{ownedCount}</div>
-              {/* <div className="flex items-center text-sm text-green-600">
-                <TrendingUp className="mr-1 h-3 w-3" />
-                12% this month
-              </div> */}
             </CardContent>
           </Card>
 
-          <Card className="border-0 bg-white shadow-sm">
+          <Card className="border-0 bg-white py-3 shadow-sm">
             <CardContent className="p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Joined</span>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
-                  <Users className="h-4 w-4 text-purple-600" />
+              <div className="flex items-start justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                    <Users className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-base font-semibold text-gray-900">Joined</span>
+                    <span className="text-2xl font-bold text-purple-600">{joinedCount}</span>
+                  </div>
                 </div>
               </div>
-              <div className="mb-1 text-2xl font-bold text-gray-900">{joinedCount}</div>
-              {/* <div className="flex items-center text-sm text-green-600">
-                <TrendingUp className="mr-1 h-3 w-3" />
-                5% this month
-              </div> */}
             </CardContent>
           </Card>
         </div>
@@ -221,7 +221,7 @@ export function Dashboard() {
         {/* My Subscriptions Section */}
         <div className="mb-4">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">My Subscriptions</h3>
+            <h3 className="text-lg font-semibold text-gray-900">My Bundles</h3>
             <Button
               variant="ghost"
               className="p-0 text-blue-600 hover:text-blue-800"

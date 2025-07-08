@@ -53,7 +53,7 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
           <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600" />
-          <p className="mt-2 text-gray-600">Loading subscription details...</p>
+          <p className="mt-2 text-gray-600">Loading bundle details...</p>
         </div>
       </div>
     );
@@ -64,7 +64,7 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="text-red-600">Failed to load subscription details</p>
+          <p className="text-red-600">Failed to load bundle details</p>
           <Button onClick={() => router.push('/dashboard')} className="mt-4">
             Back to Dashboard
           </Button>
@@ -222,9 +222,9 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
             <CheckCircle className="h-8 w-8 text-green-600" />
           </div>
-          <h1 className="mb-2 text-2xl font-bold text-gray-900">Subscription Created!</h1>
+          <h1 className="mb-2 text-2xl font-bold text-gray-900">Bundle Created!</h1>
           <p className="line-clamp-2 text-gray-600">
-            Your {subscription.name} subscription is ready to share
+            Your {subscription.name} bundle is ready to share
           </p>
         </div>
 
@@ -258,7 +258,7 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
 
         <Card className="mb-6 border-0 bg-white shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg">Share Your Subscription</CardTitle>
+            <CardTitle className="text-lg">Share Your Bundle</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -348,8 +348,8 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
                 <h4 className="mb-1 text-sm font-medium text-blue-900">Invitation Preview</h4>
                 <p className="line-clamp-2 overflow-hidden text-xs break-all text-blue-800">
-                  &quot;Join my {subscription.name} subscription and pay only $
-                  {subscription.monthlyShare}/month!&quot;
+                  &quot;Join my {subscription.name} bundle and pay only ${subscription.monthlyShare}
+                  /month!&quot;
                 </p>
               </div>
 

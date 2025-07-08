@@ -122,8 +122,8 @@ export function CreateSubscription() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Create Subscription</h1>
-            <p className="text-sm text-gray-500">Set up a new subscription to share</p>
+            <h1 className="text-xl font-bold text-gray-900">Create Bundle</h1>
+            <p className="text-sm text-gray-500">Set up a new bundle to share</p>
           </div>
         </div>
       </header>
@@ -131,7 +131,7 @@ export function CreateSubscription() {
       <main className="px-4 py-6">
         <Card className="border-0 bg-white shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg">Subscription Details</CardTitle>
+            <CardTitle className="text-lg">Bundle Details</CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -141,7 +141,7 @@ export function CreateSubscription() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Subscription Name *</FormLabel>
+                      <FormLabel>bundle Name *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., Netflix Premium, Spotify Family"
@@ -162,7 +162,7 @@ export function CreateSubscription() {
                       <FormLabel>Description (Optional)</FormLabel>
                       <FormControl>
                         <textarea
-                          placeholder="Add any additional details about this subscription..."
+                          placeholder="Add any additional details about this bundle..."
                           className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-24 w-full resize-none rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                           rows={3}
                           {...field}
@@ -170,7 +170,7 @@ export function CreateSubscription() {
                       </FormControl>
                       <FormMessage />
                       <p className="text-sm text-gray-500">
-                        Optional details about the subscription or sharing arrangement
+                        Optional details about the bundle or sharing arrangement
                       </p>
                     </FormItem>
                   )}
@@ -202,7 +202,7 @@ export function CreateSubscription() {
                         </div>
                       </FormControl>
                       <FormMessage />
-                      <p className="text-sm text-gray-500">Total subscription cost</p>
+                      <p className="text-sm text-gray-500">Total bundle cost</p>
                     </FormItem>
                   )}
                 />
@@ -222,7 +222,7 @@ export function CreateSubscription() {
                         />
                       </FormControl>
                       <FormMessage />
-                      <p className="text-sm text-gray-500">Subscription cannot start in the past</p>
+                      <p className="text-sm text-gray-500">Bundle cannot start in the past</p>
                     </FormItem>
                   )}
                 />
@@ -275,7 +275,7 @@ export function CreateSubscription() {
                   className="h-12 w-full text-base font-medium"
                   disabled={createSubscriptionMutation.isPending}
                 >
-                  {createSubscriptionMutation.isPending ? 'Creating...' : 'Create Subscription'}
+                  {createSubscriptionMutation.isPending ? 'Creating...' : 'Create Bundle'}
                 </Button>
               </form>
             </Form>

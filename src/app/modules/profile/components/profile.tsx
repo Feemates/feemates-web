@@ -184,7 +184,7 @@ export function Profile() {
       {/* Main Content with bottom padding for navigation */}
       <main className="px-4 py-6 pb-24">
         {/* Profile Header Card */}
-        <Card className="mb-6 border-0 bg-white shadow-sm">
+        <Card className="mb-6 border-0 bg-white py-0 shadow-sm">
           <CardContent className="p-6">
             <div className="mb-4 flex items-center space-x-4">
               <div className="relative">
@@ -223,7 +223,7 @@ export function Profile() {
             </div>
 
             {/* Bank Account Status */}
-            <div className="mb-4 flex items-center justify-between rounded-lg bg-gray-50 p-3">
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
               <div className="flex items-center space-x-2">
                 <Shield className="h-5 w-5 text-gray-500" />
                 <span className="font-medium text-gray-900">KYC Status</span>
@@ -250,7 +250,7 @@ export function Profile() {
         </Card>
 
         {/* Payout Stats Cards */}
-        <div className="mb-6 grid grid-cols-2 gap-4">
+        {/* <div className="mb-6 grid grid-cols-2 gap-4">
           <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
             <CardContent className="p-4">
               <div className="mb-2 flex items-center justify-between">
@@ -286,10 +286,10 @@ export function Profile() {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
 
         {/* Payout Details Card */}
-        <Card className="mb-6 border-0 bg-white shadow-sm">
+        {/* <Card className="mb-6 border-0 bg-white shadow-sm">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center text-lg font-semibold">
               <CreditCard className="mr-2 h-5 w-5" />
@@ -297,7 +297,6 @@ export function Profile() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Pending Payouts */}
             <div className="flex items-center justify-between rounded-lg bg-yellow-50 p-3">
               <div className="flex items-center space-x-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100">
@@ -316,7 +315,6 @@ export function Profile() {
               </div>
             </div>
 
-            {/* Last Payout */}
             <div className="flex items-center justify-between rounded-lg bg-green-50 p-3">
               <div className="flex items-center space-x-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
@@ -335,7 +333,6 @@ export function Profile() {
               </div>
             </div>
 
-            {/* Payout Method */}
             <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
               <div className="flex items-center space-x-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
@@ -351,10 +348,10 @@ export function Profile() {
               </Button>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Payout History */}
-        <Card className="mb-6 border-0 bg-white shadow-sm">
+        {/* <Card className="mb-6 border-0 bg-white shadow-sm">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-semibold">Recent Payouts</CardTitle>
@@ -386,11 +383,11 @@ export function Profile() {
               </div>
             ))}
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Account Settings */}
-        <Card className="mb-6 border-0 bg-white shadow-sm">
-          <CardHeader className="pb-4">
+        <Card className="mb-6 gap-0 border-0 bg-white shadow-sm">
+          <CardHeader className="">
             <CardTitle className="text-lg font-semibold">Account Settings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
@@ -450,12 +447,12 @@ export function Profile() {
         </Card>
 
         {/* More Options */}
-        <Card className="mb-6 border-0 bg-white shadow-sm">
-          <CardHeader className="pb-4">
+        <Card className="mb-6 gap-0 border-0 bg-white shadow-sm">
+          <CardHeader className="">
             <CardTitle className="text-lg font-semibold">More</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
-            <button
+            {/* <button
               onClick={handleSettings}
               className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50"
             >
@@ -464,7 +461,7 @@ export function Profile() {
                 <span className="font-medium text-gray-900">Settings</span>
               </div>
               <ChevronRight className="h-5 w-5 text-gray-400" />
-            </button>
+            </button> */}
 
             <button
               onClick={handleSupport}
@@ -502,7 +499,7 @@ export function Profile() {
         </Card>
 
         {/* Achievement Badge */}
-        <Card className="mb-6 border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50">
+        {/* <Card className="mb-6 border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
@@ -516,7 +513,7 @@ export function Profile() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Logout Button */}
         <AlertDialog>

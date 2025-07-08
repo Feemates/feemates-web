@@ -11,6 +11,8 @@ import { useGetSubscriptionsList } from '../api/useGetSubscriptionsList';
 import { useInView } from 'react-intersection-observer';
 import { useRouter } from 'nextjs-toploader/app';
 import { toast } from '@/lib/toast';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export function SubscriptionsList() {
   const router = useRouter();
@@ -106,7 +108,7 @@ export function SubscriptionsList() {
         <div className="relative mb-6">
           <Search className="absolute top-3 left-3 h-5 w-5 text-gray-400" />
           <Input
-            placeholder="Search subscriptions..."
+            placeholder="Search bundles..."
             className="h-12 bg-white pr-12 pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -229,12 +231,30 @@ export function SubscriptionsList() {
 
         {/* Empty state */}
         {!isLoading && subscriptions.length === 0 && (
-          <div className="py-8 text-center">
-            <p className="mb-4 text-gray-500">
-              {searchTerm
-                ? 'No subscriptions found matching your search'
-                : 'You have no subscriptions yet. Create one to get started!'}
-            </p>
+          <div className="text-center">
+            <div className="mb-4 text-gray-500">
+              {searchTerm ? (
+                'No subscriptions found matching your search'
+              ) : (
+                <div className="flex flex-col items-center justify-center px-4">
+                  <Image
+                    src="/dashboard/owned.svg"
+                    alt="No subscriptions"
+                    width={150}
+                    height={150}
+                  />
+                  <h2 className="mb-2 text-center text-lg font-semibold text-gray-900">
+                    You haven't created any bundle yet
+                  </h2>
+                  <p className="mb-3 text-center text-sm text-gray-500">
+                    Start a group bundle and invite friends to split the cost easily
+                  </p>
+                  <Button asChild>
+                    <Link href="/create-subscription">Create Bundle</Link>
+                  </Button>
+                </div>
+              )}
+            </div>
             {searchTerm && (
               <Button variant="outline" onClick={() => setSearchTerm('')}>
                 Clear search

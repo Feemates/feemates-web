@@ -38,7 +38,7 @@ export function OverviewTabContent({
     <div className="space-y-6">
       <Card className="border-0 bg-white shadow-sm">
         <CardHeader>
-          <CardTitle className="text-lg">Subscription Details</CardTitle>
+          <CardTitle className="text-lg">Bundle Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-between">

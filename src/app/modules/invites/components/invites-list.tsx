@@ -22,6 +22,7 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
 import { useQueryClient } from '@tanstack/react-query';
+import Image from 'next/image';
 
 const iconMap: Record<string, any> = {
   Music,
@@ -122,12 +123,12 @@ export function InvitesList() {
         ) : invites.length === 0 ? (
           <Card className="border-0 bg-white shadow-sm">
             <CardContent className="p-8 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-                <Users className="h-8 w-8 text-gray-400" />
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
+                <Image src="/invite/invite.svg" alt="No subscriptions" width={200} height={200} />
               </div>
               <h3 className="mb-2 text-lg font-semibold text-gray-900">No invitations yet</h3>
               <p className="text-gray-600">
-                When someone invites you to join their subscription, it will appear here.
+                When someone invites you to join their bundle, it will appear here.
               </p>
             </CardContent>
           </Card>
@@ -200,7 +201,7 @@ export function InvitesList() {
 
                     {invite.status === 'expired' ? (
                       <div className="mt-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-center text-sm text-yellow-800">
-                        This subscription has expired. You cannot join or decline this invitation.
+                        This bundle has expired. You cannot join or decline this invitation.
                       </div>
                     ) : invite.max_members_count - invite.members_count > 0 ? (
                       <div className="mt-4 flex space-x-3">
@@ -220,8 +221,8 @@ export function InvitesList() {
                       </div>
                     ) : (
                       <div className="mt-4 rounded bg-gray-100 p-3 text-center text-sm text-gray-600">
-                        This subscription has reached the maximum number of participants. You cannot
-                        join this bundle.
+                        This bundle has reached the maximum number of participants. You cannot join
+                        this bundle.
                       </div>
                     )}
                   </CardContent>

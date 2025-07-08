@@ -290,7 +290,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
                     className="flex w-full items-center space-x-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                   >
                     <Edit className="h-4 w-4" />
-                    <span>Edit Subscription</span>
+                    <span>Edit Bundle</span>
                   </button>
                 </div>
               )}
@@ -368,8 +368,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
                 <h4 className="mb-1 text-sm font-medium text-blue-900">Invitation Preview</h4>
                 <p className="text-xs text-blue-800">
-                  &quot;Join my {subscription.name} subscription and pay only $
-                  {subscription.yourShare}
+                  &quot;Join my {subscription.name} bundle and pay only ${subscription.yourShare}
                   /month!&quot;
                 </p>
               </div>
