@@ -82,7 +82,7 @@ export function EditProfile() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      let avatarUrl = userData?.user?.avatar || undefined;
+      let avatarUrl = undefined;
 
       // If there's a new image file, upload it first
       if (selectedFile) {
