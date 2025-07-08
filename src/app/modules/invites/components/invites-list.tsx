@@ -134,21 +134,6 @@ export function InvitesList() {
         ) : (
           <div className="space-y-4">
             {invites.map((invite) => {
-              // Fallback icon
-              // const IconComponent = iconMap['Music'];
-
-              const handleJoin = () => {
-                const baseUrl = window.location.origin;
-                const successUrl = `${baseUrl}/payment-success?subscription_id=${invite.subscription_id}`;
-                const cancelUrl = `${baseUrl}/payment-failed`;
-                joinInviteMutation.mutate({
-                  inviteId: invite.id,
-                  baseUrl,
-                  successUrl,
-                  cancelUrl,
-                });
-              };
-
               return (
                 <Card key={invite.id} className="border-0 bg-white shadow-sm">
                   <CardContent className="p-4">
@@ -211,21 +196,28 @@ export function InvitesList() {
                       <span className="text-sm text-gray-400">wants you to join</span>
                     </div> */}
 
-                    <div className="mt-4 flex space-x-3">
-                      <Button
-                        onClick={() => handleJoinSubscription(invite.id, invite.subscription_id)}
-                        className="flex-1 bg-green-600 hover:bg-green-700"
-                      >
-                        Join & Pay
-                      </Button>
-                      <Button
-                        onClick={() => handleDeclineInvite(invite.id)}
-                        variant="outline"
-                        className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
-                      >
-                        Decline
-                      </Button>
-                    </div>
+                    {invite.members_count === invite.max_members_count ? (
+                      <div className="mt-4 rounded bg-gray-100 p-3 text-center text-sm text-gray-600">
+                        This subscription has reached the maximum number of participants. You cannot
+                        join this bundle.
+                      </div>
+                    ) : (
+                      <div className="mt-4 flex space-x-3">
+                        <Button
+                          onClick={() => handleJoinSubscription(invite.id, invite.subscription_id)}
+                          className="flex-1 bg-green-600 hover:bg-green-700"
+                        >
+                          Join & Pay
+                        </Button>
+                        <Button
+                          onClick={() => handleDeclineInvite(invite.id)}
+                          variant="outline"
+                          className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                        >
+                          Decline
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               );
