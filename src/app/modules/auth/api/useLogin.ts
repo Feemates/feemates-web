@@ -24,6 +24,7 @@ export interface LoginResponse {
     is_kyc_verified: boolean;
     status: string;
   };
+  invited_subscriptions?: number;
 }
 
 const loginApi = async (payload: LoginPayload): Promise<LoginResponse> => {
@@ -67,7 +68,11 @@ export const useLogin = () => {
 
       // Small delay to ensure state updates, then redirect
       setTimeout(() => {
-        router.push('/dashboard');
+        if (data.invited_subscriptions && data.invited_subscriptions > 0) {
+          router.push('/invites');
+        } else {
+          router.push('/dashboard');
+        }
       }, 100);
 
       // Show success message

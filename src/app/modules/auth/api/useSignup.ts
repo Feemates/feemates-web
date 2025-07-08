@@ -26,6 +26,7 @@ export interface SignupResponse {
     access_token: string;
     refresh_token: string;
   };
+  invited_subscriptions?: number;
 }
 
 const signupApi = async (payload: SignupPayload): Promise<SignupResponse> => {
@@ -61,7 +62,11 @@ export const useSignup = () => {
 
       // Small delay to ensure state updates, then redirect
       setTimeout(() => {
-        router.push('/dashboard');
+        if (data.invited_subscriptions && data.invited_subscriptions > 0) {
+          router.push('/invites');
+        } else {
+          router.push('/dashboard');
+        }
       }, 100);
 
       // Show success message
