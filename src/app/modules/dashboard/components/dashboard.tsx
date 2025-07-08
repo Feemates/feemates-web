@@ -86,9 +86,9 @@ export function Dashboard() {
       <main className="px-4 py-6 pb-24">
         {/* Bank Account Verification Banner */}
         {showKycBanner && (
-          <Card className="mb-6 border-orange-200 bg-orange-50">
+          <Card className="relative mb-6 border-orange-200 bg-orange-50 py-0">
             <CardContent className="p-4">
-              <div className="flex items-start justify-between">
+              <div className="flex items-start">
                 <div className="flex items-start space-x-3">
                   <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100">
                     <AlertTriangle className="h-5 w-5 text-orange-600" />
@@ -101,7 +101,7 @@ export function Dashboard() {
                       Verify your bank account to enable secure payments and withdrawals. This helps
                       us process your subscription payments safely.
                     </p>
-                    <div className="flex space-x-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button
                         onClick={handleKycVerification}
                         size="sm"
@@ -120,23 +120,25 @@ export function Dashboard() {
                     </div>
                   </div>
                 </div>
-                <Button
-                  onClick={dismissKycBanner}
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto p-1 text-orange-600 hover:bg-orange-100"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <div className="absolute top-1 right-0">
+                  <Button
+                    onClick={dismissKycBanner}
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto shrink-0 p-1 text-orange-600 hover:bg-orange-100"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
         )}
 
         {kycPendingBanner && (
-          <Card className="mb-6 border-yellow-200 bg-yellow-50 py-0">
+          <Card className="relative mb-6 border-yellow-200 bg-yellow-50 py-0">
             <CardContent className="p-4">
-              <div className="flex items-start justify-between">
+              <div className="flex flex-wrap items-start">
                 <div className="flex items-start space-x-3">
                   <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100">
                     <AlertTriangle className="h-5 w-5 text-yellow-600" />
@@ -149,14 +151,16 @@ export function Dashboard() {
                     </p>
                   </div>
                 </div>
-                <Button
-                  onClick={() => setKycPendingBanner(false)}
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto p-1 text-yellow-600 hover:bg-yellow-100"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <div className="absolute top-1 right-0">
+                  <Button
+                    onClick={() => setKycPendingBanner(false)}
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto shrink-0 p-1 text-yellow-600 hover:bg-yellow-100"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
