@@ -128,7 +128,7 @@ export const SelectTemplate = () => {
           {templates.map((template) => (
             <Card
               key={template.id}
-              className="aspect-square cursor-pointer overflow-hidden border-0 bg-white py-0 transition-all hover:scale-105 hover:shadow-md"
+              className="aspect-video cursor-pointer overflow-hidden border-0 bg-white py-0 transition-all hover:scale-105 hover:shadow-md"
               onClick={() => handleSelectTemplate(template)}
             >
               <CardContent className="h-full p-0">

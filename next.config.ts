@@ -9,7 +9,6 @@ const nextConfig: NextConfig = {
         hostname: '**',
       },
     ],
-    domains: ['e-learning-test.s3.ap-south-1.amazonaws.com'],
   },
 };
 
