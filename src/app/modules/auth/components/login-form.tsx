@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuthStore } from '@/store/auth-store';
 import { toast } from '@/lib/toast';
@@ -31,6 +31,7 @@ import { GoogleIcon } from '@/components/common/google-icon';
 import { useRouter } from 'nextjs-toploader/app';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { env } from '@/config/env';
+import Link from 'next/link';
 
 const formSchema = z.object({
   email: z.string().email({
@@ -60,6 +61,11 @@ export function LoginForm() {
       rememberMe: false,
     },
   });
+
+  useEffect(() => {
+    router.prefetch('/invites');
+    router.prefetch('/dashboard');
+  }, [router]);
 
   const googleLogin = useGoogleLogin({
     flow: 'implicit',
@@ -136,14 +142,6 @@ export function LoginForm() {
       password: values.password,
       rememberMe: values.rememberMe,
     });
-  };
-
-  const handleSignupClick = () => {
-    router.push('/signup');
-  };
-
-  const handleForgotPasswordClick = () => {
-    router.push('/forgot-password');
   };
 
   return (
@@ -232,13 +230,14 @@ export function LoginForm() {
                   </FormItem>
                 )}
               />
-              <button
-                type="button"
-                onClick={handleForgotPasswordClick}
-                className="cursor-pointer font-medium text-blue-600 hover:text-blue-800"
-              >
-                Forgot password?
-              </button>
+              <Link href="/forgot-password">
+                <button
+                  type="button"
+                  className="cursor-pointer font-medium text-blue-600 hover:text-blue-800"
+                >
+                  Forgot password?
+                </button>
+              </Link>
             </div>
 
             <Button
@@ -295,13 +294,14 @@ export function LoginForm() {
           <CardFooter className="flex flex-col space-y-4 pt-6">
             <div className="text-center text-sm text-gray-600">
               {"Don't have an account? "}
-              <button
-                type="button"
-                className="cursor-pointer font-medium text-blue-600 hover:text-blue-800"
-                onClick={handleSignupClick}
-              >
-                Sign up
-              </button>
+              <Link href="/signup">
+                <button
+                  type="button"
+                  className="cursor-pointer font-medium text-blue-600 hover:text-blue-800"
+                >
+                  Sign up
+                </button>
+              </Link>
             </div>
           </CardFooter>
         </form>

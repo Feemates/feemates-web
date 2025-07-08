@@ -25,6 +25,7 @@ import { ArrowLeft, Mail, CheckCircle, AlertCircle, Loader2 } from 'lucide-react
 import { useForgotPassword } from '../api/useForgotPassword';
 import { errorParser } from '@/lib/error-parser';
 import { useRouter } from 'nextjs-toploader/app';
+import Link from 'next/link';
 
 const formSchema = z.object({
   email: z.string().email({
@@ -63,17 +64,15 @@ export function ForgotPasswordForm() {
     });
   };
 
-  const handleBackToLogin = () => {
-    router.push('/');
-  };
-
   return (
     <Card className="w-full border-0 shadow-lg">
       <CardHeader className="space-y-1 pb-6">
         <div className="mb-4 flex items-center space-x-2">
-          <Button variant="ghost" size="sm" onClick={handleBackToLogin} className="p-1">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+          <Link href="/">
+            <Button variant="ghost" size="sm" className="p-1">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
           <span className="text-sm text-gray-600">Back to login</span>
         </div>
         <CardTitle className="text-center text-2xl font-semibold">Forgot Password?</CardTitle>
@@ -140,13 +139,11 @@ export function ForgotPasswordForm() {
 
             <div className="text-center text-sm text-gray-600">
               Remember your password?{' '}
-              <button
-                type="button"
-                className="font-medium text-blue-600 hover:text-blue-800"
-                onClick={handleBackToLogin}
-              >
-                Sign in
-              </button>
+              <Link href="/">
+                <button type="button" className="font-medium text-blue-600 hover:text-blue-800">
+                  Sign in
+                </button>
+              </Link>
             </div>
           </CardFooter>
         </form>

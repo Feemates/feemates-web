@@ -31,6 +31,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useAuthStore } from '@/store/auth-store';
 import { toast } from '@/lib/toast';
 import { env } from '@/config/env';
+import Link from 'next/link';
 
 const formSchema = z.object({
   name: z
@@ -153,10 +154,6 @@ export function SignupForm() {
     }
   };
 
-  const handleSigninClick = () => {
-    router.push('/');
-  };
-
   return (
     <Card className="w-full border-0 shadow-lg">
       <CardHeader className="space-y-1">
@@ -188,9 +185,12 @@ export function SignupForm() {
                         disabled={signupMutation.isPending}
                         {...field}
                       />
+                      {/* Character count in bottom right, absolute */}
+                      <div className="pointer-events-none absolute right-3 -bottom-5 text-xs text-gray-500">
+                        {field.value.length} / 50
+                      </div>
                     </div>
                   </FormControl>
-                  <div className="text-right text-xs text-gray-500">{field.value.length} / 50</div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -295,19 +295,23 @@ export function SignupForm() {
                         }}
                       >
                         <span className="inline">I agree to the </span>
-                        <button
-                          type="button"
+                        <a
+                          href="/terms-conditions"
                           className="inline font-medium text-blue-600 underline hover:text-blue-800"
+                          target="_blank"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           Terms of Service
-                        </button>
+                        </a>
                         <span className="inline"> and </span>
-                        <button
-                          type="button"
+                        <a
+                          href="/privacy-policy"
                           className="inline font-medium text-blue-600 underline hover:text-blue-800"
+                          target="_blank"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           Privacy Policy
-                        </button>
+                        </a>
                       </div>
 
                       <FormMessage />
@@ -371,13 +375,11 @@ export function SignupForm() {
           <CardFooter className="flex flex-col space-y-4 pt-6">
             <div className="text-center text-sm text-gray-600">
               Already have an account?{' '}
-              <button
-                type="button"
-                className="font-medium text-blue-600 hover:text-blue-800"
-                onClick={handleSigninClick}
-              >
-                Sign in
-              </button>
+              <Link href="/">
+                <button type="button" className="font-medium text-blue-600 hover:text-blue-800">
+                  Sign in
+                </button>
+              </Link>
             </div>
           </CardFooter>
         </form>
