@@ -1,10 +1,25 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { UserPlus, Send, AlertCircle, CheckCircle, Mail, XCircle, Clock } from 'lucide-react';
+import {
+  UserPlus,
+  Send,
+  AlertCircle,
+  CheckCircle,
+  Mail,
+  XCircle,
+  Clock,
+  Loader2,
+} from 'lucide-react';
+
+import { useMemo, useEffect } from 'react';
+import { useMemberList } from '../api/useMemberList';
+import { useInView } from 'react-intersection-observer';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { getInitials } from '@/lib/helper-functions';
 
 interface MemberTabContentProps {
-  members: any[];
+  subscriptionId: number;
   subscription: any;
   availableSlots: number;
   resendingInvite: number | null;
@@ -13,13 +28,31 @@ interface MemberTabContentProps {
 }
 
 export function MemberTabContent({
-  members,
+  subscriptionId,
   subscription,
   availableSlots,
   resendingInvite,
   handleResendInvite,
   handleInviteMembers,
 }: MemberTabContentProps) {
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
+    useMemberList(subscriptionId);
+
+  // Flatten paginated data
+  const members = data?.pages.flatMap((page) => page.data) || [];
+
+  // Intersection Observer for infinite scroll
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: '100px',
+  });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   const getMemberStatusColor = (status: string) => {
     switch (status) {
       case 'active':
@@ -46,77 +79,133 @@ export function MemberTabContent({
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-8">
+        <svg
+          className="h-8 w-8 animate-spin text-blue-600"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+      </div>
+    );
+  }
+  if (error) {
+    return <div className="text-red-500">Failed to load members.</div>;
+  }
+
   return (
     <div className="space-y-4">
-      {members.map((member) => (
-        <Card key={member.id} className="border-0 bg-white shadow-sm">
-          <CardContent className="p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                  <span className="text-sm font-medium text-blue-600">{member.avatar}</span>
+      {members.map((member, idx) => {
+        // Map API response to UI shape
+        const name = member?.user?.name || '';
+        const email = member?.user?.email || member?.invited_email;
+        // Fallback: show initials (e.g., "Joy Boy" => "JB")
+
+        const avatar = (
+          <Avatar className="h-10 w-10">
+            {member.user?.avatar ? <AvatarImage src={member?.user?.avatar} alt={name} /> : null}
+            <AvatarFallback>{getInitials(name)}</AvatarFallback>
+          </Avatar>
+        );
+        const role = member?.user_type === 'owner' ? 'Owner' : 'Member';
+        const memberStatus = member?.status;
+        const formatDate = (dateString: string) =>
+          new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+          });
+        const joinDate = member?.joined_at ? formatDate(member?.joined_at) : null;
+        const invitedDate =
+          !member?.joined_at && member?.createdAt ? formatDate(member?.createdAt) : null;
+
+        return (
+          <Card key={member.id} className="border-0 bg-white shadow-sm">
+            <CardContent className="p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div>{avatar}</div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{name}</h4>
+                    <p className="text-sm text-gray-500">{email}</p>
+                    {memberStatus === 'active' && joinDate && (
+                      <p className="text-xs text-gray-400">Joined {joinDate}</p>
+                    )}
+                    {memberStatus === 'invited' && invitedDate && (
+                      <p className="text-xs text-gray-400">Invited {invitedDate}</p>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900">{member.name}</h4>
-                  <p className="text-sm text-gray-500">{member.email}</p>
-                  {member.memberStatus === 'active' && member.joinDate && (
-                    <p className="text-xs text-gray-400">Joined {member.joinDate}</p>
-                  )}
-                  {member.memberStatus === 'invited' && member.invitedDate && (
-                    <p className="text-xs text-gray-400">Invited {member.invitedDate}</p>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Badge
-                  variant="secondary"
-                  className={
-                    member.role === 'Owner'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }
-                >
-                  {member.role}
-                </Badge>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Badge variant="secondary" className={getMemberStatusColor(member.memberStatus)}>
-                  {getMemberStatusIcon(member.memberStatus)}
-                  <span className="ml-1 capitalize">{member.memberStatus}</span>
-                </Badge>
-              </div>
-              {subscription.isOwner && member.role !== 'Owner' && (
                 <div className="flex items-center space-x-2">
-                  {member.memberStatus === 'invited' && (
-                    <Button
-                      onClick={() => handleResendInvite(member.id, member.name, member.email)}
-                      size="sm"
-                      variant="outline"
-                      className="border-blue-200 text-blue-600 hover:bg-blue-50"
-                      disabled={resendingInvite === member.id}
-                    >
-                      <Send className="mr-1 h-3 w-3" />
-                      {resendingInvite === member.id ? 'Sending...' : 'Resend'}
-                    </Button>
-                  )}
+                  <Badge
+                    variant="secondary"
+                    className={
+                      role === 'Owner' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                    }
+                  >
+                    {role}
+                  </Badge>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Badge variant="secondary" className={getMemberStatusColor(memberStatus)}>
+                    {getMemberStatusIcon(memberStatus)}
+                    <span className="ml-1 capitalize">{memberStatus}</span>
+                  </Badge>
+                </div>
+                {subscription.isOwner && role !== 'Owner' && (
+                  <div className="flex items-center space-x-2">
+                    {memberStatus === 'invited' && (
+                      <Button
+                        onClick={() => handleResendInvite(member.id, name, email)}
+                        size="sm"
+                        variant="outline"
+                        className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                        disabled={resendingInvite === member.id}
+                      >
+                        <Send className="mr-1 h-3 w-3" />
+                        {resendingInvite === member.id ? 'Sending...' : 'Resend'}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+              {memberStatus === 'invited' && (
+                <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-2">
+                  <div className="flex items-center space-x-2">
+                    <AlertCircle className="h-4 w-4 text-blue-600" />
+                    <p className="text-sm text-blue-800">
+                      Waiting for {name} to accept the invitation
+                    </p>
+                  </div>
                 </div>
               )}
-            </div>
-            {member.memberStatus === 'invited' && (
-              <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-2">
-                <div className="flex items-center space-x-2">
-                  <AlertCircle className="h-4 w-4 text-blue-600" />
-                  <p className="text-sm text-blue-800">
-                    Waiting for {member.name} to accept the invitation
-                  </p>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ))}
+            </CardContent>
+          </Card>
+        );
+      })}
+
+      {isFetchingNextPage && (
+        <div className="flex justify-center py-4">
+          <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+        </div>
+      )}
+
+      {hasNextPage && !isFetchingNextPage && <div ref={ref} className="h-4" />}
+
       {availableSlots > 0 && (
         <Card className="border-blue-200 bg-blue-50">
           <CardContent className="p-4 text-center">

@@ -504,7 +504,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
 
         {activeTab === 'members' && (
           <MemberTabContent
-            members={members}
+            subscriptionId={Number(id)}
             subscription={subscription}
             availableSlots={availableSlots}
             resendingInvite={resendingInvite}

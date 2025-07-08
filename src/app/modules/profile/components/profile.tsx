@@ -36,6 +36,7 @@ import { BottomNavigation } from '@/components/layout/bottom-navigation';
 import { useAuthStore } from '@/store/auth-store';
 import { useState } from 'react';
 import { useRouter } from 'nextjs-toploader/app';
+import { getInitials } from '@/lib/helper-functions';
 
 // Mock user data
 const userData = {
@@ -181,7 +182,7 @@ export function Profile() {
                     className="object-fit"
                   />
                   <AvatarFallback className="bg-blue-100 text-2xl font-bold text-blue-600">
-                    {userDetails?.name?.charAt(0).toUpperCase() || 'U'}
+                    {getInitials(userDetails?.name)}
                   </AvatarFallback>
                 </Avatar>
                 {/* <button className="absolute -right-1 -bottom-1 flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 shadow-lg">
