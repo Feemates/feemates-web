@@ -221,9 +221,15 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
   };
 
   const handleSendInvites = async () => {
-    const errors = inviteEmails.map((email) => {
+    // Prepare lowercased, trimmed emails for duplicate check
+    const normalizedEmails = inviteEmails.map((email) => email.trim().toLowerCase());
+    const errors = inviteEmails.map((email, idx) => {
       if (!email.trim()) return 'Email is required';
       if (!validateEmail(email)) return 'Invalid email address';
+      // Check for duplicates (case-insensitive)
+      if (normalizedEmails.filter((e) => e === normalizedEmails[idx]).length > 1) {
+        return 'Duplicate email';
+      }
       return '';
     });
 
@@ -237,7 +243,14 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
     setSendingInvites(true);
 
     try {
-      const validEmails = inviteEmails.filter((email) => email.trim() && validateEmail(email));
+      const validEmails = inviteEmails
+        .map((email) => email.trim())
+        .filter(
+          (email, idx, arr) =>
+            validateEmail(email) &&
+            email &&
+            arr.findIndex((e) => e.toLowerCase() === email.toLowerCase()) === idx
+        );
       await inviteByEmail({
         subscription_id: Number(id),
         emails: validEmails,
