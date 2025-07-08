@@ -124,7 +124,6 @@ export function SubscriptionsList() {
             </Button>
           )}
         </div>
-
         {/* Loading state */}
         {isLoading && (
           <div className="flex justify-center py-8">
@@ -160,13 +159,15 @@ export function SubscriptionsList() {
                     </div>
                     <Badge
                       variant="secondary"
-                      className={`${
-                        subscription.is_owner
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-purple-100 text-purple-800'
+                      className={`capitalize ${
+                        subscription.status === 'active'
+                          ? 'bg-green-100 text-green-800'
+                          : subscription.status === 'expired'
+                            ? 'bg-orange-100 text-orange-800'
+                            : 'bg-gray-100 text-gray-800'
                       } `}
                     >
-                      {subscription.is_owner ? 'Owner' : 'Member'}
+                      {subscription.status}
                     </Badge>
                   </div>
 
@@ -221,15 +222,13 @@ export function SubscriptionsList() {
                     </p>
                     <Badge
                       variant="secondary"
-                      className={`capitalize ${
-                        subscription.status === 'active'
-                          ? 'bg-green-100 text-green-800'
-                          : subscription.status === 'expired'
-                            ? 'bg-orange-100 text-orange-800'
-                            : 'bg-gray-100 text-gray-800'
+                      className={`${
+                        subscription.is_owner
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-purple-100 text-purple-800'
                       } `}
                     >
-                      {subscription.status}
+                      {subscription.is_owner ? 'Owner' : 'Member'}
                     </Badge>
                   </div>
                 </CardContent>
@@ -237,7 +236,6 @@ export function SubscriptionsList() {
             );
           })}
         </div>
-
         {/* Empty state */}
         {!isLoading && subscriptions.length === 0 && (
           <div className="text-center">
@@ -271,14 +269,12 @@ export function SubscriptionsList() {
             )}
           </div>
         )}
-
         {/* Load more indicator */}
         {isFetchingNextPage && (
           <div className="flex justify-center py-4">
             <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
           </div>
         )}
-
         {/* Intersection observer target */}
         {hasNextPage && !isFetchingNextPage && <div ref={ref} className="h-4" />}
       </main>

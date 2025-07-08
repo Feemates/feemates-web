@@ -134,7 +134,7 @@ export function Dashboard() {
 
         {/* Welcome Section */}
         <div className="mb-6">
-          <h2 className="mb-1 text-2xl font-bold text-gray-900">
+          <h2 className="mb-1 line-clamp-2 overflow-hidden text-2xl font-bold break-all text-gray-900">
             Hello, {userDetails?.name || 'User'}!
           </h2>
           <p className="text-gray-600">Manage your bundle fees and sharing</p>

@@ -147,7 +147,9 @@ export function InvitesList() {
                           <h4 className="font-semibold text-gray-900">
                             {invite.subscription_name}
                           </h4>
-                          <p className="text-sm text-gray-500">Invited by {invite.owner_name}</p>
+                          <p className="line-clamp-2 overflow-hidden text-sm break-all text-gray-500">
+                            Invited by {invite.owner_name}
+                          </p>
                           <p className="text-xs text-gray-400">
                             {invite.createdAt
                               ? new Date(invite.createdAt).toLocaleDateString()

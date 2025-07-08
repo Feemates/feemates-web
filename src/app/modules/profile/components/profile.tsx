@@ -192,7 +192,9 @@ export function Profile() {
               </div>
               <div className="flex-1">
                 <div className="mb-1 flex items-center space-x-2">
-                  <h2 className="text-xl font-bold text-gray-900">{userDetails?.name || 'User'}</h2>
+                  <h2 className="line-clamp-2 overflow-hidden text-xl font-bold break-all text-gray-900">
+                    {userDetails?.name || 'User'}
+                  </h2>
                   <Button onClick={handleEditProfile} variant="ghost" size="sm" className="p-1">
                     <Edit className="h-4 w-4" />
                   </Button>

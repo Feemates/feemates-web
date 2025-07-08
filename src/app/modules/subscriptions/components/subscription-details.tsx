@@ -252,7 +252,6 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
         },
         {
           onSuccess: () => {
-            console.log('hello', id);
             queryClient.invalidateQueries({ queryKey: ['member-list', Number(id), 10] });
           },
         }

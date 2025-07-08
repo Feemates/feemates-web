@@ -52,7 +52,7 @@ export const useInviteByEmail = () => {
       } else if (error.message?.includes('No internet connection')) {
         toast.error('No internet connection. Please check your network and try again.');
       } else {
-        toast.error(error?.message || 'Failed to send invitations.');
+        toast.error(error || 'Failed to send invitations.');
       }
     },
   });

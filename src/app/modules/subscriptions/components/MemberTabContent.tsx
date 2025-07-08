@@ -29,6 +29,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/helper-functions';
 import { useResentInvite } from '../api/useResentInvite';
 import { formatDistanceToNow } from 'date-fns';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface MemberTabContentProps {
   subscriptionId: number;
@@ -43,6 +44,7 @@ export function MemberTabContent({
   availableSlots,
   handleInviteMembers,
 }: MemberTabContentProps) {
+  const queryClient = useQueryClient();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
     useMemberList(subscriptionId);
 
@@ -55,7 +57,12 @@ export function MemberTabContent({
   const handleResendInvite = (memberId: number) => {
     setResendingInvite(memberId);
     resendInvite(memberId, {
-      onSettled: () => setResendingInvite(null),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['member-list', subscriptionId],
+        });
+        setResendingInvite(null);
+      },
     });
   };
 
@@ -162,11 +169,7 @@ export function MemberTabContent({
           const avatar = (
             <Avatar className="h-10 w-10">
               {member.user?.avatar ? (
-                <AvatarImage
-                  className="object-cover object-center"
-                  src={member?.user?.avatar}
-                  alt={name}
-                />
+                <AvatarImage className="object-cover" src={member?.user?.avatar} alt={name} />
               ) : null}
               <AvatarFallback>{getInitials(name)}</AvatarFallback>
             </Avatar>
@@ -184,7 +187,7 @@ export function MemberTabContent({
             !member?.joined_at && member?.createdAt ? formatDate(member?.createdAt) : null;
 
           return (
-            <Card key={member.id} className="relative border-0 bg-white shadow-sm">
+            <Card key={member.id} className="relative border-0 bg-white py-2 shadow-sm">
               {subscription.isOwner && role !== 'Owner' && member.user_type === 'member' && (
                 <div className="absolute top-1 right-1">
                   <Button
@@ -203,7 +206,9 @@ export function MemberTabContent({
                     <div className="flex items-center space-x-3">
                       <div>{avatar}</div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">{name}</h4>
+                        <h4 className="line-clamp-2 overflow-hidden font-semibold break-all text-gray-900">
+                          {name}
+                        </h4>
                         <p className="text-sm text-gray-500">{email}</p>
                         {memberStatus === 'active' && joinDate && (
                           <p className="text-xs text-gray-400">Joined {joinDate}</p>
@@ -246,7 +251,7 @@ export function MemberTabContent({
                   )}
                   {subscription.isOwner &&
                     role !== 'Owner' &&
-                    memberStatus === 'invited' &&
+                    (memberStatus === 'invited' || memberStatus === 'declined') &&
                     subscription.status !== 'expired' && (
                       <Button
                         onClick={() => handleResendInvite(member.id)}
