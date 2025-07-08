@@ -6,11 +6,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   ArrowLeft,
   Calendar,
   Clock,
   DollarSign,
   Edit,
+  LogOut,
   Loader2,
   MoreVertical,
   Plus,
@@ -22,6 +33,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useRef, useState } from 'react';
 import { useGetSubscription } from '../api/useGetSubscription';
 import { useInviteByEmail } from '../api/useInviteByEmail';
+import { useLeaveBundle } from '../api/useLeaveBundle';
 import { MemberTabContent } from './MemberTabContent';
 import { OverviewTabContent } from './OverviewTabContent';
 import { PaymentTabContent } from './PaymentTabContent';
@@ -38,10 +50,12 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'payments'>('overview');
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const [inviteEmails, setInviteEmails] = useState<string[]>(['']);
   const [inviteEmailErrors, setInviteEmailErrors] = useState<string[]>(['']);
   const [sendingInvites, setSendingInvites] = useState(false);
   const { mutateAsync: inviteByEmail, isOffline } = useInviteByEmail();
+  const { mutateAsync: leaveBundle } = useLeaveBundle();
   const moreMenuRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -116,6 +130,23 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
 
   const handleMoreClick = () => {
     setShowMoreMenu(!showMoreMenu);
+  };
+
+  const handleLeaveClick = () => {
+    setShowMoreMenu(false);
+    setShowLeaveDialog(true);
+  };
+
+  const handleLeaveBundleConfirm = async () => {
+    try {
+      await leaveBundle({
+        subscriptionId: Number(id),
+        memberId: subscriptionData.member?.user_id,
+      });
+      router.push('/subscriptions');
+    } catch (error) {
+      // Error is handled by the mutation
+    }
   };
 
   const handleInviteMembers = () => {
@@ -276,15 +307,16 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
               </div>
             </div>
           </div>
-          {subscription.isOwner && (
-            <div className="relative" ref={moreMenuRef}>
-              <Button variant="ghost" size="sm" className="p-2" onClick={handleMoreClick}>
-                <MoreVertical className="h-5 w-5" />
-              </Button>
 
-              {/* Dropdown Menu */}
-              {showMoreMenu && (
-                <div className="absolute top-10 right-0 z-50 w-48 rounded-md border border-gray-200 bg-white shadow-lg">
+          <div className="relative" ref={moreMenuRef}>
+            <Button variant="ghost" size="sm" className="p-2" onClick={handleMoreClick}>
+              <MoreVertical className="h-5 w-5" />
+            </Button>
+
+            {/* Dropdown Menu */}
+            {showMoreMenu && (
+              <div className="absolute top-10 right-0 z-50 w-48 rounded-md border border-gray-200 bg-white shadow-lg">
+                {subscription.isOwner ? (
                   <button
                     onClick={handleEditClick}
                     className="flex w-full items-center space-x-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
@@ -292,10 +324,18 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
                     <Edit className="h-4 w-4" />
                     <span>Edit Bundle</span>
                   </button>
-                </div>
-              )}
-            </div>
-          )}
+                ) : (
+                  <button
+                    onClick={handleLeaveClick}
+                    className="flex w-full items-center space-x-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Leave Bundle</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -400,6 +440,25 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
           </Card>
         </div>
       )}
+
+      {/* Leave Bundle Alert Dialog */}
+      <AlertDialog open={showLeaveDialog} onOpenChange={setShowLeaveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Leave "{subscription.name}"?</AlertDialogTitle>
+            <AlertDialogDescription>You will lose access immediately.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleLeaveBundleConfirm}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Main Content with bottom padding for navigation */}
       <main className="px-4 py-6 pb-24">

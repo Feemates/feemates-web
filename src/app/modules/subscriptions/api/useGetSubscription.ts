@@ -21,6 +21,7 @@ export interface SubscriptionData {
   is_owner: boolean;
   member: {
     next_due_date: string;
+    user_id: number;
   };
   owner: {
     id: number;
