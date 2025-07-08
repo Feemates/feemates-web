@@ -31,65 +31,6 @@ interface SubscriptionDetailsProps {
   id: string;
 }
 
-// Mock members data with different statuses
-const members = [
-  {
-    id: 1,
-    name: 'Alex Johnson',
-    email: 'alex@example.com',
-    role: 'Owner',
-    joinDate: 'Mar 10, 2023',
-    paymentStatus: 'paid',
-    memberStatus: 'active', // active, invited, declined
-    avatar: 'AJ',
-    invitedDate: null,
-  },
-  {
-    id: 2,
-    name: 'Sarah Wilson',
-    email: 'sarah@example.com',
-    role: 'Member',
-    joinDate: 'Mar 15, 2023',
-    paymentStatus: 'paid',
-    memberStatus: 'active',
-    avatar: 'SW',
-    invitedDate: null,
-  },
-  {
-    id: 3,
-    name: 'Mike Chen',
-    email: 'mike@example.com',
-    role: 'Member',
-    joinDate: 'Mar 20, 2023',
-    paymentStatus: 'pending',
-    memberStatus: 'active',
-    avatar: 'MC',
-    invitedDate: null,
-  },
-  {
-    id: 4,
-    name: 'Emma Davis',
-    email: 'emma@example.com',
-    role: 'Member',
-    joinDate: null,
-    paymentStatus: null,
-    memberStatus: 'invited',
-    avatar: 'ED',
-    invitedDate: 'Mar 25, 2024',
-  },
-  {
-    id: 5,
-    name: 'John Smith',
-    email: 'john@example.com',
-    role: 'Member',
-    joinDate: null,
-    paymentStatus: null,
-    memberStatus: 'invited',
-    avatar: 'JS',
-    invitedDate: 'Mar 22, 2024',
-  },
-];
-
 export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -542,9 +483,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
           />
         )}
 
-        {activeTab === 'payments' && (
-          <PaymentTabContent members={members} subscription={subscription} />
-        )}
+        {activeTab === 'payments' && <PaymentTabContent subscriptionId={Number(id)} />}
       </main>
 
       {/* Bottom Navigation */}
