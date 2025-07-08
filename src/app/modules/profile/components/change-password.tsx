@@ -21,9 +21,13 @@ const formSchema = z
     currentPassword: z.string().min(1, {
       message: 'Current password is required.',
     }),
-    newPassword: z.string().min(8, {
-      message: 'New password must be at least 8 characters.',
-    }),
+    newPassword: z
+      .string()
+      .min(8, { message: 'Password must be at least 8 characters long.' })
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]/, {
+        message:
+          'Password must be minimum of 8 characters, with upper and lowercase, and a number and a symbol.',
+      }),
     confirmPassword: z.string().min(8, {
       message: 'Please confirm your new password.',
     }),

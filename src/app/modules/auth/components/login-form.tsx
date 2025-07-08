@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/form';
 import { Eye, EyeOff, Mail, Lock, Loader2 } from 'lucide-react';
 import { GoogleIcon } from '@/components/common/google-icon';
+import { useRouter } from 'nextjs-toploader/app';
 
 const formSchema = z.object({
   email: z.string().email({
@@ -33,7 +34,7 @@ const formSchema = z.object({
   password: z
     .string()
     .min(8, { message: 'Password must be at least 8 characters long.' })
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]/, {
       message:
         'Password must be minimum of 8 characters, with upper and lowercase, and a number and a symbol.',
     }),
@@ -43,6 +44,7 @@ const formSchema = z.object({
 type LoginFormData = z.infer<typeof formSchema>;
 
 export function LoginForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const loginMutation = useLogin();
@@ -60,7 +62,7 @@ export function LoginForm() {
     setIsGoogleLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
     console.log('Google login attempt');
-    window.location.href = '/dashboard';
+    router.push('/dashboard');
     setIsGoogleLoading(false);
   };
 
@@ -73,7 +75,11 @@ export function LoginForm() {
   };
 
   const handleSignupClick = () => {
-    window.location.href = '/signup';
+    router.push('/signup');
+  };
+
+  const handleForgotPasswordClick = () => {
+    router.push('/forgot-password');
   };
 
   return (
@@ -158,6 +164,7 @@ export function LoginForm() {
               />
               <button
                 type="button"
+                onClick={handleForgotPasswordClick}
                 className="cursor-pointer font-medium text-blue-600 hover:text-blue-800"
               >
                 Forgot password?

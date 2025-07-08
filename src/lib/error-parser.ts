@@ -47,6 +47,10 @@ export const errorParser = (e: Error | AxiosError | unknown, errorKey?: string) 
       return findErrorMessage(data?.[errorKey], errorKey);
     }
 
+    if (data?.validationErrors) {
+      return findErrorMessage(data?.validationErrors, errorKey);
+    }
+
     if (data?.message) {
       return findErrorMessage(data?.message, errorKey);
     }
@@ -57,10 +61,6 @@ export const errorParser = (e: Error | AxiosError | unknown, errorKey?: string) 
 
     if (data?.errors) {
       return findErrorMessage(data?.errors, errorKey);
-    }
-
-    if (data?.validationErrors) {
-      return findErrorMessage(data?.validationErrors, errorKey);
     }
 
     // no case matches

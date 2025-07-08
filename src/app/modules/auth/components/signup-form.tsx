@@ -33,20 +33,13 @@ const formSchema = z.object({
   email: z.string().email({
     message: 'Please enter a valid email address.',
   }),
-  password: z.string().refine(
-    (password) => {
-      if (password.length < 8) return false;
-      const hasUpper = /[A-Z]/.test(password);
-      const hasLower = /[a-z]/.test(password);
-      const hasNumber = /[0-9]/.test(password);
-      const hasSymbol = /[^A-Za-z0-9]/.test(password);
-      return hasUpper && hasLower && hasNumber && hasSymbol;
-    },
-    {
+  password: z
+    .string()
+    .min(8, { message: 'Password must be at least 8 characters long.' })
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]/, {
       message:
         'Password must be minimum of 8 characters, with upper and lowercase, and a number and a symbol.',
-    }
-  ),
+    }),
   agreeToTerms: z.boolean().refine((value) => value === true, {
     message: '',
   }),
