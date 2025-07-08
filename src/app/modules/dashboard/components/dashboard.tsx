@@ -1,69 +1,99 @@
 'use client';
 
-import { useState } from 'react';
+import { useGetSubscriptionsList } from '@/app/modules/subscriptions/api/useGetSubscriptionsList';
+import { BottomNavigation } from '@/components/layout/bottom-navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import {
-  Search,
-  Filter,
-  Bell,
-  Briefcase,
-  Users,
-  Music,
-  Monitor,
-  TrendingUp,
-  User,
-  AlertTriangle,
-  X,
-} from 'lucide-react';
-import { BottomNavigation } from '@/components/layout/bottom-navigation';
-import { useAuthStore } from '@/store/auth-store';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EngagespotNotification } from '@/lib/engagespot-notification';
-
-// Mock data for subscriptions
-const subscriptions = [
-  {
-    id: 1,
-    name: 'Music Premium',
-    icon: Music,
-    createdDate: 'Mar 10, 2023',
-    monthlyCost: 14.99,
-    members: 3,
-    yourShare: 5.0,
-    status: 'Active',
-    slotsAvailable: 2,
-    type: 'owned',
-  },
-  {
-    id: 2,
-    name: 'Streaming Plus',
-    icon: Monitor,
-    createdDate: 'Feb 20, 2023',
-    monthlyCost: 19.99,
-    members: 5,
-    yourShare: 4.0,
-    status: 'Active',
-    slotsAvailable: 0,
-    type: 'owned',
-  },
-];
+import { useAuthStore } from '@/store/auth-store';
+import { AlertTriangle, Briefcase, User, Users, X } from 'lucide-react';
+import { useRouter } from 'nextjs-toploader/app';
+import { useEffect, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
+import { JoinedTab } from './joined-tab';
+import { OwnedTab } from './owned-tab';
 
 export function Dashboard() {
-  const [activeTab, setActiveTab] = useState<'owned' | 'joined'>('owned');
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showKycBanner, setShowKycBanner] = useState(true);
+  const [tab, setTab] = useState<'owned' | 'joined'>('owned');
 
   // Get user details from auth store
   const { userDetails } = useAuthStore();
 
-  const ownedCount = 8;
-  const joinedCount = 12;
+  useEffect(() => {
+    if (userDetails && userDetails?.is_kyc_verified) {
+      setShowKycBanner(false);
+    } else {
+      setShowKycBanner(true);
+    }
+  }, [userDetails]);
+
+  // Owned subscriptions
+  const {
+    data: ownedData,
+    fetchNextPage: fetchOwnedNext,
+    hasNextPage: ownedHasNext,
+    isFetchingNextPage: ownedFetchingNext,
+    isLoading: ownedLoading,
+    error: ownedError,
+    refetch: refetchOwned,
+  } = useGetSubscriptionsList({
+    own_subscription: true,
+    name: searchQuery || undefined,
+    limit: 10,
+  });
+
+  // Joined subscriptions
+  const {
+    data: joinedData,
+    fetchNextPage: fetchJoinedNext,
+    hasNextPage: joinedHasNext,
+    isFetchingNextPage: joinedFetchingNext,
+    isLoading: joinedLoading,
+    error: joinedError,
+    refetch: refetchJoined,
+  } = useGetSubscriptionsList({
+    own_subscription: false,
+    name: searchQuery || undefined,
+    limit: 10,
+  });
+
+  // Refetch data when tab changes
+  useEffect(() => {
+    if (tab === 'owned') {
+      refetchOwned();
+    } else if (tab === 'joined') {
+      refetchJoined();
+    }
+  }, [tab, refetchOwned, refetchJoined]);
+
+  // Infinite scroll refs
+  const { ref: ownedRef, inView: ownedInView } = useInView({ threshold: 0, rootMargin: '100px' });
+  const { ref: joinedRef, inView: joinedInView } = useInView({ threshold: 0, rootMargin: '100px' });
+
+  useEffect(() => {
+    if (tab === 'owned' && ownedInView && ownedHasNext && !ownedFetchingNext) {
+      fetchOwnedNext();
+    }
+  }, [ownedInView, ownedHasNext, ownedFetchingNext, fetchOwnedNext, tab]);
+
+  useEffect(() => {
+    if (tab === 'joined' && joinedInView && joinedHasNext && !joinedFetchingNext) {
+      fetchJoinedNext();
+    }
+  }, [joinedInView, joinedHasNext, joinedFetchingNext, fetchJoinedNext, tab]);
+
+  // Flatten data
+  const ownedSubscriptions = ownedData?.pages.flatMap((page) => page.data) || [];
+  const joinedSubscriptions = joinedData?.pages.flatMap((page) => page.data) || [];
+  const ownedCount = ownedData?.pages?.[0]?.meta?.total || 0;
+  const joinedCount = joinedData?.pages?.[0]?.meta?.total || 0;
 
   const handleKycVerification = () => {
-    // Navigate to KYC verification page
-    window.location.href = '/kyc-verification';
+    router.push('/kyc-verification');
   };
 
   const dismissKycBanner = () => {
@@ -154,7 +184,7 @@ export function Dashboard() {
         </div>
 
         {/* Search Bar */}
-        <div className="relative mb-6">
+        {/* <div className="relative mb-6">
           <Search className="absolute top-3 left-3 h-5 w-5 text-gray-400" />
           <Input
             placeholder="Search subscriptions..."
@@ -165,7 +195,7 @@ export function Dashboard() {
           <Button variant="ghost" size="sm" className="absolute top-2 right-2 h-8 w-8 p-0">
             <Filter className="h-4 w-4" />
           </Button>
-        </div>
+        </div> */}
 
         {/* Stats Cards */}
         <div className="mb-6 grid grid-cols-2 gap-4">
@@ -178,10 +208,10 @@ export function Dashboard() {
                 </div>
               </div>
               <div className="mb-1 text-2xl font-bold text-gray-900">{ownedCount}</div>
-              <div className="flex items-center text-sm text-green-600">
+              {/* <div className="flex items-center text-sm text-green-600">
                 <TrendingUp className="mr-1 h-3 w-3" />
                 12% this month
-              </div>
+              </div> */}
             </CardContent>
           </Card>
 
@@ -194,10 +224,10 @@ export function Dashboard() {
                 </div>
               </div>
               <div className="mb-1 text-2xl font-bold text-gray-900">{joinedCount}</div>
-              <div className="flex items-center text-sm text-green-600">
+              {/* <div className="flex items-center text-sm text-green-600">
                 <TrendingUp className="mr-1 h-3 w-3" />
                 5% this month
-              </div>
+              </div> */}
             </CardContent>
           </Card>
         </div>
@@ -206,94 +236,56 @@ export function Dashboard() {
         <div className="mb-4">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">My Subscriptions</h3>
-            <Button variant="ghost" className="p-0 text-blue-600 hover:text-blue-800">
+            <Button
+              variant="ghost"
+              className="p-0 text-blue-600 hover:text-blue-800"
+              onClick={() => router.push('/subscriptions')}
+            >
               See All
             </Button>
           </div>
 
-          {/* Tabs */}
-          <div className="mb-4 flex space-x-1 rounded-lg bg-gray-100 p-1">
-            <button
-              onClick={() => setActiveTab('owned')}
-              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                activeTab === 'owned'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Owned ({ownedCount})
-            </button>
-            <button
-              onClick={() => setActiveTab('joined')}
-              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                activeTab === 'joined'
-                  ? 'bg-white text-gray-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Joined ({joinedCount})
-            </button>
-          </div>
-        </div>
-
-        {/* Subscription Cards */}
-        <div className="space-y-4">
-          {subscriptions.map((subscription) => {
-            const IconComponent = subscription.icon;
-            return (
-              <Card key={subscription.id} className="border-0 bg-white shadow-sm">
-                <CardContent className="p-4">
-                  <div className="mb-3 flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-                        <IconComponent className="h-6 w-6 text-blue-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">{subscription.name}</h4>
-                        <p className="text-sm text-gray-500">
-                          Created on {subscription.createdDate}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className="bg-green-100 text-green-800 hover:bg-green-100"
-                    >
-                      {subscription.status}
-                    </Badge>
-                  </div>
-
-                  <div className="mb-3 grid grid-cols-3 gap-4">
-                    <div>
-                      <p className="mb-1 text-sm text-gray-500">Monthly cost</p>
-                      <p className="font-semibold text-gray-900">${subscription.monthlyCost}</p>
-                    </div>
-                    <div>
-                      <p className="mb-1 text-sm text-gray-500">Members</p>
-                      <p className="font-semibold text-gray-900">{subscription.members}</p>
-                    </div>
-                    <div>
-                      <p className="mb-1 text-sm text-gray-500">Your share</p>
-                      <p className="font-semibold text-green-600">
-                        ${subscription.yourShare.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500">
-                      {subscription.slotsAvailable > 0
-                        ? `${subscription.slotsAvailable} slots available`
-                        : 'Bundle full'}
-                    </p>
-                    <Button variant="ghost" className="p-0 text-blue-600 hover:text-blue-800">
-                      Manage
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {/* Shadcn Tabs */}
+          <Tabs
+            value={tab}
+            onValueChange={(v) => setTab(v as 'owned' | 'joined')}
+            className="flex flex-col gap-2"
+          >
+            <TabsList className="mb-4 flex h-10 w-full space-x-1 rounded-lg bg-gray-100 p-1">
+              <TabsTrigger
+                value="owned"
+                className="flex-1 rounded-md px-3 py-4 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
+              >
+                Owned ({ownedCount})
+              </TabsTrigger>
+              <TabsTrigger
+                value="joined"
+                className="flex-1 rounded-md px-3 py-4 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
+              >
+                Joined ({joinedCount})
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="owned">
+              <OwnedTab
+                subscriptions={ownedSubscriptions}
+                isLoading={ownedLoading}
+                error={ownedError}
+                hasNextPage={ownedHasNext}
+                isFetchingNextPage={ownedFetchingNext}
+                fetchNextPageRef={ownedRef}
+              />
+            </TabsContent>
+            <TabsContent value="joined">
+              <JoinedTab
+                subscriptions={joinedSubscriptions}
+                isLoading={joinedLoading}
+                error={joinedError}
+                hasNextPage={joinedHasNext}
+                isFetchingNextPage={joinedFetchingNext}
+                fetchNextPageRef={joinedRef}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
 
