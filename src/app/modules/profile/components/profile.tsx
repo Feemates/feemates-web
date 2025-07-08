@@ -3,6 +3,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
   User,
   Settings,
   Shield,
@@ -21,6 +32,9 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
+import { useAuthStore } from '@/store/auth-store';
+import { useState } from 'react';
+import { useRouter } from 'nextjs-toploader/app';
 
 // Mock user data
 const userData = {
@@ -57,38 +71,63 @@ const payoutData = {
 };
 
 export function Profile() {
+  const { reset } = useAuthStore();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const handleEditProfile = () => {
-    window.location.href = '/profile/edit';
+    router.push('/profile/edit');
   };
 
   const handleBankVerification = () => {
-    window.location.href = '/kyc-verification';
+    router.push('/kyc-verification');
   };
 
   const handleSettings = () => {
-    window.location.href = '/settings';
+    router.push('/settings');
   };
 
   const handleSupport = () => {
-    window.location.href = '/support';
+    router.push('/support');
   };
 
-  const handleLogout = () => {
-    if (confirm('Are you sure you want to log out?')) {
-      window.location.href = '/';
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+
+    try {
+      // Clear auth store state
+      reset();
+
+      // Clear all localStorage data for complete logout
+      localStorage.clear();
+
+      // Clear sessionStorage as well for complete cleanup
+      sessionStorage.clear();
+
+      // Small delay to ensure state cleanup
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Redirect to login page
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Even if there's an error, still redirect to login
+      router.push('/');
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
   const handleChangePassword = () => {
-    window.location.href = '/change-password';
+    router.push('/change-password');
   };
 
   const handlePrivacyPolicy = () => {
-    window.location.href = '/privacy-policy';
+    router.push('/privacy-policy');
   };
 
   const handleTermsConditions = () => {
-    window.location.href = '/terms-conditions';
+    router.push('/terms-conditions');
   };
 
   const getBankStatusColor = (status: string) => {
@@ -438,14 +477,40 @@ export function Profile() {
         </Card>
 
         {/* Logout Button */}
-        <Button
-          onClick={handleLogout}
-          variant="outline"
-          className="mb-6 h-12 w-full border-red-200 text-red-600 hover:bg-red-50"
-        >
-          <LogOut className="mr-2 h-5 w-5" />
-          Log Out
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="outline"
+              className="mb-6 h-12 w-full border-red-200 text-red-600 hover:bg-red-50"
+              disabled={isLoggingOut}
+            >
+              <LogOut className="mr-2 h-5 w-5" />
+              {isLoggingOut ? 'Logging out...' : 'Log Out'}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className="w-[90vw] max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center justify-center text-lg font-semibold">
+                <LogOut className="mr-2 h-5 w-5 text-red-600" />
+                Confirm Logout
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-base">
+                Are you sure you want to log out of your account? You will need to sign in again to
+                access your profile and subscriptions.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-2">
+              <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="w-full bg-red-600 hover:bg-red-700 focus:ring-red-600 sm:w-auto"
+              >
+                {isLoggingOut ? 'Logging out...' : 'Yes, Log Out'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
 
       {/* Bottom Navigation */}

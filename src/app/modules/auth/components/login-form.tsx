@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useLogin } from '../api/useLogin';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -22,16 +23,20 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Loader2 } from 'lucide-react';
 import { GoogleIcon } from '@/components/common/google-icon';
 
 const formSchema = z.object({
   email: z.string().email({
     message: 'Please enter a valid email address.',
   }),
-  password: z.string().min(1, {
-    message: 'Password is required.',
-  }),
+  password: z
+    .string()
+    .min(8, { message: 'Password must be at least 8 characters long.' })
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
+      message:
+        'Password must be minimum of 8 characters, with upper and lowercase, and a number and a symbol.',
+    }),
   rememberMe: z.boolean(),
 });
 
@@ -39,8 +44,8 @@ type LoginFormData = z.infer<typeof formSchema>;
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const loginMutation = useLogin();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(formSchema),
@@ -60,11 +65,11 @@ export function LoginForm() {
   };
 
   const onSubmit = async (values: LoginFormData) => {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log('Login attempt:', values);
-    window.location.href = '/dashboard';
-    setIsLoading(false);
+    loginMutation.mutate({
+      email: values.email,
+      password: values.password,
+      rememberMe: values.rememberMe,
+    });
   };
 
   const handleSignupClick = () => {
@@ -88,11 +93,12 @@ export function LoginForm() {
                   <FormLabel className="text-sm font-medium">Email</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Mail className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+                      <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                       <Input
                         type="email"
                         placeholder="Enter your email"
                         className="h-12 pl-10"
+                        disabled={loginMutation.isPending}
                         {...field}
                       />
                     </div>
@@ -109,17 +115,19 @@ export function LoginForm() {
                   <FormLabel className="text-sm font-medium">Password</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Lock className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+                      <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                       <Input
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Enter your password"
                         className="h-12 pr-10 pl-10"
+                        disabled={loginMutation.isPending}
                         {...field}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute top-3 right-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                        disabled={loginMutation.isPending}
+                        className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -138,17 +146,20 @@ export function LoginForm() {
                 control={form.control}
                 name="rememberMe"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-y-0 space-x-3">
+                  <FormItem className="flex flex-row items-center space-y-0 space-x-1">
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
+                    <div className="leading-none">
                       <FormLabel className="cursor-pointer text-gray-600">Remember me</FormLabel>
                     </div>
                   </FormItem>
                 )}
               />
-              <button type="button" className="font-medium text-blue-600 hover:text-blue-800">
+              <button
+                type="button"
+                className="cursor-pointer font-medium text-blue-600 hover:text-blue-800"
+              >
                 Forgot password?
               </button>
             </div>
@@ -167,7 +178,7 @@ export function LoginForm() {
               variant="outline"
               className="h-12 w-full border-gray-300 hover:bg-gray-50"
               onClick={handleGoogleLogin}
-              disabled={isGoogleLoading}
+              disabled={isGoogleLoading || loginMutation.isPending}
             >
               <GoogleIcon className="mr-2 h-4 w-4" />
               {isGoogleLoading ? 'Signing in...' : 'Continue with Google'}
@@ -177,15 +188,20 @@ export function LoginForm() {
             <Button
               type="submit"
               className="h-12 w-full text-base font-medium"
-              disabled={isLoading}
+              disabled={loginMutation.isPending}
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {loginMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {loginMutation.isRedirecting
+                ? 'Signing in...'
+                : loginMutation.isPending
+                  ? 'Signing in...'
+                  : 'Sign In'}
             </Button>
             <div className="text-center text-sm text-gray-600">
               {"Don't have an account? "}
               <button
                 type="button"
-                className="font-medium text-blue-600 hover:text-blue-800"
+                className="cursor-pointer font-medium text-blue-600 hover:text-blue-800"
                 onClick={handleSignupClick}
               >
                 Sign up

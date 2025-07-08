@@ -12,7 +12,6 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       position="top-right"
       closeButton={true}
-      richColors={true}
       style={
         {
           '--normal-bg': 'var(--popover)',
