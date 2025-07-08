@@ -39,6 +39,7 @@ import { useState } from 'react';
 import { useRouter } from 'nextjs-toploader/app';
 import { getInitials } from '@/lib/helper-functions';
 import { useGetDashboard } from '@/api/dashboard-data';
+import { useGenerateOnboardUrl } from '@/api/verify-account';
 
 // Mock user data
 const userData = {
@@ -152,14 +153,10 @@ export function Profile() {
     }
   };
 
+  const { mutate: generateOnboardUrl, isOffline } = useGenerateOnboardUrl();
+
   const bankRedirection = () => {
-    if (dashboardData?.kyc && dashboardData.kyc.status === 'pending') {
-      return null;
-    } else if (dashboardData?.is_kyc_verified === false) {
-      handleBankVerification();
-    } else if (dashboardData?.is_kyc_verified === true) {
-      router.push('/bank-details');
-    }
+    generateOnboardUrl();
   };
 
   return (
@@ -220,12 +217,7 @@ export function Profile() {
                 <span className="font-medium text-gray-900">KYC Status</span>
               </div>
               <div className="flex items-center space-x-2">
-                {dashboardData?.kyc && dashboardData.kyc.status === 'pending' ? (
-                  <Badge variant="secondary" className={getBankStatusColor('pending')}>
-                    {getBankStatusIcon('pending')}
-                    <span className="ml-1 capitalize">Pending</span>
-                  </Badge>
-                ) : dashboardData?.is_kyc_verified === false ? (
+                {dashboardData?.is_kyc_verified === false ? (
                   <Button onClick={handleBankVerification} size="sm" variant="outline">
                     Verify
                   </Button>
@@ -416,12 +408,7 @@ export function Profile() {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                {dashboardData?.kyc && dashboardData.kyc.status === 'pending' ? (
-                  <Badge variant="secondary" className={getBankStatusColor('pending')}>
-                    {getBankStatusIcon('pending')}
-                    <span className="ml-1 capitalize">Pending</span>
-                  </Badge>
-                ) : dashboardData?.is_kyc_verified === false ? (
+                {dashboardData?.is_kyc_verified === false ? (
                   <Badge variant="secondary" className={getBankStatusColor('rejected')}>
                     Not Verified
                   </Badge>

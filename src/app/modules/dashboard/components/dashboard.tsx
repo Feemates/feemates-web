@@ -14,12 +14,12 @@ import { useInView } from 'react-intersection-observer';
 import { JoinedTab } from './joined-tab';
 import { OwnedTab } from './owned-tab';
 import { useGetDashboard } from '@/api/dashboard-data';
+import { useGenerateOnboardUrl } from '@/api/verify-account';
 
 export function Dashboard() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showKycBanner, setShowKycBanner] = useState(false);
-  const [kycPendingBanner, setKycPendingBanner] = useState(false);
   const [tab, setTab] = useState<'owned' | 'joined'>('owned');
 
   // Dashboard counts
@@ -34,15 +34,10 @@ export function Dashboard() {
   const { userDetails } = useAuthStore();
 
   useEffect(() => {
-    if (dashboardData && dashboardData?.kyc && dashboardData?.kyc.status === 'pending') {
-      setKycPendingBanner(true);
+    if (dashboardData && dashboardData?.is_kyc_verified) {
       setShowKycBanner(false);
-    } else if (dashboardData && dashboardData?.is_kyc_verified) {
-      setShowKycBanner(false);
-      setKycPendingBanner(false);
     } else if (dashboardData && !dashboardData?.is_kyc_verified) {
       setShowKycBanner(true);
-      setKycPendingBanner(false);
     }
   }, [dashboardData]);
 
@@ -50,8 +45,12 @@ export function Dashboard() {
   const ownedCount = dashboardCounts.owned_subscriptions;
   const joinedCount = dashboardCounts.member_subscriptions;
 
+  const { mutate: generateOnboardUrl, isOffline } = useGenerateOnboardUrl();
+
   const handleKycVerification = () => {
-    router.push('/kyc-verification');
+    if (!isOffline) {
+      generateOnboardUrl();
+    }
   };
 
   const dismissKycBanner = () => {
@@ -124,34 +123,6 @@ export function Dashboard() {
                     variant="ghost"
                     size="sm"
                     className="h-auto shrink-0 p-1 text-orange-600 hover:bg-orange-100"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {kycPendingBanner && (
-          <Card className="relative mb-6 border-yellow-200 bg-yellow-50 py-0">
-            <CardContent className="p-4">
-              <div className="flex flex-wrap items-start">
-                <div className="flex items-start space-x-3">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100">
-                    <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                  </div>
-                  <div>
-                    <h3 className="mb-1 font-medium text-yellow-900">Approval Pending</h3>
-                    <p className="text-sm text-yellow-800">KYC details pending approval.</p>
-                  </div>
-                </div>
-                <div className="absolute top-1 right-0">
-                  <Button
-                    onClick={() => setKycPendingBanner(false)}
-                    variant="ghost"
-                    size="sm"
-                    className="h-auto shrink-0 p-1 text-yellow-600 hover:bg-yellow-100"
                   >
                     <X className="h-4 w-4" />
                   </Button>
