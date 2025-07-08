@@ -75,7 +75,7 @@ export function SubscriptionsList() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="mb-4 text-red-600">Failed to load subscriptions</p>
+          <p className="mb-4 text-red-600">Failed to load bundle</p>
           <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
         <BottomNavigation />
@@ -92,11 +92,9 @@ export function SubscriptionsList() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">My Subscriptions</h1>
+            <h1 className="text-xl font-bold text-gray-900">My Bundles</h1>
             <p className="text-sm text-gray-500">
-              {isLoading
-                ? 'Loading...'
-                : `${totalCount} subscription${totalCount !== 1 ? 's' : ''}`}
+              {isLoading ? 'Loading...' : `${totalCount} bundle${totalCount !== 1 ? 's' : ''}`}
             </p>
           </div>
         </div>
