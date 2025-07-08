@@ -5,7 +5,7 @@ import { AxiosError, AxiosProgressEvent } from 'axios';
 
 interface FileUploadResponse {
   id: number;
-  file_url: string;
+  key: string;
 }
 
 interface DeleteFilePayload {
@@ -20,7 +20,7 @@ const uploadFile = async (file: File, options?: UploadFileOptions): Promise<File
   const formData = new FormData();
   formData.append('file', file);
 
-  return apiClient.post('/file-upload', formData, {
+  return apiClient.post('/file-upload/upload', formData, {
     onUploadProgress: (progressEvent: AxiosProgressEvent) => {
       if (options?.onProgress && progressEvent.total) {
         // Calculate the percentage

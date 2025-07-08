@@ -178,6 +178,7 @@ export function Profile() {
                   <AvatarImage
                     src={userDetails?.avatar || ''}
                     alt={userDetails?.name || 'Profile'}
+                    className="object-fit"
                   />
                   <AvatarFallback className="bg-blue-100 text-2xl font-bold text-blue-600">
                     {userDetails?.name?.charAt(0).toUpperCase() || 'U'}

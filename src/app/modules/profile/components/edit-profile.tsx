@@ -87,8 +87,7 @@ export function EditProfile() {
       // If there's a new image file, upload it first
       if (selectedFile) {
         const uploadResult = await uploadFile.mutateAsync({ file: selectedFile });
-        console.log(uploadResult);
-        avatarUrl = uploadResult.file_url;
+        avatarUrl = uploadResult.key;
       }
 
       // Update profile
@@ -127,11 +126,7 @@ export function EditProfile() {
           <CardContent className="p-6 text-center">
             <div className="relative mb-4 inline-block">
               <Avatar className="h-32 w-32">
-                <AvatarImage
-                  src={profileImage || undefined}
-                  alt="Profile"
-                  className="object-cover"
-                />
+                <AvatarImage src={profileImage || undefined} alt="Profile" className="object-fit" />
                 <AvatarFallback className="bg-blue-100 text-3xl font-bold text-blue-600">
                   {userData?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
                 </AvatarFallback>
