@@ -25,6 +25,7 @@ import { useInviteByEmail } from '../api/useInviteByEmail';
 import { MemberTabContent } from './MemberTabContent';
 import { OverviewTabContent } from './OverviewTabContent';
 import { PaymentTabContent } from './PaymentTabContent';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface SubscriptionDetailsProps {
   id: string;
@@ -91,6 +92,7 @@ const members = [
 
 export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: subscriptionResponse, isLoading, error } = useGetSubscription(id);
   const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'payments'>('overview');
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -251,10 +253,19 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
             email &&
             arr.findIndex((e) => e.toLowerCase() === email.toLowerCase()) === idx
         );
-      await inviteByEmail({
-        subscription_id: Number(id),
-        emails: validEmails,
-      });
+      await inviteByEmail(
+        {
+          subscription_id: Number(id),
+          emails: validEmails,
+        },
+        {
+          onSuccess: () => {
+            console.log('hello', id);
+            queryClient.invalidateQueries({ queryKey: ['member-list', Number(id), 10] });
+          },
+        }
+      );
+
       setInviteEmails(['']);
       setInviteEmailErrors(['']);
       setShowInviteModal(false);
