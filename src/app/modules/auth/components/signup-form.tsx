@@ -159,7 +159,7 @@ export function SignupForm() {
 
   return (
     <Card className="w-full border-0 shadow-lg">
-      <CardHeader className="space-y-1 pb-6">
+      <CardHeader className="space-y-1">
         <CardTitle className="text-center text-2xl font-semibold">Create account</CardTitle>
         <CardDescription className="text-center">Sign up for your Feemates account</CardDescription>
         {isOffline && (

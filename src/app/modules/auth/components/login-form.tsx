@@ -148,9 +148,9 @@ export function LoginForm() {
 
   return (
     <Card className="w-full border-0 shadow-lg">
-      <CardHeader className="space-y-1 pb-6">
-        <CardTitle className="text-center text-2xl font-semibold">Welcome back</CardTitle>
-        <CardDescription className="text-center">Sign in to your Feemates account</CardDescription>
+      <CardHeader className="">
+        {/* <CardTitle className="text-center text-2xl font-semibold">Welcome back</CardTitle>
+        <CardDescription className="text-center">Sign in to your Feemates account</CardDescription> */}
         {isOffline && (
           <div className="flex items-center justify-center gap-2 rounded-md bg-red-50 p-2 text-sm text-red-600">
             <WifiOff className="h-4 w-4" />
