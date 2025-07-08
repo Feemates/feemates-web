@@ -30,7 +30,7 @@ const loginApi = async (payload: LoginPayload): Promise<LoginResponse> => {
   const { rememberMe, ...apiPayload } = payload;
 
   // The apiClient response interceptor returns response.data directly
-  const data = await apiClient.post('/api/auth/login', apiPayload, {
+  const data = await apiClient.post('/auth/login', apiPayload, {
     headers: {
       'X-App-Type': 'user',
     },

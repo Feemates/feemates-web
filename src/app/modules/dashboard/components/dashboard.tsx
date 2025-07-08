@@ -19,6 +19,7 @@ import {
   X,
 } from 'lucide-react';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
+import { useAuthStore } from '@/store/auth-store';
 
 // Mock data for subscriptions
 const subscriptions = [
@@ -52,6 +53,9 @@ export function Dashboard() {
   const [activeTab, setActiveTab] = useState<'owned' | 'joined'>('owned');
   const [searchQuery, setSearchQuery] = useState('');
   const [showKycBanner, setShowKycBanner] = useState(true);
+
+  // Get user details from auth store
+  const { userDetails } = useAuthStore();
 
   const ownedCount = 8;
   const joinedCount = 12;
@@ -141,7 +145,9 @@ export function Dashboard() {
 
         {/* Welcome Section */}
         <div className="mb-6">
-          <h2 className="mb-1 text-2xl font-bold text-gray-900">Hello, Alex!</h2>
+          <h2 className="mb-1 text-2xl font-bold text-gray-900">
+            Hello, {userDetails?.name || 'User'}!
+          </h2>
           <p className="text-gray-600">Manage your subscription fees and sharing</p>
         </div>
 

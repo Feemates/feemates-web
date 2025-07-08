@@ -16,7 +16,7 @@ export interface ResetPasswordResponse {
 
 const resetPasswordApi = async (payload: ResetPasswordPayload): Promise<ResetPasswordResponse> => {
   // The apiClient response interceptor returns response.data directly
-  const data = await apiClient.post('/api/auth/reset-password', payload, {
+  const data = await apiClient.post('/auth/reset-password', payload, {
     headers: {
       'X-App-Type': 'user',
     },

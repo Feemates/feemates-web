@@ -30,7 +30,7 @@ export interface SignupResponse {
 
 const signupApi = async (payload: SignupPayload): Promise<SignupResponse> => {
   // The apiClient response interceptor returns response.data directly
-  const data = await apiClient.post('/api/users/register', payload);
+  const data = await apiClient.post('/users/register', payload);
   return data as unknown as SignupResponse;
 };
 

@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { Home, List, Plus, Mail, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'nextjs-toploader/app';
 
 type TabType = 'home' | 'subscriptions' | 'invites' | 'profile';
 
 export function BottomNavigation() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('home');
 
   // Set active tab based on current page
@@ -28,22 +30,22 @@ export function BottomNavigation() {
     // Add navigation logic here
     switch (tab) {
       case 'home':
-        window.location.href = '/dashboard';
+        router.push('/dashboard');
         break;
       case 'subscriptions':
-        window.location.href = '/subscriptions';
+        router.push('/subscriptions');
         break;
       case 'invites':
-        window.location.href = '/invites';
+        router.push('/invites');
         break;
       case 'profile':
-        window.location.href = '/profile';
+        router.push('/profile');
         break;
     }
   };
 
   const handlePlusClick = () => {
-    window.location.href = '/create-subscription';
+    router.push('/create-subscription');
   };
 
   return (

@@ -14,7 +14,7 @@ const forgotPasswordApi = async (
   payload: ForgotPasswordPayload
 ): Promise<ForgotPasswordResponse> => {
   // The apiClient response interceptor returns response.data directly
-  const data = await apiClient.post('/api/auth/forgot-password', payload);
+  const data = await apiClient.post('/auth/forgot-password', payload);
   return data as unknown as ForgotPasswordResponse;
 };
 

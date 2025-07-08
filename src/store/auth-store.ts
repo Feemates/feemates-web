@@ -3,11 +3,19 @@ import { persist } from 'zustand/middleware';
 
 export type UserDetails = {
   id: number;
-  email: string;
   name: string;
-  roles: string[];
-  is_kyc_verified?: boolean;
-  status?: string;
+  email: string;
+  password?: string | null;
+  mobile?: string | null;
+  is_kyc_verified: boolean;
+  avatar?: string | null;
+  google_id?: string | null;
+  email_verified_at?: string | null;
+  status: 'active' | 'inactive' | string;
+  refresh_token?: string | null;
+  deletedAt?: string | null;
+  createdAt?: string;
+  roles?: string[]; // Keep this for backward compatibility with login/signup
 };
 
 type AuthState = {

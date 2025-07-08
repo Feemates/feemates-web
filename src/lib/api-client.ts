@@ -32,6 +32,7 @@ const responseErrorInterceptor = async (error: AxiosError) => {
 
     if (message === 'Unauthorized' && refreshToken) {
       // Check if remember me is enabled
+
       if (rememberMe) {
         try {
           const response = await axios({
@@ -43,7 +44,7 @@ const responseErrorInterceptor = async (error: AxiosError) => {
             },
           });
 
-          const refreshResponse = response as unknown as {
+          const refreshResponse = response.data as unknown as {
             access_token: string;
             refresh_token: string;
           };
