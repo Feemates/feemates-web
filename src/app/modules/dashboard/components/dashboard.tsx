@@ -18,7 +18,7 @@ import { useGetDashboard } from '@/api/dashboard-data';
 export function Dashboard() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [showKycBanner, setShowKycBanner] = useState(true);
+  const [showKycBanner, setShowKycBanner] = useState(false);
   const [kycPendingBanner, setKycPendingBanner] = useState(false);
   const [tab, setTab] = useState<'owned' | 'joined'>('owned');
 
@@ -39,8 +39,10 @@ export function Dashboard() {
       setShowKycBanner(false);
     } else if (dashboardData && dashboardData?.is_kyc_verified) {
       setShowKycBanner(false);
-    } else {
+      setKycPendingBanner(false);
+    } else if (dashboardData && !dashboardData?.is_kyc_verified) {
       setShowKycBanner(true);
+      setKycPendingBanner(false);
     }
   }, [dashboardData]);
 

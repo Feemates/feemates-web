@@ -31,12 +31,14 @@ import {
   TrendingUp,
   Calendar,
   CreditCard,
+  Lock,
 } from 'lucide-react';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
 import { useAuthStore } from '@/store/auth-store';
 import { useState } from 'react';
 import { useRouter } from 'nextjs-toploader/app';
 import { getInitials } from '@/lib/helper-functions';
+import { useGetDashboard } from '@/api/dashboard-data';
 
 // Mock user data
 const userData = {
@@ -76,6 +78,7 @@ export function Profile() {
   const { reset, userDetails } = useAuthStore();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { data: dashboardData, isLoading: dashboardLoading } = useGetDashboard();
 
   const handleEditProfile = () => {
     router.push('/profile/edit');
@@ -110,11 +113,11 @@ export function Profile() {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Redirect to login page
-      router.push('/');
+      window.location.href = '/'; // Force reload to clear any cached state
     } catch (error) {
       console.error('Logout error:', error);
       // Even if there's an error, still redirect to login
-      router.push('/');
+      window.location.href = '/';
     } finally {
       setIsLoggingOut(false);
     }
@@ -155,6 +158,16 @@ export function Profile() {
         return <AlertTriangle className="h-4 w-4" />;
       default:
         return <Clock className="h-4 w-4" />;
+    }
+  };
+
+  const bankRedirection = () => {
+    if (dashboardData?.kyc && dashboardData.kyc.status === 'pending') {
+      return null;
+    } else if (dashboardData?.is_kyc_verified === false) {
+      handleBankVerification();
+    } else if (dashboardData?.is_kyc_verified === true) {
+      router.push('/bank-account');
     }
   };
 
@@ -213,21 +226,24 @@ export function Profile() {
             <div className="mb-4 flex items-center justify-between rounded-lg bg-gray-50 p-3">
               <div className="flex items-center space-x-2">
                 <Shield className="h-5 w-5 text-gray-500" />
-                <span className="font-medium text-gray-900">Bank Account Status</span>
+                <span className="font-medium text-gray-900">KYC Status</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Badge
-                  variant="secondary"
-                  className={getBankStatusColor(userData.bankAccountStatus)}
-                >
-                  {getBankStatusIcon(userData.bankAccountStatus)}
-                  <span className="ml-1 capitalize">{userData.bankAccountStatus}</span>
-                </Badge>
-                {userData.bankAccountStatus !== 'verified' && (
+                {dashboardData?.kyc && dashboardData.kyc.status === 'pending' ? (
+                  <Badge variant="secondary" className={getBankStatusColor('pending')}>
+                    {getBankStatusIcon('pending')}
+                    <span className="ml-1 capitalize">Pending</span>
+                  </Badge>
+                ) : dashboardData?.is_kyc_verified === false ? (
                   <Button onClick={handleBankVerification} size="sm" variant="outline">
                     Verify
                   </Button>
-                )}
+                ) : dashboardData?.is_kyc_verified === true ? (
+                  <Badge variant="secondary" className={getBankStatusColor('verified')}>
+                    {getBankStatusIcon('verified')}
+                    <span className="ml-1 capitalize">Verified</span>
+                  </Badge>
+                ) : null}
               </div>
             </div>
           </CardContent>
@@ -394,30 +410,39 @@ export function Profile() {
               className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50"
             >
               <div className="flex items-center space-x-3">
-                <Shield className="h-5 w-5 text-gray-500" />
+                <Lock className="h-5 w-5 text-gray-500" />
                 <span className="font-medium text-gray-900">Change Password</span>
               </div>
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </button>
 
             <button
-              onClick={handleBankVerification}
-              className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50"
+              onClick={bankRedirection}
+              className={`flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50 ${dashboardData?.kyc && dashboardData.kyc.status === 'pending' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
             >
               <div className="flex items-center space-x-3">
                 <Shield className="h-5 w-5 text-gray-500" />
                 <div className="text-left">
-                  <p className="font-medium text-gray-900">Bank Account Verification</p>
-                  <p className="text-sm text-gray-500">Verify your bank account for payments</p>
+                  <p className="font-medium text-gray-900">Bank Account</p>
+                  {/* <p className="text-sm text-gray-500">Verify your bank account for payments</p> */}
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <Badge
-                  variant="secondary"
-                  className={getBankStatusColor(userData.bankAccountStatus)}
-                >
-                  {userData.bankAccountStatus}
-                </Badge>
+                {dashboardData?.kyc && dashboardData.kyc.status === 'pending' ? (
+                  <Badge variant="secondary" className={getBankStatusColor('pending')}>
+                    {getBankStatusIcon('pending')}
+                    <span className="ml-1 capitalize">Pending</span>
+                  </Badge>
+                ) : dashboardData?.is_kyc_verified === false ? (
+                  <Badge variant="secondary" className={getBankStatusColor('rejected')}>
+                    Not Verified
+                  </Badge>
+                ) : dashboardData?.is_kyc_verified === true ? (
+                  <Badge variant="secondary" className={getBankStatusColor('verified')}>
+                    {getBankStatusIcon('verified')}
+                    <span className="ml-1 capitalize">Verified</span>
+                  </Badge>
+                ) : null}
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </div>
             </button>

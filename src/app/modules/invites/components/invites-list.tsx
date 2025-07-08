@@ -170,7 +170,9 @@ export function InvitesList() {
                         <DollarSign className="h-4 w-4 text-green-600" />
                         <div>
                           <p className="text-sm text-gray-500">Your share</p>
-                          <p className="font-semibold text-green-600">${invite.price}/month</p>
+                          <p className="font-semibold text-green-600">
+                            ${Number(invite?.price).toFixed(2)}/ month
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">

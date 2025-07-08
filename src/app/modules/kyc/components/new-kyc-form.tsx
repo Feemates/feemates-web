@@ -86,7 +86,7 @@ export const NewKycForm = () => {
   }, [institutionNumber, form]);
 
   const handleBackClick = () => {
-    router.push('/dashboard');
+    router.push('/profile');
   };
 
   const handleSubmit = async (values: z.infer<typeof bankingSchema>) => {
