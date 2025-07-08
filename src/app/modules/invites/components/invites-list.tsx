@@ -7,60 +7,89 @@ import { ArrowLeft, Music, Tv, Gamepad2, Users, DollarSign } from 'lucide-react'
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
 import { useRouter } from 'nextjs-toploader/app';
 
-// Mock invites data
-const invites = [
-  {
-    id: 1,
-    subscriptionName: 'Music Premium',
-    icon: Music,
-    inviterName: 'Sarah Wilson',
-    inviterAvatar: 'SW',
-    monthlyShare: 3.75,
-    totalMembers: 4,
-    maxMembers: 5,
-    inviteDate: '2 days ago',
-    status: 'pending',
-  },
-  {
-    id: 2,
-    subscriptionName: 'Gaming Plus',
-    icon: Gamepad2,
-    inviterName: 'Mike Chen',
-    inviterAvatar: 'MC',
-    monthlyShare: 2.5,
-    totalMembers: 3,
-    maxMembers: 4,
-    inviteDate: '1 week ago',
-    status: 'pending',
-  },
-  {
-    id: 3,
-    subscriptionName: 'Streaming TV',
-    icon: Tv,
-    inviterName: 'Emma Davis',
-    inviterAvatar: 'ED',
-    monthlyShare: 4.0,
-    totalMembers: 2,
-    maxMembers: 6,
-    inviteDate: '3 days ago',
-    status: 'pending',
-  },
-];
+import { useInviteList } from '../api/useInviteList';
+import { useDeclineInvite } from '../api/useDeclineInvite';
+import { useRef, useCallback, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
+import { useQueryClient } from '@tanstack/react-query';
+
+const iconMap: Record<string, any> = {
+  Music,
+  Tv,
+  Gamepad2,
+};
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase();
+}
 
 export function InvitesList() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInviteList();
+  const invites = data?.pages?.flatMap((page) => page.data) || [];
+
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: '200px',
+  });
+
+  // Fetch next page when inView changes to true
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useCallback(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])();
+
+  // Decline dialog state and mutation
+  const [declineDialogOpen, setDeclineDialogOpen] = useState(false);
+  const [selectedInviteId, setSelectedInviteId] = useState<number | null>(null);
+
+  const declineMutation = useDeclineInvite(() => {
+    queryClient.invalidateQueries({ queryKey: ['invite-list'] });
+    router.push('/dashboard');
+  });
+
   const handleBackClick = () => {
     router.push('/dashboard');
   };
 
   const handleJoinSubscription = (inviteId: number) => {
-    console.log('Joining subscription:', inviteId);
+    // TODO: Implement join logic
     alert('Successfully joined the subscription!');
   };
 
   const handleDeclineInvite = (inviteId: number) => {
-    console.log('Declining invite:', inviteId);
-    alert('Invitation declined');
+    setSelectedInviteId(inviteId);
+    setDeclineDialogOpen(true);
+  };
+
+  const handleConfirmDecline = () => {
+    if (selectedInviteId) {
+      declineMutation.mutate(selectedInviteId);
+    }
+    setDeclineDialogOpen(false);
+    setSelectedInviteId(null);
+  };
+
+  const handleCancelDecline = () => {
+    setDeclineDialogOpen(false);
+    setSelectedInviteId(null);
   };
 
   return (
@@ -73,14 +102,18 @@ export function InvitesList() {
           </Button>
           <div>
             <h1 className="text-xl font-bold text-gray-900">Invitations</h1>
-            <p className="text-sm text-gray-500">{invites.length} pending invitations</p>
+            <p className="text-sm text-gray-500">{invites.length} invitations</p>
           </div>
         </div>
       </header>
 
       {/* Main Content with bottom padding for navigation */}
       <main className="px-4 py-6 pb-24">
-        {invites.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center text-gray-500">Loading...</div>
+        ) : isError ? (
+          <div className="text-center text-red-500">Failed to load invites.</div>
+        ) : invites.length === 0 ? (
           <Card className="border-0 bg-white shadow-sm">
             <CardContent className="p-8 text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
@@ -95,24 +128,37 @@ export function InvitesList() {
         ) : (
           <div className="space-y-4">
             {invites.map((invite) => {
-              const IconComponent = invite.icon;
+              // Fallback icon
+              // const IconComponent = iconMap['Music'];
               return (
                 <Card key={invite.id} className="border-0 bg-white shadow-sm">
                   <CardContent className="p-4">
                     <div className="mb-4 flex items-start justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
+                        {/* <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
                           <IconComponent className="h-6 w-6 text-blue-600" />
-                        </div>
+                        </div> */}
                         <div>
-                          <h4 className="font-semibold text-gray-900">{invite.subscriptionName}</h4>
-                          <p className="text-sm text-gray-500">Invited by {invite.inviterName}</p>
-                          <p className="text-xs text-gray-400">{invite.inviteDate}</p>
+                          <h4 className="font-semibold text-gray-900">
+                            {invite.subscription_name}
+                          </h4>
+                          <p className="text-sm text-gray-500">Invited by {invite.owner_name}</p>
+                          <p className="text-xs text-gray-400">
+                            {invite.createdAt
+                              ? new Date(invite.createdAt).toLocaleDateString()
+                              : ''}
+                          </p>
                         </div>
                       </div>
-                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                        Pending
-                      </Badge>
+                      {invite.status === 'invited' ? (
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          Invited
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                          {invite.status.charAt(0).toUpperCase() + invite.status.slice(1)}
+                        </Badge>
+                      )}
                     </div>
 
                     <div className="mb-4 grid grid-cols-2 gap-4">
@@ -120,9 +166,7 @@ export function InvitesList() {
                         <DollarSign className="h-4 w-4 text-green-600" />
                         <div>
                           <p className="text-sm text-gray-500">Your share</p>
-                          <p className="font-semibold text-green-600">
-                            ${invite.monthlyShare}/month
-                          </p>
+                          <p className="font-semibold text-green-600">${invite.price}/month</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -130,7 +174,7 @@ export function InvitesList() {
                         <div>
                           <p className="text-sm text-gray-500">Members</p>
                           <p className="font-semibold text-gray-900">
-                            {invite.totalMembers}/{invite.maxMembers}
+                            {invite.members_count}/{invite.max_members_count}
                           </p>
                         </div>
                       </div>
@@ -140,10 +184,10 @@ export function InvitesList() {
                       <div className="flex items-center space-x-2">
                         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200">
                           <span className="text-xs font-medium text-gray-600">
-                            {invite.inviterAvatar}
+                            {getInitials(invite.owner_name)}
                           </span>
                         </div>
-                        <span className="text-sm text-gray-600">{invite.inviterName}</span>
+                        <span className="text-sm text-gray-600">{invite.owner_name}</span>
                       </div>
                       <span className="text-sm text-gray-400">wants you to join</span>
                     </div>
@@ -167,12 +211,35 @@ export function InvitesList() {
                 </Card>
               );
             })}
+            {/* Intersection observer trigger for pagination */}
+            <div ref={ref} />
+            {isFetchingNextPage && (
+              <div className="py-2 text-center text-gray-400">Loading more...</div>
+            )}
           </div>
         )}
       </main>
 
       {/* Bottom Navigation */}
       <BottomNavigation />
+      {/* Decline Confirmation AlertDialog */}
+      <AlertDialog open={declineDialogOpen} onOpenChange={setDeclineDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to decline this invitation?</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelDecline}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 text-white hover:bg-red-700"
+              onClick={handleConfirmDecline}
+              disabled={status === 'pending'}
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
