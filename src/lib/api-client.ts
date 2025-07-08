@@ -24,8 +24,9 @@ const responseInterceptor = (response: AxiosResponse) => {
 const responseErrorInterceptor = async (error: AxiosError) => {
   if (error.response?.status === 401) {
     const refreshToken = useAuthStore.getState().refreshToken;
-    const statusCode = (error.response?.data as any)?.code;
-    const message = (error.response?.data as any)?.message;
+    const errorData = error.response?.data as { code?: string; message?: string };
+    const statusCode = errorData?.code;
+    const message = errorData?.message;
 
     if (statusCode === 'TOKEN_EXPIRED' && refreshToken) {
       try {
