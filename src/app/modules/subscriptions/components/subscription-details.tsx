@@ -445,7 +445,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
       <AlertDialog open={showLeaveDialog} onOpenChange={setShowLeaveDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Leave "{subscription.name}"?</AlertDialogTitle>
+            <AlertDialogTitle>Leave {subscription.name}?</AlertDialogTitle>
             <AlertDialogDescription>You will lose access immediately.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

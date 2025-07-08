@@ -299,7 +299,7 @@ export function MemberTabContent({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Remove "{selectedMember?.user?.name}" from this bundle?
+              Remove {selectedMember?.user?.name} from this bundle?
             </AlertDialogTitle>
             {selectedMember?.status === 'active' && selectedMember?.joined_at && (
               <p className="mt-2 text-sm text-yellow-600">
