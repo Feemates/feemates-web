@@ -244,7 +244,7 @@ export function SubscriptionsList() {
                     height={150}
                   />
                   <h2 className="mb-2 text-center text-lg font-semibold text-gray-900">
-                    You haven't created any bundle yet
+                    You haven&apos;t created any bundle yet
                   </h2>
                   <p className="mb-3 text-center text-sm text-gray-500">
                     Start a group bundle and invite friends to split the cost easily
