@@ -629,7 +629,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
 
         {subscription?.isOwner && (
           <div className="mb-6 grid grid-cols-2 gap-4">
-            <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+            <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 py-0">
               <CardContent className="p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium text-green-700">Total paid </span>
@@ -647,7 +647,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
               </CardContent>
             </Card>
 
-            <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50">
+            <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 py-0">
               <CardContent className="p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium text-blue-700">Savings per month</span>

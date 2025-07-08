@@ -16,6 +16,7 @@ import {
   Type,
   DollarSign,
   ArrowUpDown,
+  Users,
 } from 'lucide-react';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
 import { useGetSubscriptionsList } from '../api/useGetSubscriptionsList';
@@ -350,13 +351,19 @@ export function SubscriptionsList() {
 
                   <div className="mb-3 grid grid-cols-3 gap-4">
                     <div>
-                      <p className="mb-1 text-sm text-gray-500">Total price</p>
+                      {/* <p className="mb-1 text-sm text-gray-500">Total price</p> */}
+                      <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-green-100">
+                        <DollarSign className="h-3 w-3 text-green-600" />
+                      </div>
                       <p className="font-semibold text-gray-900">
                         ${Number(subscription.price).toFixed(2)}
                       </p>
                     </div>
                     <div>
-                      <p className="mb-1 text-sm text-gray-500">Members</p>
+                      {/* <p className="mb-1 text-sm text-gray-500">Members</p> */}
+                      <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-green-100">
+                        <Users className="mx-auto h-3 w-3 text-blue-600" />
+                      </div>
                       <p className="font-semibold text-gray-900">
                         {subscription.members_count}/{subscription.max_no_of_participants}
                       </p>

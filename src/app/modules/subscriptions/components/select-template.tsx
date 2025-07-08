@@ -100,14 +100,14 @@ export const SelectTemplate = () => {
       </header>
 
       {/* Main Content */}
-      <main className="px-4 py-8">
+      <main className="px-8 pt-10 pb-8">
         {/* Create Custom Bundle Section */}
         <div className="mb-8 text-center">
           <h2 className="mb-2 text-lg font-semibold text-gray-900">Create a custom bundle</h2>
           <p className="mb-6 text-gray-600">Add your own bundle</p>
           <Button
             onClick={handleCreateCustom}
-            className="h-12 w-full max-w-sm font-medium text-white"
+            className="h-12 w-full max-w-sm text-[16px] font-medium text-white"
           >
             Create Bundle
           </Button>
