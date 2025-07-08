@@ -42,7 +42,6 @@ export function PWAInstallPrompt() {
     // Android beforeinstallprompt handler
     const handler = (e: Event) => {
       e.preventDefault();
-      console.log('PWA install prompt event captured');
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setShowPrompt(true);
     };

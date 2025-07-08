@@ -207,7 +207,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                      <FormLabel className="text-gray-500">Total Price</FormLabel>
+                      <FormLabel className="text-gray-500">Total Cost</FormLabel>
                       <Input
                         value={`$${Number(subscriptionData.price).toFixed(2)}`}
                         disabled
@@ -216,7 +216,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                     </div>
 
                     <div>
-                      <FormLabel className="text-gray-500">Per Person Price</FormLabel>
+                      <FormLabel className="text-gray-500">Per Person Cost</FormLabel>
                       <Input
                         value={`$${Number(subscriptionData.per_person_price).toFixed(2)}`}
                         disabled

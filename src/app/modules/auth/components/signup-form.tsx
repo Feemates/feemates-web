@@ -33,9 +33,17 @@ import { toast } from '@/lib/toast';
 import { env } from '@/config/env';
 
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: 'Name must be at least 2 characters.',
-  }),
+  name: z
+    .string()
+    .min(2, {
+      message: 'Name must be at least 2 characters.',
+    })
+    .max(50, {
+      message: 'Name cannot be more than 50 characters.',
+    })
+    .regex(/^[A-Za-z\s]+$/, {
+      message: 'Name can only contain letters and spaces.',
+    }),
   email: z.string().email({
     message: 'Please enter a valid email address.',
   }),
@@ -127,7 +135,14 @@ export function SignupForm() {
       }
     },
     onError: (error) => {
-      toast.error(error);
+      if (error?.error === 'access_denied') {
+        // User cancelled or denied access: redirect to login page
+        router.push('/');
+        setIsGoogleLoading(false);
+        return;
+      }
+      // All other errors: show generic failure toast
+      toast.error('Google login failed. Please try again or use email/password.');
       setIsGoogleLoading(false);
     },
   });
@@ -175,6 +190,7 @@ export function SignupForm() {
                       />
                     </div>
                   </FormControl>
+                  <div className="text-right text-xs text-gray-500">{field.value.length} / 50</div>
                   <FormMessage />
                 </FormItem>
               )}

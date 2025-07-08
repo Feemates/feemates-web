@@ -112,7 +112,14 @@ export function LoginForm() {
       }
     },
     onError: (error) => {
-      toast.error(error);
+      if (error?.error === 'access_denied') {
+        // User cancelled or denied access: redirect to login page
+        router.push('/');
+        setIsGoogleLoading(false);
+        return;
+      }
+      // All other errors: show generic failure toast
+      toast.error('Google login failed. Please try again or use email/password.');
       setIsGoogleLoading(false);
     },
   });

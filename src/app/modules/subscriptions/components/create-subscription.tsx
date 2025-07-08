@@ -181,7 +181,7 @@ export function CreateSubscription() {
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Total Price *</FormLabel>
+                      <FormLabel>Total Cost *</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <span className="absolute top-3 left-3 text-gray-500">$</span>

@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { apiClient, isNetworkError, NetworkError, NETWORK_ERROR_TYPES } from '@/lib/api-client';
 import { useAuthStore } from '@/store/auth-store';
 import { toast } from '@/lib/toast';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
@@ -45,16 +45,26 @@ export const useLogin = () => {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
   const { isOffline } = useNetworkStatus();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const mutation = useMutation({
     mutationFn: async (payload: LoginPayload) => {
+      timeoutRef.current = setTimeout(() => {
+        toast.error('Login is taking longer than usual. Please try again.');
+      }, 30000);
+
       // Check network status before making API call
       if (isOffline) {
         throw new Error(
-          'No internet connection. Please check your network and try again.'
+          'Connection failed. Please check your network and try again.'
         ) as NetworkError;
       }
-      return loginApi(payload);
+      try {
+        return await loginApi(payload);
+      } finally {
+        // Always clear timer after API call finishes
+        clearTimeout(timeoutRef.current!);
+      }
     },
     onSuccess: (data: LoginResponse, variables: LoginPayload) => {
       // Set redirecting state to true to keep loader active
@@ -81,13 +91,14 @@ export const useLogin = () => {
     onError: (error: any) => {
       // Reset redirecting state on error
       setIsRedirecting(false);
+      clearTimeout(timeoutRef.current!);
 
       // Handle different types of errors
       if (isNetworkError(error) || (error as NetworkError)?.type) {
         const networkError = error as NetworkError;
         switch (networkError.type) {
           case NETWORK_ERROR_TYPES.NO_CONNECTION:
-            toast.error('No internet connection. Please check your network and try again.');
+            toast.error('Connection failed. Please check your network and try again.');
             break;
           case NETWORK_ERROR_TYPES.TIMEOUT:
             toast.error('Request timed out. Please check your connection and try again.');
@@ -103,6 +114,15 @@ export const useLogin = () => {
       }
     },
   });
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return {
     ...mutation,
