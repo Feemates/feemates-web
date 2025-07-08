@@ -18,7 +18,7 @@ import {
 import { ArrowLeft, Camera, User } from 'lucide-react';
 import { useGetMe } from '@/api/get-user';
 import { useUploadFile } from '@/api/s3-operations';
-import { useUpdateProfile } from '@/app/modules/profile/api/update-profile';
+import { useUpdateProfile } from '@/app/modules/profile/api/useUpdateProfile';
 import { toast } from '@/lib/toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';

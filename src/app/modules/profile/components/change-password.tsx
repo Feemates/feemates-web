@@ -15,34 +15,48 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { ArrowLeft, Shield, Eye, EyeOff } from 'lucide-react';
+import { useChangePassword } from '../api/useChangePassword';
+import { useRouter } from 'nextjs-toploader/app';
 
 const formSchema = z
   .object({
     currentPassword: z.string().min(1, {
-      message: 'Current password is required.',
+      message: 'Please enter your current password.',
     }),
     newPassword: z
       .string()
-      .min(8, { message: 'Password must be at least 8 characters long.' })
+      .min(1, { message: 'Please enter a new password.' })
+      .min(8, {
+        message:
+          'Password must be at least 8 characters and include uppercase, lowercase, a number, and a symbol.',
+      })
       .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]/, {
         message:
-          'Password must be minimum of 8 characters, with upper and lowercase, and a number and a symbol.',
+          'Password must be at least 8 characters and include uppercase, lowercase, a number, and a symbol.',
       }),
-    confirmPassword: z.string().min(8, {
+    confirmPassword: z.string().min(1, {
       message: 'Please confirm your new password.',
     }),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: 'Passwords do not match.',
     path: ['confirmPassword'],
+  })
+  .refine((data) => data.currentPassword !== data.newPassword, {
+    message: 'The new password must be different from the current password.',
+    path: ['newPassword'],
   });
 
 export function ChangePassword() {
+  const router = useRouter();
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     new: false,
     confirm: false,
   });
+
+  //  custom hook that handles the password change mutation
+  const changePasswordMutation = useChangePassword();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,7 +68,7 @@ export function ChangePassword() {
   });
 
   const handleBackClick = () => {
-    window.location.href = '/profile';
+    router.push('/profile');
   };
 
   const togglePasswordVisibility = (field: 'current' | 'new' | 'confirm') => {
@@ -65,9 +79,18 @@ export function ChangePassword() {
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log('Changing password', values);
-    alert('Password changed successfully!');
-    window.location.href = '/profile';
+    const payload = {
+      current_password: values.currentPassword,
+      new_password: values.newPassword,
+      confirm_password: values.confirmPassword,
+    };
+
+    changePasswordMutation.mutate(payload, {
+      onSuccess: () => {
+        form.reset();
+        router.push('/profile');
+      },
+    });
   };
 
   return (
@@ -106,6 +129,7 @@ export function ChangePassword() {
                           <Input
                             type={showPasswords.current ? 'text' : 'password'}
                             className="h-12 pr-10"
+                            placeholder="Enter your current password"
                             {...field}
                           />
                           <button
@@ -137,6 +161,7 @@ export function ChangePassword() {
                           <Input
                             type={showPasswords.new ? 'text' : 'password'}
                             className="h-12 pr-10"
+                            placeholder="Enter your new password"
                             {...field}
                           />
                           <button
@@ -168,6 +193,7 @@ export function ChangePassword() {
                           <Input
                             type={showPasswords.confirm ? 'text' : 'password'}
                             className="h-12 pr-10"
+                            placeholder="Re-enter your new password"
                             {...field}
                           />
                           <button
@@ -207,8 +233,12 @@ export function ChangePassword() {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" className="flex-1">
-                    Update Password
+                  <Button
+                    type="submit"
+                    className="flex-1"
+                    disabled={changePasswordMutation.isPending}
+                  >
+                    {changePasswordMutation.isPending ? 'Updating...' : 'Update Password'}
                   </Button>
                 </div>
               </form>
