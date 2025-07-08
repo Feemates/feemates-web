@@ -168,7 +168,7 @@ export function ResetPasswordForm() {
                   <FormLabel className="text-sm font-medium">New Password</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Lock className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+                      <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                       <Input
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Enter your new password"
@@ -178,7 +178,7 @@ export function ResetPasswordForm() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute top-3 right-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                        className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -201,7 +201,7 @@ export function ResetPasswordForm() {
                   <FormLabel className="text-sm font-medium">Confirm New Password</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Lock className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+                      <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                       <Input
                         type={showConfirmPassword ? 'text' : 'password'}
                         placeholder="Confirm your new password"
@@ -211,7 +211,7 @@ export function ResetPasswordForm() {
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute top-3 right-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                        className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {showConfirmPassword ? (
                           <EyeOff className="h-4 w-4" />
