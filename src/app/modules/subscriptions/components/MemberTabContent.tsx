@@ -68,6 +68,8 @@ export function MemberTabContent({
         return 'bg-blue-100 text-blue-800';
       case 'declined':
         return 'bg-red-100 text-red-800';
+      case 'expired':
+        return 'bg-yellow-100 text-yellow-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -81,6 +83,8 @@ export function MemberTabContent({
         return <Mail className="h-4 w-4" />;
       case 'declined':
         return <XCircle className="h-4 w-4" />;
+      case 'expired':
+        return <AlertCircle className="h-4 w-4 text-yellow-700" />;
       default:
         return <Clock className="h-4 w-4" />;
     }
@@ -175,7 +179,7 @@ export function MemberTabContent({
                 </div>
                 {subscription.isOwner && role !== 'Owner' && (
                   <div className="flex items-center space-x-2">
-                    {memberStatus === 'invited' && (
+                    {memberStatus === 'invited' && subscription.status !== 'expired' && (
                       <Button
                         onClick={() => handleResendInvite(member.id)}
                         size="sm"
@@ -213,7 +217,7 @@ export function MemberTabContent({
 
       {hasNextPage && !isFetchingNextPage && <div ref={ref} className="h-4" />}
 
-      {subscription.isOwner && availableSlots > 0 && (
+      {subscription.isOwner && subscription.status !== 'expired' && availableSlots > 0 && (
         <Card className="border-blue-200 bg-blue-50">
           <CardContent className="p-4 text-center">
             <UserPlus className="mx-auto mb-2 h-8 w-8 text-blue-600" />

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Search, Filter, Loader2, Monitor } from 'lucide-react';
+import { ArrowLeft, Search, Filter, Loader2, Monitor, X } from 'lucide-react';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
 import { useGetSubscriptionsList } from '../api/useGetSubscriptionsList';
 import { useInView } from 'react-intersection-observer';
@@ -111,9 +111,18 @@ export function SubscriptionsList() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Button variant="ghost" size="sm" className="absolute top-2 right-2 h-8 w-8 p-0">
-            <Filter className="h-4 w-4" />
-          </Button>
+          {searchTerm && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute top-2 right-2 h-8 w-8 p-0"
+              onClick={() => setSearchTerm('')}
+              tabIndex={-1}
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         {/* Loading state */}
@@ -131,7 +140,7 @@ export function SubscriptionsList() {
             return (
               <Card
                 key={subscription.id}
-                className="cursor-pointer border-0 bg-white shadow-sm transition-shadow hover:shadow-md"
+                className="cursor-pointer border-0 bg-white py-0 shadow-sm transition-shadow hover:shadow-md"
                 onClick={() => handleSubscriptionClick(subscription.id)}
               >
                 <CardContent className="p-4">
@@ -204,7 +213,9 @@ export function SubscriptionsList() {
                       className={`capitalize ${
                         subscription.status === 'active'
                           ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
+                          : subscription.status === 'expired'
+                            ? 'bg-orange-100 text-orange-800'
+                            : 'bg-gray-100 text-gray-800'
                       } hover:bg-current`}
                     >
                       {subscription.status}

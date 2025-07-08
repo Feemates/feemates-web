@@ -38,7 +38,9 @@ export function OverviewTabContent({
               className={`capitalize ${
                 subscription.status === 'active'
                   ? 'bg-green-100 text-green-800'
-                  : 'bg-gray-100 text-gray-800'
+                  : subscription.status === 'expired'
+                    ? 'bg-orange-100 text-orange-800'
+                    : 'bg-gray-100 text-gray-800'
               }`}
             >
               {subscription.status}
@@ -66,7 +68,7 @@ export function OverviewTabContent({
           )}
         </CardContent>
       </Card>
-      {subscription.isOwner && (
+      {subscription.isOwner && subscription.status !== 'expired' && (
         <div className="flex space-x-3">
           <Button onClick={handleInviteMembers} className="flex-1">
             <UserPlus className="mr-2 h-4 w-4" />

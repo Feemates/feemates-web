@@ -224,9 +224,16 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
     newEmails[index] = value;
     setInviteEmails(newEmails);
 
-    // Clear error for this field on change
-    const newErrors = [...inviteEmailErrors];
-    newErrors[index] = '';
+    // Recalculate errors for the new email list
+    const normalizedEmails = newEmails.map((email) => email.trim().toLowerCase());
+    const newErrors = newEmails.map((email, idx) => {
+      if (!email.trim()) return 'Email is required';
+      if (!validateEmail(email)) return 'Invalid email address';
+      if (normalizedEmails.filter((e) => e === normalizedEmails[idx]).length > 1) {
+        return 'Duplicate email';
+      }
+      return '';
+    });
     setInviteEmailErrors(newErrors);
   };
 

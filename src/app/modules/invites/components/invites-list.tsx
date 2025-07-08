@@ -135,7 +135,7 @@ export function InvitesList() {
           <div className="space-y-4">
             {invites.map((invite) => {
               return (
-                <Card key={invite.id} className="border-0 bg-white shadow-sm">
+                <Card key={invite.id} className="border-0 bg-white py-0 shadow-sm">
                   <CardContent className="p-4">
                     <div className="mb-4 flex items-start justify-between">
                       <div className="flex items-center space-x-3">
@@ -198,12 +198,11 @@ export function InvitesList() {
                       <span className="text-sm text-gray-400">wants you to join</span>
                     </div> */}
 
-                    {invite.members_count === invite.max_members_count ? (
-                      <div className="mt-4 rounded bg-gray-100 p-3 text-center text-sm text-gray-600">
-                        This subscription has reached the maximum number of participants. You cannot
-                        join this bundle.
+                    {invite.status === 'expired' ? (
+                      <div className="mt-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-center text-sm text-yellow-800">
+                        This subscription has expired. You cannot join or decline this invitation.
                       </div>
-                    ) : (
+                    ) : invite.max_members_count - invite.members_count > 0 ? (
                       <div className="mt-4 flex space-x-3">
                         <Button
                           onClick={() => handleJoinSubscription(invite.id, invite.subscription_id)}
@@ -218,6 +217,11 @@ export function InvitesList() {
                         >
                           Decline
                         </Button>
+                      </div>
+                    ) : (
+                      <div className="mt-4 rounded bg-gray-100 p-3 text-center text-sm text-gray-600">
+                        This subscription has reached the maximum number of participants. You cannot
+                        join this bundle.
                       </div>
                     )}
                   </CardContent>

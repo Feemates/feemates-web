@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Monitor } from 'lucide-react';
+import { useRouter } from 'nextjs-toploader/app';
 
 interface TabCardContentProps {
   subscriptions: any[];
@@ -16,10 +17,15 @@ export function TabCardContent({
   hasNextPage,
   isFetchingNextPage,
 }: TabCardContentProps) {
+  const router = useRouter();
   return (
     <div className="space-y-4">
       {subscriptions.map((subscription) => (
-        <Card key={subscription.id} className="border-0 bg-white shadow-sm">
+        <Card
+          key={subscription.id}
+          className="border-0 bg-white py-0 shadow-sm"
+          onClick={() => router.push(`/subscription/${subscription.id}`)}
+        >
           <CardContent className="p-4">
             <div className="mb-3 flex items-start justify-between">
               <div className="flex items-center space-x-3">
@@ -72,9 +78,9 @@ export function TabCardContent({
                   ? `${subscription.max_no_of_participants - subscription.members_count} slots available`
                   : 'Bundle full'}
               </p>
-              <Button variant="ghost" className="p-0 text-blue-600 hover:text-blue-800">
+              {/* <Button variant="ghost" className="p-0 text-blue-600 hover:text-blue-800">
                 Manage
-              </Button>
+              </Button> */}
             </div>
           </CardContent>
         </Card>
