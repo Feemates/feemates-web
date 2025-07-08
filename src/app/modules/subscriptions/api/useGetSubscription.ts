@@ -58,14 +58,6 @@ export const useGetSubscription = (id: string) => {
       return getSubscriptionApi(id);
     },
     enabled: !!id,
-    retry: (failureCount, error) => {
-      // Don't retry on network errors
-      if (isNetworkError(error) || (error as NetworkError)?.type) {
-        return false;
-      }
-      return failureCount < 3;
-    },
-    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
   // Handle errors using useEffect-like pattern
