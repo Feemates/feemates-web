@@ -158,7 +158,7 @@ export function Dashboard() {
 
         {/* Stats Cards */}
         <div className="mb-6 grid grid-cols-2 gap-4">
-          <Card className="border-0 bg-white py-3 shadow-sm">
+          <Card className="border-0 bg-white py-0 shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EFF6FF]">
@@ -180,7 +180,7 @@ export function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-0 bg-white py-3 shadow-sm">
+          <Card className="border-0 bg-white py-0 shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#F0FDFA]">

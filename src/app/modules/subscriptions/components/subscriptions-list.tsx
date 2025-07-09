@@ -349,7 +349,7 @@ export function SubscriptionsList() {
                     <div className="mb-3 flex items-center justify-between space-x-4">
                       <div className="flex flex-col items-start gap-1">
                         <div className="flex items-center justify-center gap-2">
-                          <DollarSign className="h-4 w-4 text-green-600" />
+                          <DollarSign className="h-4 w-4 text-[#00A3AD]" />
                           <p className="font-semibold text-gray-900">
                             ${Number(subscription.price).toFixed(2)}
                           </p>

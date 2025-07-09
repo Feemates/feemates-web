@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Home, List, Plus, Mail, User } from 'lucide-react';
+import { Home, List, Plus, Mail, User, PlusIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'nextjs-toploader/app';
 import { useGetDashboard } from '@/api/dashboard-data';
@@ -70,7 +70,8 @@ export function BottomNavigation() {
             className="-mt-8 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 shadow-lg hover:bg-blue-700"
             size="sm"
           >
-            <Image src="/plus-square.svg" alt="+" height={30} width={30} />
+            {/* <Image src="/plus-square.svg" alt="+" height={30} width={30} /> */}
+            <PlusIcon className="text-white" style={{ width: '25px', height: '25px' }} />
           </Button>
         </Link>
 

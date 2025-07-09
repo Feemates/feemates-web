@@ -154,7 +154,7 @@ export function Profile() {
             <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
               <div className="flex items-center space-x-2">
                 <Shield className="text-secondary-text h-5 w-5" />
-                <span className="text-primary-text font-medium">KYC Status</span>
+                <span className="text-primary-text font-medium"> Status</span>
               </div>
               <div className="flex items-center space-x-2">
                 {dashboardData?.is_kyc_verified === false ? (

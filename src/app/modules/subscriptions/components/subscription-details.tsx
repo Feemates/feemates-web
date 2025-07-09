@@ -414,22 +414,23 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
       {/* Invite Modal */}
       {showInviteModal && (
         <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
-          <Card className="w-full max-w-md bg-white">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
+          <Card className="w-full max-w-md gap-2 bg-white py-8">
+            <CardHeader className="pb-4 text-center">
+              <div className="flex items-center justify-center">
                 <CardTitle className="text-lg font-semibold">Invite Members</CardTitle>
-                <Button variant="ghost" size="sm" onClick={closeInviteModal} className="p-1">
+                {/* <Button variant="ghost" size="sm" onClick={closeInviteModal} className="p-1">
                   <X className="h-4 w-4" />
-                </Button>
+                </Button> */}
               </div>
               <p className="text-secondary-text text-sm">
-                {availableSlots} slot{availableSlots !== 1 ? 's' : ''} available
+                {/* {availableSlots} slot{availableSlots !== 1 ? 's' : ''} available */}
+                Enter a participant email to send an invite to join this bundle
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
-                <Label>Email Addresses</Label>
-                {inviteEmails.map((email, index) => (
+                {/* <Label>Email Addresses</Label> */}
+                {inviteEmails.map((email: string, index) => (
                   <div key={index} className="space-y-1">
                     <div className="flex items-center space-x-2">
                       <Input
@@ -437,7 +438,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
                         value={email}
                         onChange={(e) => updateEmail(index, e.target.value)}
                         placeholder="Enter email address"
-                        className={`flex-1 ${inviteEmailErrors[index] ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                        className={`h-12 flex-1 ${inviteEmailErrors[index] ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                         aria-invalid={!!inviteEmailErrors[index]}
                         aria-describedby={
                           inviteEmailErrors[index] ? `email-error-${index}` : undefined
@@ -477,14 +478,14 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
 
               <div className="space-y-2"></div>
 
-              <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
+              {/* <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
                 <h4 className="mb-1 text-sm font-medium text-blue-900">Invitation Preview</h4>
                 <p className="text-xs text-blue-800">
                   &quot;Join my {subscription.name} bundle and pay only $
                   {Number(subscriptionData.per_person_price).toFixed(2)}
                   /month!&quot;
                 </p>
-              </div>
+              </div> */}
 
               <div className="flex space-x-3 pt-2">
                 <Button
@@ -503,7 +504,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
                     </>
                   ) : (
                     <>
-                      <Send className="mr-2 h-4 w-4" />
+                      {/* <Send className="mr-2 h-4 w-4" /> */}
                       Send Invites
                     </>
                   )}
@@ -597,7 +598,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
         <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3">
           <Card className="border-0 bg-white shadow-sm">
             <CardContent className="p-4 text-center">
-              <DollarSign className="mx-auto mb-2 h-6 w-6 text-green-600" />
+              <DollarSign className="mx-auto mb-2 h-6 w-6 text-[#00A3AD]" />
               <p className="text-primary-text text-2xl font-bold">${subscription.yourShare}</p>
               <p className="text-secondary-text text-sm">Your share</p>
             </CardContent>
@@ -629,15 +630,15 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
 
         {subscription?.isOwner && (
           <div className="mb-6 grid grid-cols-2 gap-4">
-            <Card className="border-green-200 !bg-[#F0FDFA] py-0">
+            <Card className="border-[#00A3AD] !bg-[#F0FDFA] py-0">
               <CardContent className="p-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm font-medium text-green-700">Total paid </span>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
-                    <DollarSign className="h-4 w-4 text-green-600" />
+                  <span className="text-sm font-medium text-[#00A3AD]">Paid this month </span>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F0FDFA]">
+                    <DollarSign className="h-4 w-4 text-[#00A3AD]" />
                   </div>
                 </div>
-                <div className="mb-1 text-2xl font-bold text-green-900">
+                <div className="mb-1 text-2xl font-bold text-[#00A3AD]">
                   {typeof subscriptionStats?.total_paid === 'number' ? (
                     `$${subscriptionStats.total_paid.toFixed(2)}`
                   ) : (
@@ -647,15 +648,15 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
               </CardContent>
             </Card>
 
-            <Card className="border-blue-200 !bg-[#EFF6FF] py-0">
+            <Card className="border-[#0052CC] !bg-[#EFF6FF] py-0">
               <CardContent className="p-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm font-medium text-blue-700">Savings per month</span>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
-                    <Calendar className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium text-[#0052CC]">Saved this month</span>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EFF6FF]">
+                    <Calendar className="h-4 w-4 text-[#0052CC]" />
                   </div>
                 </div>
-                <div className="mb-1 text-2xl font-bold text-blue-900">
+                <div className="mb-1 text-2xl font-bold text-[#0052CC]">
                   {typeof subscriptionStats?.savings === 'number' ? (
                     `$${subscriptionStats.savings.toFixed(2)}`
                   ) : (
