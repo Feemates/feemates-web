@@ -110,7 +110,7 @@ export function Profile() {
         {/* Profile Header Card */}
         <Card className="mb-6 border-0 bg-white py-0 shadow-sm">
           <CardContent className="p-6">
-            <div className="mb-4 flex items-center space-x-4">
+            <div className="flex items-center space-x-4">
               <div className="relative">
                 <Avatar className="h-20 w-20">
                   <AvatarImage
@@ -151,7 +151,7 @@ export function Profile() {
             </div>
 
             {/* Bank Account Status */}
-            <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+            {/* <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
               <div className="flex items-center space-x-2">
                 <Shield className="text-secondary-text h-5 w-5" />
                 <span className="text-primary-text font-medium"> Status</span>
@@ -168,7 +168,7 @@ export function Profile() {
                   </Badge>
                 ) : null}
               </div>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 
