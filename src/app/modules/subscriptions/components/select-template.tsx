@@ -44,68 +44,29 @@ export const SelectTemplate = () => {
     router.push(`/create-subscription?template=${templateData}`);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="border-b border-gray-200 bg-white px-4 py-3">
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm" onClick={handleBackClick} className="p-2">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">Create Bundle</h1>
-              <p className="text-sm text-gray-500">Set up a new bundle to share</p>
-            </div>
-          </div>
-        </header>
+  const renderContent = () => {
+    if (isLoading) {
+      return (
         <div className="flex justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="border-b border-gray-200 bg-white px-4 py-3">
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm" onClick={handleBackClick} className="p-2">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">Create Bundle</h1>
-              <p className="text-sm text-gray-500">Set up a new bundle to share</p>
-            </div>
-          </div>
-        </header>
+    if (error) {
+      return (
         <div className="flex justify-center py-8">
           <div className="text-red-500">Failed to load templates. Please try again.</div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-white px-4 py-3">
-        <div className="flex items-center space-x-3">
-          <Button variant="ghost" size="sm" onClick={handleBackClick} className="p-2">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">Create Bundle</h1>
-            <p className="text-sm text-gray-500">Set up a new bundle to share</p>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
+    return (
       <main className="px-8 pt-10 pb-8">
         {/* Create Custom Bundle Section */}
         <div className="mb-8 text-center">
-          <h2 className="mb-2 text-lg font-semibold text-gray-900">Create a custom bundle</h2>
-          <p className="mb-6 text-gray-600">Add your own bundle</p>
+          <h2 className="mb-2 text-lg font-semibold">Create a custom bundle</h2>
+          <p className="text-secondary-text mb-6">Add your own bundle</p>
           <Link href="/create-subscription">
             <Button className="h-12 w-full max-w-sm text-[16px] font-medium text-white">
               Create Bundle
@@ -115,12 +76,12 @@ export const SelectTemplate = () => {
 
         {/* Divider */}
         <div className="mb-8 text-center">
-          <span className="text-gray-500">or</span>
+          <span className="text-secondary-text">or</span>
         </div>
 
         {/* Templates Section */}
         <div className="mb-6 text-center">
-          <h2 className="text-lg font-semibold text-gray-900">Choose from the templates</h2>
+          <h2 className="text-lg font-semibold">Choose from the templates</h2>
         </div>
 
         {/* Template Grid */}
@@ -160,20 +121,31 @@ export const SelectTemplate = () => {
         {/* Intersection observer trigger for infinite scroll */}
         {hasNextPage && !isFetchingNextPage && <div ref={ref} className="h-4" />}
 
-        {/* Show message when no more templates */}
-        {/* {!hasNextPage && templates.length > 0 && (
-          <div className="py-4 text-center">
-            <p className="text-sm text-gray-500">No more templates to load</p>
-          </div>
-        )} */}
-
         {/* Show message when no templates found */}
         {!isLoading && templates.length === 0 && (
           <div className="py-8 text-center">
-            <p className="text-gray-500">No templates available at the moment.</p>
+            <p className="text-secondary-text">No templates available at the moment.</p>
           </div>
         )}
       </main>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="border-b border-gray-200 bg-white px-4 py-3">
+        <div className="flex items-center space-x-3">
+          <Button variant="ghost" size="sm" onClick={handleBackClick} className="p-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">Create Bundle</h1>
+            <p className="text-secondary-text text-sm">Set up a new bundle to share</p>
+          </div>
+        </div>
+      </header>
+
+      {renderContent()}
     </div>
   );
 };

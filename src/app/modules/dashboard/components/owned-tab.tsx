@@ -40,10 +40,10 @@ export function OwnedTab() {
     return (
       <div className="flex flex-col items-center justify-center px-4">
         <Image src="/dashboard/owned.svg" alt="No subscriptions" width={150} height={150} />
-        <h2 className="mb-2 text-center text-lg font-semibold text-gray-900">
+        <h2 className="mb-2 text-center text-lg font-semibold">
           You haven&apos;t created any bundle yet
         </h2>
-        <p className="mb-3 text-center text-sm text-gray-500">
+        <p className="text-secondary-text mb-3 text-center text-sm">
           Start a group bundle and invite friends to split the cost easily
         </p>
         <Button asChild>

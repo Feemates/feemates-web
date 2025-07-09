@@ -329,7 +329,7 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
                   </div>
                 ))}
 
-                {inviteEmails.length < availableSlots && (
+                {/* {inviteEmails.length < availableSlots && (
                   <Button
                     type="button"
                     variant="outline"
@@ -340,7 +340,7 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
                     <Plus className="mr-2 h-4 w-4" />
                     Add Another Email
                   </Button>
-                )}
+                )} */}
               </div>
 
               <div className="space-y-2"></div>

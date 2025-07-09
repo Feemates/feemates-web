@@ -206,15 +206,15 @@ export function MemberTabContent({
                     <div className="flex items-center space-x-3">
                       <div>{avatar}</div>
                       <div>
-                        <h4 className="line-clamp-2 overflow-hidden font-semibold break-all text-gray-900">
+                        <h4 className="line-clamp-2 overflow-hidden font-semibold break-all">
                           {name}
                         </h4>
-                        <p className="text-sm text-gray-500">{email}</p>
+                        <p className="text-secondary-text text-sm">{email}</p>
                         {memberStatus === 'active' && joinDate && (
-                          <p className="text-xs text-gray-400">Joined {joinDate}</p>
+                          <p className="text-secondary-text text-xs">Joined {joinDate}</p>
                         )}
                         {memberStatus === 'invited' && invitedDate && (
-                          <p className="text-xs text-gray-400">Invited {invitedDate}</p>
+                          <p className="text-secondary-text text-xs">Invited {invitedDate}</p>
                         )}
                       </div>
                     </div>
@@ -240,7 +240,7 @@ export function MemberTabContent({
                     </Badge>
                   </div>
                   {memberStatus === 'active' && role !== 'Owner' && member?.next_due_date && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-secondary-text text-xs">
                       Next due:{' '}
                       {new Date(member.next_due_date).toLocaleDateString('en-US', {
                         month: 'short',
@@ -292,7 +292,7 @@ export function MemberTabContent({
           <Card className="border-blue-200 bg-blue-50">
             <CardContent className="p-4 text-center">
               <UserPlus className="mx-auto mb-2 h-8 w-8 text-blue-600" />
-              <h3 className="mb-1 font-medium text-blue-900">
+              <h3 className="mb-1 font-medium !text-blue-900">
                 {availableSlots} slot{availableSlots !== 1 ? 's' : ''} available
               </h3>
               <p className="mb-3 text-sm text-blue-700">

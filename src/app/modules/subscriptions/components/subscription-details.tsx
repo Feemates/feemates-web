@@ -357,10 +357,10 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
                 <Monitor className="h-5 w-5 text-blue-600" />
               </div> */}
               <div className="min-w-0 flex-1 overflow-hidden">
-                <h1 className="line-clamp-1 overflow-hidden text-xl font-bold break-all text-gray-900">
+                <h1 className="line-clamp-1 overflow-hidden text-xl font-bold break-all">
                   {subscription.name}
                 </h1>
-                <p className="line-clamp-1 overflow-hidden text-sm break-all text-gray-500">
+                <p className="text-secondary-text line-clamp-1 overflow-hidden text-sm break-all">
                   Owned by {subscription.owner}
                 </p>
               </div>
@@ -422,7 +422,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              <p className="text-sm text-gray-500">
+              <p className="text-secondary-text text-sm">
                 {availableSlots} slot{availableSlots !== 1 ? 's' : ''} available
               </p>
             </CardHeader>
@@ -462,7 +462,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
                   </div>
                 ))}
 
-                {inviteEmails.length < availableSlots && (
+                {/* {inviteEmails.length < availableSlots && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -472,7 +472,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
                     <Plus className="mr-2 h-4 w-4" />
                     Add Another Email
                   </Button>
-                )}
+                )} */}
               </div>
 
               <div className="space-y-2"></div>
@@ -526,7 +526,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
               </span>
               <span className="text-sm text-gray-600">
                 To confirm deletion, please type the bundle name:{' '}
-                <span className="font-semibold text-gray-900">{subscription.name}</span>
+                <span className="text-primary-text font-semibold">{subscription.name}</span>
               </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -598,30 +598,30 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
           <Card className="border-0 bg-white shadow-sm">
             <CardContent className="p-4 text-center">
               <DollarSign className="mx-auto mb-2 h-6 w-6 text-green-600" />
-              <p className="text-2xl font-bold text-gray-900">${subscription.yourShare}</p>
-              <p className="text-sm text-gray-500">Your share</p>
+              <p className="text-primary-text text-2xl font-bold">${subscription.yourShare}</p>
+              <p className="text-secondary-text text-sm">Your share</p>
             </CardContent>
           </Card>
           <Card className="border-0 bg-white shadow-sm">
             <CardContent className="p-4 text-center">
               <Users className="mx-auto mb-2 h-6 w-6 text-blue-600" />
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-primary-text text-2xl font-bold">
                 {subscription.members}/{subscription.maxMembers}
               </p>
-              <p className="text-sm text-gray-500">Members</p>
+              <p className="text-secondary-text text-sm">Members</p>
             </CardContent>
           </Card>
           {subscription?.nextPaymentDate && (
             <Card className="border-0 bg-white shadow-sm">
               <CardContent className="p-4 text-center">
                 <Calendar className="mx-auto mb-2 h-6 w-6 text-purple-600" />
-                <p className="text-sm font-bold text-gray-900">
+                <p className="text-primary-text text-sm font-bold">
                   {new Date(subscription.nextPaymentDate).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
                   })}
                 </p>
-                <p className="text-sm text-gray-500">Next payment</p>
+                <p className="text-secondary-text text-sm">Next payment</p>
               </CardContent>
             </Card>
           )}
@@ -629,7 +629,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
 
         {subscription?.isOwner && (
           <div className="mb-6 grid grid-cols-2 gap-4">
-            <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 py-0">
+            <Card className="border-green-200 !bg-[#F0FDFA] py-0">
               <CardContent className="p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium text-green-700">Total paid </span>
@@ -647,7 +647,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
               </CardContent>
             </Card>
 
-            <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 py-0">
+            <Card className="border-blue-200 !bg-[#EFF6FF] py-0">
               <CardContent className="p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium text-blue-700">Savings per month</span>
@@ -674,7 +674,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
             className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
               activeTab === 'overview'
                 ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'hover:text-primary-text text-gray-600'
             }`}
           >
             Overview
@@ -684,7 +684,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
             className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
               activeTab === 'members'
                 ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'hover:text-primary-text text-gray-600'
             }`}
           >
             Members
@@ -694,7 +694,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
             className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
               activeTab === 'payments'
                 ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'hover:text-primary-text text-gray-600'
             }`}
           >
             Payments

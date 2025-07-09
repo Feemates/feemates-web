@@ -8,8 +8,8 @@ function Login() {
     <div className="flex min-h-screen items-center justify-center bg-white p-4">
       <div className="w-full max-w-sm">
         <div className="mb-2 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">Feemates</h1>
-          <p className="text-gray-600">Share subscription fees with ease</p>
+          <h1 className="mb-2 text-3xl font-bold">Feemates</h1>
+          <p className="text-secondary-text">Share subscription fees with ease</p>
         </div>
         <LoginForm />
       </div>
@@ -22,8 +22,8 @@ function Signup() {
     <div className="flex min-h-screen items-center justify-center bg-white p-4">
       <div className="w-full max-w-sm">
         {/* <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">Feemates</h1>
-          <p className="text-gray-600">Join and start sharing subscription fees</p>
+          <h1 className="mb-2 text-3xl font-bold ">Feemates</h1>
+          <p className="text-secondary-text">Join and start sharing subscription fees</p>
         </div> */}
         <SignupForm />
       </div>
@@ -36,8 +36,8 @@ function ForgotPassword() {
     <div className="flex min-h-screen items-center justify-center bg-white p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">Feemates</h1>
-          <p className="text-gray-600">Reset your password</p>
+          <h1 className="mb-2 text-3xl font-bold">Feemates</h1>
+          <p className="text-secondary-text">Reset your password</p>
         </div>
         <ForgotPasswordForm />
       </div>
@@ -50,8 +50,8 @@ function ResetPassword() {
     <div className="flex min-h-screen items-center justify-center bg-white p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">Feemates</h1>
-          <p className="text-gray-600">Set your new password</p>
+          <h1 className="mb-2 text-3xl font-bold">Feemates</h1>
+          <p className="text-secondary-text">Set your new password</p>
         </div>
         <ResetPasswordForm />
       </div>

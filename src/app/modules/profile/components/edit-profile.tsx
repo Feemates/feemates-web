@@ -123,8 +123,8 @@ export function EditProfile() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Edit Profile</h1>
-            <p className="text-sm text-gray-500">Update your personal information</p>
+            <h1 className="text-xl font-bold">Edit Profile</h1>
+            <p className="text-secondary-text text-sm">Update your personal information</p>
           </div>
         </div>
       </header>
@@ -180,7 +180,7 @@ export function EditProfile() {
                       <FormControl>
                         <Input className="h-12" {...field} />
                       </FormControl>
-                      <div className="text-right text-xs text-gray-500">
+                      <div className="text-secondary-text text-right text-xs">
                         {field.value.length} / 50
                       </div>
                       <FormMessage />
@@ -207,7 +207,7 @@ export function EditProfile() {
                     type="button"
                     variant="outline"
                     onClick={handleBackClick}
-                    className="flex-1"
+                    className="text-primary-text flex-1"
                     disabled={uploadFile.isPending || updateProfile.isPending}
                   >
                     Cancel

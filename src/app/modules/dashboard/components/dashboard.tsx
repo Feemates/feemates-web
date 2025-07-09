@@ -16,6 +16,7 @@ import { OwnedTab } from './owned-tab';
 import { useGetDashboard } from '@/api/dashboard-data';
 import { useGenerateOnboardUrl } from '@/api/verify-account';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export function Dashboard() {
   const router = useRouter();
@@ -138,7 +139,7 @@ export function Dashboard() {
           <h2 className="mb-1 line-clamp-2 overflow-hidden text-2xl font-bold break-all text-gray-900">
             Hello, {userDetails?.name || 'User'}!
           </h2>
-          <p className="text-gray-600">Manage your bundle fees and sharing</p>
+          <p className="text-secondary-text">Manage your bundle fees and sharing</p>
         </div>
 
         {/* Search Bar */}
@@ -160,14 +161,18 @@ export function Dashboard() {
           <Card className="border-0 bg-white py-3 shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-                  <Briefcase className="h-6 w-6 text-blue-600" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EFF6FF]">
+                  <Image
+                    src="/dashboard/wallet.svg"
+                    alt="Wallet Icon"
+                    width={100}
+                    height={100}
+                    className="h-6 w-6"
+                  />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium tracking-wide text-gray-600 uppercase">
-                    Owned
-                  </span>
-                  <span className="text-3xl font-bold text-blue-600 transition-colors duration-200">
+                  <span className="text-sm font-medium tracking-wide text-gray-600">Owned</span>
+                  <span className="text-3xl font-bold transition-colors duration-200">
                     {ownedCount}
                   </span>
                 </div>
@@ -178,14 +183,18 @@ export function Dashboard() {
           <Card className="border-0 bg-white py-3 shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
-                  <Users className="h-6 w-6 text-purple-600" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#F0FDFA]">
+                  <Image
+                    src="/dashboard/customer.svg"
+                    alt="customers Icon"
+                    width={100}
+                    height={100}
+                    className="h-6 w-6"
+                  />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium tracking-wide text-gray-600 uppercase">
-                    Joined
-                  </span>
-                  <span className="text-3xl font-bold text-purple-600 transition-colors duration-200">
+                  <span className="text-sm font-medium tracking-wide text-gray-600">Joined</span>
+                  <span className="text-3xl font-bold transition-colors duration-200">
                     {joinedCount}
                   </span>
                 </div>
@@ -197,7 +206,7 @@ export function Dashboard() {
         {/* My Subscriptions Section */}
         <div className="mb-4">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">My Bundles</h3>
+            <h3 className="text-lg font-bold text-gray-900">My Bundles</h3>
             <Link href="/subscriptions">
               <Button
                 variant="ghost"
@@ -214,7 +223,7 @@ export function Dashboard() {
             onValueChange={(v) => setTab(v as 'owned' | 'joined')}
             className="flex flex-col gap-2"
           >
-            <TabsList className="mb-4 flex h-10 w-full space-x-1 rounded-lg bg-gray-100 p-1">
+            <TabsList className="mb-4 flex h-10 w-full space-x-1 rounded-lg bg-[#E5E7EB] p-1">
               <TabsTrigger
                 value="owned"
                 className="flex-1 rounded-md px-3 py-4 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"

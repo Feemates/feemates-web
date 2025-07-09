@@ -10,65 +10,6 @@ type PaymentTabContentProps = {
   subscriptionId: number;
 };
 
-// Mock members data with different statuses
-const members = [
-  {
-    id: 1,
-    name: 'Alex Johnson',
-    email: 'alex@example.com',
-    role: 'Owner',
-    joinDate: 'Mar 10, 2023',
-    paymentStatus: 'paid',
-    memberStatus: 'active', // active, invited, declined
-    avatar: 'AJ',
-    invitedDate: null,
-  },
-  {
-    id: 2,
-    name: 'Sarah Wilson',
-    email: 'sarah@example.com',
-    role: 'Member',
-    joinDate: 'Mar 15, 2023',
-    paymentStatus: 'paid',
-    memberStatus: 'active',
-    avatar: 'SW',
-    invitedDate: null,
-  },
-  {
-    id: 3,
-    name: 'Mike Chen',
-    email: 'mike@example.com',
-    role: 'Member',
-    joinDate: 'Mar 20, 2023',
-    paymentStatus: 'pending',
-    memberStatus: 'active',
-    avatar: 'MC',
-    invitedDate: null,
-  },
-  {
-    id: 4,
-    name: 'Emma Davis',
-    email: 'emma@example.com',
-    role: 'Member',
-    joinDate: null,
-    paymentStatus: null,
-    memberStatus: 'invited',
-    avatar: 'ED',
-    invitedDate: 'Mar 25, 2024',
-  },
-  {
-    id: 5,
-    name: 'John Smith',
-    email: 'john@example.com',
-    role: 'Member',
-    joinDate: null,
-    paymentStatus: null,
-    memberStatus: 'invited',
-    avatar: 'JS',
-    invitedDate: 'Mar 22, 2024',
-  },
-];
-
 export function PaymentTabContent({ subscriptionId }: PaymentTabContentProps) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
     useTransactionList(subscriptionId, { limit: 10 });
@@ -153,7 +94,7 @@ export function PaymentTabContent({ subscriptionId }: PaymentTabContentProps) {
       </Card> */}
       <Card className="border-0 bg-white shadow-sm">
         <CardHeader>
-          <CardTitle className="text-lg">Payment History</CardTitle>
+          <CardTitle className="text-primary-text text-lg">Payment History</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -168,7 +109,9 @@ export function PaymentTabContent({ subscriptionId }: PaymentTabContentProps) {
               </div>
             )}
             {transactions.length === 0 && !isLoading && (
-              <div className="flex justify-center py-8 text-gray-500">No transactions found.</div>
+              <div className="text-secondary-text flex justify-center py-8">
+                No transactions found.
+              </div>
             )}
             {transactions.map((txn) => (
               <div
@@ -179,7 +122,7 @@ export function PaymentTabContent({ subscriptionId }: PaymentTabContentProps) {
                   <p className="line-clamp-1 overflow-hidden font-medium break-all text-gray-900">
                     {txn.user?.name || 'Unknown'}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-secondary-text text-sm">
                     {txn.payment_date
                       ? new Date(txn.payment_date).toLocaleDateString('en-US', {
                           year: 'numeric',
@@ -197,7 +140,10 @@ export function PaymentTabContent({ subscriptionId }: PaymentTabContentProps) {
                       {(txn.status === 'completed' && 'Paid') || 'N/A'}
                     </Badge>
                   </div>
-                  <p className="pt-1 text-sm text-gray-500"> ${Number(txn.amount).toFixed(2)}</p>
+                  <p className="text-secondary-text pt-1 text-sm">
+                    {' '}
+                    ${Number(txn.amount).toFixed(2)}
+                  </p>
                 </div>
               </div>
             ))}

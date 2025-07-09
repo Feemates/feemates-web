@@ -1,8 +1,7 @@
 'use client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useGetDashboard } from '@/api/dashboard-data';
+import { useGenerateOnboardUrl } from '@/api/verify-account';
+import { BottomNavigation } from '@/components/layout/bottom-navigation';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,33 +13,27 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import {
-  User,
-  Settings,
-  Shield,
-  HelpCircle,
-  LogOut,
-  ChevronRight,
-  Edit,
-  Camera,
-  CheckCircle,
-  AlertTriangle,
-  Clock,
-  Award,
-  DollarSign,
-  TrendingUp,
-  Calendar,
-  CreditCard,
-  Lock,
-} from 'lucide-react';
-import { BottomNavigation } from '@/components/layout/bottom-navigation';
-import { useAuthStore } from '@/store/auth-store';
-import { useState } from 'react';
-import { useRouter } from 'nextjs-toploader/app';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getInitials } from '@/lib/helper-functions';
-import { useGetDashboard } from '@/api/dashboard-data';
-import { useGenerateOnboardUrl } from '@/api/verify-account';
+import { useAuthStore } from '@/store/auth-store';
+import {
+  AlertTriangle,
+  CheckCircle,
+  ChevronRight,
+  Clock,
+  Edit,
+  HelpCircle,
+  Lock,
+  LogOut,
+  Shield,
+  User,
+} from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'nextjs-toploader/app';
+import { useState } from 'react';
 
 export function Profile() {
   const { reset, userDetails } = useAuthStore();
@@ -107,8 +100,8 @@ export function Profile() {
       {/* Header */}
       <header className="border-b border-gray-200 bg-white px-4 py-3">
         <div className="text-center">
-          <h1 className="text-xl font-bold text-gray-900">Profile</h1>
-          <p className="text-sm text-gray-500">Manage your account and preferences</p>
+          <h1 className="text-xl font-bold">Profile</h1>
+          <p className="text-secondary-text text-sm">Manage your account and preferences</p>
         </div>
       </header>
 
@@ -135,7 +128,7 @@ export function Profile() {
               </div>
               <div className="flex-1">
                 <div className="mb-1 flex items-center space-x-2">
-                  <h2 className="line-clamp-2 overflow-hidden text-xl font-bold break-all text-gray-900">
+                  <h2 className="text-primary-text line-clamp-2 overflow-hidden text-xl font-bold break-all">
                     {userDetails?.name || 'User'}
                   </h2>
                   <Link href="/profile/edit">
@@ -144,8 +137,8 @@ export function Profile() {
                     </Button>
                   </Link>
                 </div>
-                <p className="mb-1 text-gray-600">{userDetails?.email || 'No email'}</p>
-                <p className="text-sm text-gray-500">
+                <p className="text-secondary-text mb-1">{userDetails?.email || 'No email'}</p>
+                <p className="text-secondary-text text-sm">
                   Member since{' '}
                   {userDetails?.createdAt
                     ? new Date(userDetails.createdAt).toLocaleDateString('en-US', {
@@ -160,8 +153,8 @@ export function Profile() {
             {/* Bank Account Status */}
             <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
               <div className="flex items-center space-x-2">
-                <Shield className="h-5 w-5 text-gray-500" />
-                <span className="font-medium text-gray-900">KYC Status</span>
+                <Shield className="text-secondary-text h-5 w-5" />
+                <span className="text-primary-text font-medium">KYC Status</span>
               </div>
               <div className="flex items-center space-x-2">
                 {dashboardData?.is_kyc_verified === false ? (
@@ -233,8 +226,8 @@ export function Profile() {
                   <Clock className="h-5 w-5 text-yellow-600" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Pending Payouts</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="font-medium text-primary-text">Pending Payouts</p>
+                  <p className="text-sm text-secondary-text">
                     Will be paid on {payoutData.nextPayoutDate}
                   </p>
                 </div>
@@ -251,8 +244,8 @@ export function Profile() {
                   <CheckCircle className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Last Payout</p>
-                  <p className="text-sm text-gray-500">{payoutData.lastPayout.date}</p>
+                  <p className="font-medium text-primary-text">Last Payout</p>
+                  <p className="text-sm text-secondary-text">{payoutData.lastPayout.date}</p>
                 </div>
               </div>
               <div className="text-right">
@@ -269,8 +262,8 @@ export function Profile() {
                   <CreditCard className="h-5 w-5 text-gray-600" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Payout Method</p>
-                  <p className="text-sm text-gray-500">{payoutData.payoutMethod}</p>
+                  <p className="font-medium text-primary-text">Payout Method</p>
+                  <p className="text-sm text-secondary-text">{payoutData.payoutMethod}</p>
                 </div>
               </div>
               <Button variant="ghost" size="sm" className="text-blue-600">
@@ -301,8 +294,8 @@ export function Profile() {
                     <DollarSign className="h-4 w-4 text-green-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">${payout.amount.toFixed(2)}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-medium text-primary-text">${payout.amount.toFixed(2)}</p>
+                    <p className="text-sm text-secondary-text">
                       {payout.date} • {payout.subscriptions} subscriptions
                     </p>
                   </div>
@@ -324,8 +317,8 @@ export function Profile() {
             <Link href="/profile/edit">
               <button className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50">
                 <div className="flex items-center space-x-3">
-                  <User className="h-5 w-5 text-gray-500" />
-                  <span className="font-medium text-gray-900">Edit Profile</span>
+                  <User className="text-secondary-text h-5 w-5" />
+                  <span className="text-primary-text font-medium">Edit Profile</span>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </button>
@@ -334,8 +327,8 @@ export function Profile() {
             <Link href="/change-password">
               <button className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50">
                 <div className="flex items-center space-x-3">
-                  <Lock className="h-5 w-5 text-gray-500" />
-                  <span className="font-medium text-gray-900">Change Password</span>
+                  <Lock className="text-secondary-text h-5 w-5" />
+                  <span className="text-primary-text font-medium">Change Password</span>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </button>
@@ -346,10 +339,10 @@ export function Profile() {
               className={`flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50 ${dashboardData?.kyc && dashboardData.kyc.status === 'pending' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
             >
               <div className="flex items-center space-x-3">
-                <Shield className="h-5 w-5 text-gray-500" />
+                <Shield className="text-secondary-text h-5 w-5" />
                 <div className="text-left">
-                  <p className="font-medium text-gray-900">Bank Account</p>
-                  {/* <p className="text-sm text-gray-500">Verify your bank account for payments</p> */}
+                  <p className="text-primary-text font-medium">Bank Account</p>
+                  {/* <p className="text-sm text-secondary-text">Verify your bank account for payments</p> */}
                 </div>
               </div>
               <div className="flex items-center space-x-2">
@@ -380,8 +373,8 @@ export function Profile() {
               className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50"
             >
               <div className="flex items-center space-x-3">
-                <Settings className="h-5 w-5 text-gray-500" />
-                <span className="font-medium text-gray-900">Settings</span>
+                <Settings className="h-5 w-5 text-secondary-text" />
+                <span className="font-medium text-primary-text">Settings</span>
               </div>
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </button> */}
@@ -391,8 +384,8 @@ export function Profile() {
               className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50"
             >
               <div className="flex items-center space-x-3">
-                <HelpCircle className="h-5 w-5 text-gray-500" />
-                <span className="font-medium text-gray-900">Help & Support</span>
+                <HelpCircle className="text-secondary-text h-5 w-5" />
+                <span className="text-primary-text font-medium">Help & Support</span>
               </div>
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </button>
@@ -400,8 +393,8 @@ export function Profile() {
             <Link href="/privacy-policy">
               <button className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50">
                 <div className="flex items-center space-x-3">
-                  <Shield className="h-5 w-5 text-gray-500" />
-                  <span className="font-medium text-gray-900">Privacy Policy</span>
+                  <Shield className="text-secondary-text h-5 w-5" />
+                  <span className="text-primary-text font-medium">Privacy Policy</span>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </button>
@@ -410,8 +403,8 @@ export function Profile() {
             <Link href="/terms-conditions">
               <button className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50">
                 <div className="flex items-center space-x-3">
-                  <HelpCircle className="h-5 w-5 text-gray-500" />
-                  <span className="font-medium text-gray-900">Terms & Conditions</span>
+                  <HelpCircle className="text-secondary-text h-5 w-5" />
+                  <span className="text-primary-text font-medium">Terms & Conditions</span>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </button>

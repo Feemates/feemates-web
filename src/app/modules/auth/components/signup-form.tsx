@@ -158,7 +158,9 @@ export function SignupForm() {
     <Card className="w-full border-0 shadow-lg">
       <CardHeader className="space-y-1">
         <CardTitle className="text-center text-2xl font-semibold">Create account</CardTitle>
-        <CardDescription className="text-center">Sign up for your Feemates account</CardDescription>
+        <CardDescription className="text-secondary-text text-center">
+          Sign up for your Feemates account
+        </CardDescription>
         {isOffline && (
           <div className="flex items-center justify-center gap-2 rounded-md bg-red-50 p-2 text-sm text-red-600">
             <WifiOff className="h-4 w-4" />
@@ -284,7 +286,7 @@ export function SignupForm() {
                     <div className="min-w-0 flex-1 space-y-1 leading-none">
                       <div
                         className={`cursor-pointer text-sm leading-relaxed transition-colors duration-200 ${
-                          shouldHighlight ? 'font-medium text-red-700' : 'text-gray-600'
+                          shouldHighlight ? 'font-medium text-red-700' : 'text-secondary-text'
                         }`}
                         onClick={() => {
                           const newValue = !field.value;
@@ -373,7 +375,7 @@ export function SignupForm() {
             </Button>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 pt-6">
-            <div className="text-center text-sm text-gray-600">
+            <div className="text-secondary-text text-center text-sm">
               Already have an account?{' '}
               <Link href="/">
                 <button type="button" className="font-medium text-blue-600 hover:text-blue-800">

@@ -112,8 +112,8 @@ export function InvitesList() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Invitations</h1>
-            <p className="text-sm text-gray-500">{invites.length} invitations</p>
+            <h1 className="text-xl font-bold">Invitations</h1>
+            <p className="text-secondary-text text-sm">{invites.length} invitations</p>
           </div>
         </div>
       </header>
@@ -121,7 +121,7 @@ export function InvitesList() {
       {/* Main Content with bottom padding for navigation */}
       <main className="px-4 py-6 pb-24">
         {isLoading ? (
-          <div className="text-center text-gray-500">Loading...</div>
+          <div className="text-secondary-text text-center">Loading...</div>
         ) : isError ? (
           <div className="text-center text-red-500">Failed to load invites.</div>
         ) : invites.length === 0 ? (
@@ -151,10 +151,10 @@ export function InvitesList() {
                           <h4 className="font-semibold text-gray-900">
                             {invite.subscription_name}
                           </h4>
-                          <p className="line-clamp-2 overflow-hidden text-sm break-all text-gray-500">
+                          <p className="text-secondary-text line-clamp-2 overflow-hidden text-sm break-all">
                             Invited by {invite.owner_name}
                           </p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-secondary-text text-xs">
                             {invite.createdAt
                               ? new Date(invite.createdAt).toLocaleDateString()
                               : ''}
@@ -176,7 +176,7 @@ export function InvitesList() {
                       <div className="flex items-center space-x-2">
                         <DollarSign className="h-4 w-4 text-green-600" />
                         <div>
-                          <p className="text-sm text-gray-500">Your share</p>
+                          <p className="text-secondary-text text-sm">Your share</p>
                           <p className="font-semibold text-green-600">
                             ${Number(invite?.price).toFixed(2)}/ month
                           </p>
@@ -185,8 +185,8 @@ export function InvitesList() {
                       <div className="flex items-center space-x-2">
                         <Users className="h-4 w-4 text-blue-600" />
                         <div>
-                          <p className="text-sm text-gray-500">Members</p>
-                          <p className="font-semibold text-gray-900">
+                          <p className="text-secondary-text text-sm">Members</p>
+                          <p className="text-primary-text font-semibold">
                             {invite.members_count}/{invite.max_members_count}
                           </p>
                         </div>

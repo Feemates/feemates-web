@@ -156,8 +156,8 @@ export function SubscriptionsList() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">My Bundles</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-primary-text text-xl font-bold">My Bundles</h1>
+            <p className="text-secondary-text text-sm">
               {isLoading ? 'Loading...' : `${totalCount} bundle${totalCount !== 1 ? 's' : ''}`}
             </p>
           </div>
@@ -327,7 +327,7 @@ export function SubscriptionsList() {
                           <h4 className="line-clamp-1 overflow-hidden font-semibold break-all text-gray-900">
                             {subscription.name}
                           </h4>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-secondary-text text-sm">
                             Created on {formatDate(subscription.createdAt)}
                           </p>
                         </div>
@@ -346,36 +346,21 @@ export function SubscriptionsList() {
                       </Badge>
                     </div>
 
-                    <div className="mb-3 grid grid-cols-3 gap-4">
-                      <div>
-                        {/* <p className="mb-1 text-sm text-gray-500">Total price</p> */}
-                        <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-green-100">
-                          <DollarSign className="h-3 w-3 text-green-600" />
+                    <div className="mb-3 flex items-center justify-between space-x-4">
+                      <div className="flex flex-col items-start gap-1">
+                        <div className="flex items-center justify-center gap-2">
+                          <DollarSign className="h-4 w-4 text-green-600" />
+                          <p className="font-semibold text-gray-900">
+                            ${Number(subscription.price).toFixed(2)}
+                          </p>
                         </div>
-                        <p className="font-semibold text-gray-900">
-                          ${Number(subscription.price).toFixed(2)}
-                        </p>
-                      </div>
-                      <div>
-                        {/* <p className="mb-1 text-sm text-gray-500">Members</p> */}
-                        <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-green-100">
-                          <Users className="mx-auto h-3 w-3 text-blue-600" />
+                        <div className="flex items-center justify-center gap-2">
+                          <Users className="mx-auto h-4 w-4 text-blue-600" />
+                          <p className="font-semibold text-gray-900">
+                            {subscription.members_count + '/' + subscription.max_no_of_participants}
+                          </p>
                         </div>
-                        <p className="font-semibold text-gray-900">
-                          {subscription.members_count}/{subscription.max_no_of_participants}
-                        </p>
                       </div>
-                      {/* <div>
-                      <p className="mb-1 text-sm text-gray-500">Your share</p>
-                      <p className="font-semibold text-green-600">
-                        $
-                        {Number(
-                          subscription.is_owner
-                            ? subscription.owner_share
-                            : subscription.per_person_price
-                        ).toFixed(2)}
-                      </p>
-                    </div> */}
 
                       <div className="flex-shrink-0">
                         <div className="relative h-16 w-24 overflow-hidden rounded-lg bg-gray-100">
@@ -396,7 +381,7 @@ export function SubscriptionsList() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <p className="text-sm text-gray-500">
+                      <p className="text-secondary-text text-sm">
                         {availableSlots > 0
                           ? `${availableSlots} slot${availableSlots !== 1 ? 's' : ''} available`
                           : 'Bundle full'}

@@ -101,8 +101,8 @@ export function ChangePassword() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Change Password</h1>
-            <p className="text-sm text-gray-500">Update your account password</p>
+            <h1 className="text-xl font-bold">Change Password</h1>
+            <p className="text-secondary-text text-sm">Update your account password</p>
           </div>
         </div>
       </header>

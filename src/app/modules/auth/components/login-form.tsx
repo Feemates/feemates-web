@@ -225,7 +225,9 @@ export function LoginForm() {
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
                     <div className="leading-none">
-                      <FormLabel className="cursor-pointer text-gray-600">Remember me</FormLabel>
+                      <FormLabel className="text-secondary-text cursor-pointer">
+                        Remember me
+                      </FormLabel>
                     </div>
                   </FormItem>
                 )}

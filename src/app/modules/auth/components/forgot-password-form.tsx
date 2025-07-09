@@ -73,7 +73,7 @@ export function ForgotPasswordForm() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <span className="text-sm text-gray-600">Back to login</span>
+          <span className="text-secondary-text text-sm">Back to login</span>
         </div>
         <CardTitle className="text-center text-2xl font-semibold">Forgot Password?</CardTitle>
         <CardDescription className="text-center">
@@ -137,7 +137,7 @@ export function ForgotPasswordForm() {
               {isPending ? 'Sending Reset Link...' : 'Send Reset Link'}
             </Button>
 
-            <div className="text-center text-sm text-gray-600">
+            <div className="text-secondary-text text-center text-sm">
               Remember your password?{' '}
               <Link href="/">
                 <button type="button" className="font-medium text-blue-600 hover:text-blue-800">

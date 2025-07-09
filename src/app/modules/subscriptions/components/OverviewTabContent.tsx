@@ -38,19 +38,19 @@ export function OverviewTabContent({
     <div className="space-y-6">
       <Card className="border-0 bg-white shadow-sm">
         <CardHeader>
-          <CardTitle className="text-lg">Bundle Details</CardTitle>
+          <CardTitle className="text-primary-text text-lg">Bundle Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-between">
-            <span className="text-gray-600">Monthly Cost</span>
-            <span className="font-semibold">${subscription.monthlyCost}</span>
+            <span className="text-secondary-text">Monthly Cost</span>
+            <span className="text-primary-text font-semibold">${subscription.monthlyCost}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Your Share</span>
+            <span className="text-secondary-text">Your Share</span>
             <span className="font-semibold text-green-600">${subscription.yourShare}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Status</span>
+            <span className="text-secondary-text">Status</span>
             <Badge
               variant="secondary"
               className={`capitalize ${
@@ -65,23 +65,29 @@ export function OverviewTabContent({
             </Badge>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Start Date</span>
-            <span className="font-semibold">{formatDate(subscription.startDate)}</span>
+            <span className="text-secondary-text">Start Date</span>
+            <span className="text-primary-text font-semibold">
+              {formatDate(subscription.startDate)}
+            </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">End Date</span>
-            <span className="font-semibold">{formatDate(subscription.endDate)}</span>
+            <span className="text-secondary-text">End Date</span>
+            <span className="text-primary-text font-semibold">
+              {formatDate(subscription.endDate)}
+            </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Created On</span>
-            <span className="font-semibold">{formatDate(subscription.createdAt)}</span>
+            <span className="text-secondary-text">Created On</span>
+            <span className="text-primary-text font-semibold">
+              {formatDate(subscription.createdAt)}
+            </span>
           </div>
           {subscription.description && (
             <div className="border-t pt-2">
-              <span className="mb-2 line-clamp-1 block overflow-hidden break-all text-gray-600">
+              <span className="text-primary-text mb-2 line-clamp-1 block overflow-hidden break-all">
                 Description
               </span>
-              <p className="text-sm text-gray-900">{subscription.description}</p>
+              <p className="text-secondary-text text-sm">{subscription.description}</p>
             </div>
           )}
         </CardContent>

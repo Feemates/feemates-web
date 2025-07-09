@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2, X } from 'lucide-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCreateSubscription } from '../api/useCreateSubscription';
 import { useUploadFile } from '@/api/s3-operations';
@@ -90,6 +90,7 @@ export function CreateSubscription() {
   const [thumbnailImage, setThumbnailImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [templateData, setTemplateData] = useState<TemplateItem | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -131,6 +132,24 @@ export function CreateSubscription() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && !templateData) {
+      // Check file size (5MB = 5 * 1024 * 1024 bytes)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        // Clear the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        // Show error message
+        form.setError('root', {
+          type: 'manual',
+          message: 'Image size must be less than 5MB. Please choose a smaller image.',
+        });
+        return;
+      }
+
+      // Clear any previous error
+      form.clearErrors('root');
+
       setSelectedFile(file);
       // Create object URL for preview
       const objectUrl = URL.createObjectURL(file);
@@ -138,8 +157,27 @@ export function CreateSubscription() {
     }
   };
 
+  const handleRemoveImage = () => {
+    if (!templateData) {
+      setSelectedFile(null);
+      setThumbnailImage(null);
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // Prevent multiple submissions
+    if (createSubscriptionMutation.isPending || isRedirecting) {
+      return;
+    }
+
     try {
+      // Set redirecting state immediately to disable button
+      setIsRedirecting(true);
+
       // Calculate per person price by dividing total price by max participants
       const totalPrice = Number(values.price);
       const maxParticipants = Number(values.maxParticipants);
@@ -166,9 +204,14 @@ export function CreateSubscription() {
         ...(thumbnail && { thumbnail }),
       };
 
-      createSubscriptionMutation.mutate(payload);
+      createSubscriptionMutation.mutate(payload, {
+        onError: () => {
+          setIsRedirecting(false);
+        },
+      });
     } catch (error) {
       console.error('Error creating subscription:', error);
+      setIsRedirecting(false);
     }
   };
 
@@ -180,8 +223,8 @@ export function CreateSubscription() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Create Bundle</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-xl font-bold">Create Bundle</h1>
+            <p className="text-secondary-text text-sm">
               {templateData
                 ? 'Using template: ' + templateData.name
                 : 'Set up a new bundle to share'}
@@ -193,7 +236,7 @@ export function CreateSubscription() {
       <main className="px-4 py-6">
         <Card className="border-0 bg-white shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg">Bundle Details</CardTitle>
+            <CardTitle className="text-primary-text text-lg">Bundle Details</CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -231,7 +274,7 @@ export function CreateSubscription() {
                         />
                       </FormControl>
                       <FormMessage />
-                      <p className="text-sm text-gray-500">
+                      <p className="text-secondary-text text-sm">
                         Optional details about the bundle or sharing arrangement
                       </p>
                     </FormItem>
@@ -246,7 +289,7 @@ export function CreateSubscription() {
                       <FormLabel>Total Cost *</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <span className="absolute top-3 left-3 text-gray-500">$</span>
+                          <span className="text-secondary-text absolute top-3 left-3">$</span>
                           <Input
                             type="number"
                             step="0.01"
@@ -264,7 +307,7 @@ export function CreateSubscription() {
                         </div>
                       </FormControl>
                       <FormMessage />
-                      <p className="text-sm text-gray-500">Total bundle cost</p>
+                      <p className="text-secondary-text text-sm">Total bundle cost</p>
                     </FormItem>
                   )}
                 />
@@ -284,7 +327,7 @@ export function CreateSubscription() {
                         />
                       </FormControl>
                       <FormMessage />
-                      <p className="text-sm text-gray-500">Bundle cannot start in the past</p>
+                      <p className="text-secondary-text text-sm">Bundle cannot start in the past</p>
                     </FormItem>
                   )}
                 />
@@ -304,7 +347,7 @@ export function CreateSubscription() {
                         />
                       </FormControl>
                       <FormMessage />
-                      <p className="text-sm text-gray-500">Must be after start date</p>
+                      <p className="text-secondary-text text-sm">Must be after start date</p>
                     </FormItem>
                   )}
                 />
@@ -325,7 +368,7 @@ export function CreateSubscription() {
                         />
                       </FormControl>
                       <FormMessage />
-                      <p className="text-sm text-gray-500">
+                      <p className="text-secondary-text text-sm">
                         Including yourself (minimum 2 participants)
                       </p>
                     </FormItem>
@@ -333,7 +376,7 @@ export function CreateSubscription() {
                 />
 
                 <FormItem>
-                  <FormLabel>Thumbnail Image</FormLabel>
+                  <FormLabel>Thumbnail Image (Max size: 5MB)</FormLabel>
                   {!templateData && (
                     <FormControl>
                       <Input
@@ -347,7 +390,7 @@ export function CreateSubscription() {
                     </FormControl>
                   )}
                   {thumbnailImage && (
-                    <div className="flex-shrink-0">
+                    <div className="relative flex-shrink-0 pt-3">
                       <div className="relative h-16 w-24 overflow-hidden rounded-lg bg-gray-100">
                         <Image
                           src={thumbnailImage}
@@ -356,10 +399,26 @@ export function CreateSubscription() {
                           className="object-fit"
                         />
                       </div>
+                      {!templateData && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleRemoveImage}
+                          className="absolute top-1 left-20 h-5 w-5 rounded-full bg-red-500 p-0 hover:bg-red-600"
+                        >
+                          <X className="h-3 w-3 text-white" />
+                        </Button>
+                      )}
                     </div>
                   )}
 
-                  <p className="text-sm text-gray-500">
+                  {/* Show file size error */}
+                  {form.formState.errors.root && (
+                    <p className="text-sm text-red-600">{form.formState.errors.root.message}</p>
+                  )}
+
+                  <p className="text-secondary-text text-sm">
                     {templateData
                       ? 'Template thumbnail is being used'
                       : 'Upload a thumbnail image for your bundle'}
@@ -369,9 +428,16 @@ export function CreateSubscription() {
                 <Button
                   type="submit"
                   className="h-12 w-full text-base font-medium"
-                  disabled={createSubscriptionMutation.isPending}
+                  disabled={createSubscriptionMutation.isPending || isRedirecting}
                 >
-                  {createSubscriptionMutation.isPending ? 'Creating...' : 'Create Bundle'}
+                  {createSubscriptionMutation.isPending || isRedirecting ? (
+                    <div className="flex items-center">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {createSubscriptionMutation.isPending ? 'Creating...' : 'Creating...'}
+                    </div>
+                  ) : (
+                    'Create Bundle'
+                  )}
                 </Button>
               </form>
             </Form>

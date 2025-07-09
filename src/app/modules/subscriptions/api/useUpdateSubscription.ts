@@ -7,6 +7,7 @@ import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 export interface UpdateSubscriptionPayload {
   name: string;
   description: string;
+  thumbnail?: string | null;
 }
 
 export interface UpdateSubscriptionResponse {

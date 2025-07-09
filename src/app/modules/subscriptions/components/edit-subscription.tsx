@@ -14,7 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, X } from 'lucide-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useUpdateSubscription } from '../api/useUpdateSubscription';
 import { useGetSubscription } from '../api/useGetSubscription';
@@ -59,6 +59,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [thumbnailImage, setThumbnailImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Always call useForm at the top
   const form = useForm<z.infer<typeof formSchema>>({
@@ -90,10 +91,37 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Check file size (5MB = 5 * 1024 * 1024 bytes)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        // Clear the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        // Show error message
+        form.setError('root', {
+          type: 'manual',
+          message: 'Image size must be less than 5MB. Please choose a smaller image.',
+        });
+        return;
+      }
+
+      // Clear any previous error
+      form.clearErrors('root');
+
       setSelectedFile(file);
       // Create object URL for preview
       const objectUrl = URL.createObjectURL(file);
       setThumbnailImage(objectUrl);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedFile(null);
+    setThumbnailImage(null);
+    // Clear the file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -140,27 +168,41 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // Prevent multiple submissions
+    if (updateSubscriptionMutation.isPending || isRedirecting) {
+      return;
+    }
+
     try {
+      // Set redirecting state immediately to disable button
+      setIsRedirecting(true);
+
       let thumbnail = undefined;
 
       // If there's a new image file, upload it first
       if (selectedFile) {
         const uploadResult = await uploadFile.mutateAsync({ file: selectedFile });
         thumbnail = uploadResult.key;
+      } else if (thumbnailImage === null) {
+        // If thumbnail was removed (set to null), pass null to remove it
+        thumbnail = null;
       }
+      // If thumbnailImage exists and no new file selected, don't pass thumbnail (keep existing)
 
       const payload = {
         name: values.name,
         description: values.description || '',
         endDate: new Date(values.endDate).toISOString(),
-        ...(thumbnail && { thumbnail }),
+        ...(thumbnail !== undefined && { thumbnail }),
       };
 
-      // Set redirecting state when mutation starts
-      setIsRedirecting(true);
       updateSubscriptionMutation.mutate(payload, {
         onError: () => {
           setIsRedirecting(false);
+        },
+        onSuccess: () => {
+          // Keep isRedirecting true until navigation completes
+          // It will be reset when component unmounts
         },
       });
     } catch (error) {
@@ -271,27 +313,18 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                 />
 
                 <FormItem>
-                  <FormLabel>Thumbnail Image (Optional)</FormLabel>
+                  <FormLabel>Thumbnail Image (Max size: 5MB)</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
                       accept="image/*"
                       onChange={handleFileChange}
                       className="placeholder:text-muted-foreground"
+                      ref={fileInputRef}
                     />
                   </FormControl>
                   {thumbnailImage && (
-                    // <div className="mt-2">
-                    //   <Image
-                    //     src={thumbnailImage}
-                    //     alt="Thumbnail preview"
-                    //     className="h-20 w-20 rounded object-cover"
-                    //     width={40}
-                    //     height={40}
-                    //   />
-                    // </div>
-
-                    <div className="mt-2 flex-shrink-0">
+                    <div className="relative flex-shrink-0 pt-3">
                       <div className="relative h-16 w-24 overflow-hidden rounded-lg bg-gray-100">
                         <Image
                           src={thumbnailImage}
@@ -300,8 +333,23 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                           className="object-cover"
                         />
                       </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemoveImage}
+                        className="absolute top-1 left-20 h-6 w-6 rounded-full bg-red-500 p-0 hover:bg-red-600"
+                      >
+                        <X className="h-3 w-3 text-white" />
+                      </Button>
                     </div>
                   )}
+
+                  {/* Show file size error */}
+                  {form.formState.errors.root && (
+                    <p className="text-sm text-red-600">{form.formState.errors.root.message}</p>
+                  )}
+
                   <p className="text-sm text-gray-500">Upload a thumbnail image for your bundle</p>
                 </FormItem>
 
@@ -387,7 +435,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                     {updateSubscriptionMutation.isPending || isRedirecting ? (
                       <div className="flex items-center">
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {isRedirecting && 'Saving...'}
+                        {updateSubscriptionMutation.isPending ? 'Saving...' : 'Saving...'}
                       </div>
                     ) : (
                       'Save Changes'
