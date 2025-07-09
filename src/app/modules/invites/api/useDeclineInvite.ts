@@ -26,7 +26,7 @@ export const useDeclineInvite = (onSuccess?: () => void) => {
       return declineInviteApi(inviteId);
     },
     onSuccess: (data: DeclineInviteResponse) => {
-      toast.success(data.message || 'Invitation declined.');
+      toast.success(data.message || 'Invitation declined successfully.');
       if (onSuccess) onSuccess();
     },
     onError: (error: any) => {
