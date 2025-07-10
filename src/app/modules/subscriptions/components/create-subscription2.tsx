@@ -134,7 +134,7 @@ export function CreateSubscription() {
     if (file && !templateData) {
       // Check file size (5MB = 5 * 1024 * 1024 bytes)
       const maxSize = 5 * 1024 * 1024;
-      if (file.size > maxSize) {
+      if (file.size >= maxSize) {
         // Clear the file input
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
@@ -376,7 +376,12 @@ export function CreateSubscription() {
                 />
 
                 <FormItem>
-                  <FormLabel>Thumbnail Image (Max size: 5MB)</FormLabel>
+                  <FormLabel>
+                    Thumbnail Image{' '}
+                    {!templateData && (
+                      <span className="text-muted-foreground text-xs"> (Max size: 5MB)</span>
+                    )}
+                  </FormLabel>
                   {!templateData && (
                     <FormControl>
                       <Input

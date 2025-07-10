@@ -5,7 +5,13 @@ type titleT = (() => React.ReactNode) | React.ReactNode;
 
 export const toast = {
   success: (message: titleT | React.ReactNode, data?: ExternalToast) =>
-    sonnerToast.success(message, data),
+    sonnerToast.success(message, {
+      duration: 2000, // 2 seconds
+      ...data, // Spread any additional data props
+    }),
   error: (message: titleT | React.ReactNode | Error | any, data?: ExternalToast) =>
-    sonnerToast.error(errorParser(message), data),
+    sonnerToast.error(errorParser(message), {
+      duration: 2000, // 2 seconds
+      ...data, // Spread any additional data props
+    }),
 };

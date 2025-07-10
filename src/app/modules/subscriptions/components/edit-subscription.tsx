@@ -93,7 +93,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
     if (file) {
       // Check file size (5MB = 5 * 1024 * 1024 bytes)
       const maxSize = 5 * 1024 * 1024;
-      if (file.size > maxSize) {
+      if (file.size >= maxSize) {
         // Clear the file input
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
@@ -313,7 +313,10 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                 />
 
                 <FormItem>
-                  <FormLabel>Thumbnail Image (Max size: 5MB)</FormLabel>
+                  <FormLabel>
+                    Thumbnail Image{' '}
+                    <span className="text-muted-foreground text-xs"> (Max size: 5MB)</span>
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="file"

@@ -1,5 +1,3 @@
-importScripts('https://cdn.engagespot.co/serviceWorkerv2.js');
-
 const CACHE_NAME = 'feemates-cache-v1';
 const urlsToCache = [
   '/',
