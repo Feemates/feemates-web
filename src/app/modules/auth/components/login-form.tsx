@@ -32,6 +32,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { env } from '@/config/env';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 const formSchema = z.object({
   email: z.string().email({
@@ -47,6 +48,7 @@ type LoginFormData = z.infer<typeof formSchema>;
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const loginMutation = useLogin();
@@ -101,10 +103,24 @@ export function LoginForm() {
         setUserDetails(data.user);
 
         // Handle redirection
+        const redirectTo = searchParams.get('redirect') || null;
+
         setTimeout(() => {
-          if (data.invited_subscriptions && data.invited_subscriptions > 0) {
-            router.push('/invites');
-          } else {
+          try {
+            if (redirectTo) {
+              // Use decodeURIComponent to handle encoded URLs properly
+              const decodedRedirectTo = decodeURIComponent(redirectTo);
+              // Prefetch the redirect page to avoid chunk loading issues
+              router.prefetch(decodedRedirectTo);
+              router.replace(decodedRedirectTo);
+            } else if (data.invited_subscriptions && data.invited_subscriptions > 0) {
+              router.push('/invites');
+            } else {
+              router.push('/dashboard');
+            }
+          } catch (error) {
+            console.error('Redirect error:', error);
+            // Fallback to dashboard if redirect fails
             router.push('/dashboard');
           }
         }, 100);
@@ -296,7 +312,9 @@ export function LoginForm() {
           <CardFooter className="flex flex-col space-y-4 pt-6">
             <div className="text-center text-sm text-gray-600">
               {"Don't have an account? "}
-              <Link href="/signup">
+              <Link
+                href={`/signup${searchParams.get('redirect') ? `?redirect=${encodeURIComponent(searchParams.get('redirect')!)}` : ''}`}
+              >
                 <button
                   type="button"
                   className="cursor-pointer font-medium text-blue-600 hover:text-blue-800"

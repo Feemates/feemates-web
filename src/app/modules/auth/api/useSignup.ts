@@ -5,6 +5,7 @@ import { toast } from '@/lib/toast';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { useSearchParams } from 'next/navigation';
 
 export interface SignupPayload {
   name: string;
@@ -39,6 +40,7 @@ export const useSignup = () => {
   const { setToken, setUserId, setUserDetails } = useAuthStore();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isOffline } = useNetworkStatus();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -70,11 +72,25 @@ export const useSignup = () => {
       setUserId(data.user.id.toString());
       setUserDetails(data?.user || null);
 
+      const redirectTo = searchParams.get('redirect') || null;
+
       // Small delay to ensure state updates, then redirect
       setTimeout(() => {
-        if (data.invited_subscriptions && data.invited_subscriptions > 0) {
-          router.push('/invites');
-        } else {
+        try {
+          if (redirectTo) {
+            // Use decodeURIComponent to handle encoded URLs properly
+            const decodedRedirectTo = decodeURIComponent(redirectTo);
+            // Prefetch the redirect page to avoid chunk loading issues
+            router.prefetch(decodedRedirectTo);
+            router.replace(decodedRedirectTo);
+          } else if (data.invited_subscriptions && data.invited_subscriptions > 0) {
+            router.push('/invites');
+          } else {
+            router.push('/dashboard');
+          }
+        } catch (error) {
+          console.error('Redirect error:', error);
+          // Fallback to dashboard if redirect fails
           router.push('/dashboard');
         }
       }, 100);

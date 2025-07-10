@@ -55,8 +55,8 @@ export function Profile() {
       // Clear auth store data
       reset();
 
-      // Use replace to prevent back navigation
-      router.replace('/');
+      // Force a complete navigation to login page without any query params
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
       setIsLoggingOut(false);

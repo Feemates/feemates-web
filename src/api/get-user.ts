@@ -28,12 +28,13 @@ const getMe = (): Promise<GetUserResponse> => {
   return apiClient.get('/auth/me');
 };
 
-export const useGetMe = () => {
+export const useGetMe = (token: string | null) => {
   const { setUserDetails } = useAuthStore();
 
   const query = useQuery({
     queryKey: ['me'],
     queryFn: getMe,
+    enabled: !!token,
   });
 
   // Store user details in auth store when data is successfully fetched
