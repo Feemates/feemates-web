@@ -22,6 +22,7 @@ import { useUpdateProfile } from '@/app/modules/profile/api/useUpdateProfile';
 import { toast } from '@/lib/toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
+import { useAuthStore } from '@/store/auth-store';
 
 const formSchema = z.object({
   name: z
@@ -42,11 +43,12 @@ const formSchema = z.object({
 
 export function EditProfile() {
   const router = useRouter();
+  const authToken = useAuthStore.getState().authToken;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const { data: userData, isLoading } = useGetMe();
+  const { data: userData, isLoading } = useGetMe(authToken);
   const uploadFile = useUploadFile();
   const updateProfile = useUpdateProfile();
   const queryClient = useQueryClient();

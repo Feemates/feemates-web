@@ -41,7 +41,7 @@ function ProtectedRoutesWrapper({
         setIsLoading(false);
       }
     }
-  }, [authToken, router, isProtectedRoute]);
+  }, [authToken, router, isProtectedRoute, pathname, searchParams]);
 
   if (isLoading) {
     return <div className="min-h-screen animate-pulse bg-white"></div>;
