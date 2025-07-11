@@ -137,10 +137,14 @@ export function SubscriptionInvitationModule({ id }: { id: string }) {
                   <Badge variant="secondary" className="bg-red-100 text-red-800">
                     Declined
                   </Badge>
-                ) : (
+                ) : invite.member ? (
                   <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
                     {invite?.member?.status.charAt(0).toUpperCase() +
                       invite?.member?.status.slice(1)}
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    Invited
                   </Badge>
                 )}
               </div>
@@ -200,11 +204,29 @@ export function SubscriptionInvitationModule({ id }: { id: string }) {
                   This subscription bundle has been canceled by the owner and is no longer
                   available.
                 </div>
-              ) : (
+              ) : !invite.member && invite.max_no_of_participants - invite.members_count > 0 ? (
+                <div className="mt-4 flex space-x-3">
+                  <Button
+                    onClick={() => handleJoinSubscription(invite.subscription_invite_id, invite.id)}
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                  >
+                    Join & Pay
+                  </Button>
+                  <Button
+                    onClick={() => handleDeclineInvite(invite.subscription_invite_id)}
+                    variant="outline"
+                    className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                  >
+                    Decline
+                  </Button>
+                </div>
+              ) : invite.max_no_of_participants - invite.members_count <= 0 ? (
                 <div className="mt-4 rounded bg-gray-100 p-3 text-center text-sm text-gray-600">
                   This bundle has reached the maximum number of participants. You cannot join this
                   bundle.
                 </div>
+              ) : (
+                ''
               )}
             </CardContent>
           </Card>
