@@ -418,15 +418,23 @@ export function SubscriptionsList() {
                     width={150}
                     height={150}
                   />
-                  <h2 className="mb-2 text-center text-lg font-semibold text-gray-900">
-                    You haven&apos;t created any bundle yet
-                  </h2>
-                  <p className="mb-3 text-center text-sm text-gray-500">
-                    Start a group bundle and invite friends to split the cost easily
-                  </p>
-                  <Button asChild>
-                    <Link href="/select-template">Create Bundle</Link>
-                  </Button>
+                  {statusFilter === 'expired' ? (
+                    <h2 className="mb-2 text-center text-lg font-semibold text-gray-900">
+                      No expired bundles found
+                    </h2>
+                  ) : (
+                    <>
+                      <h2 className="mb-2 text-center text-lg font-semibold text-gray-900">
+                        You haven&apos;t created any bundle yet
+                      </h2>
+                      <p className="mb-3 text-center text-sm text-gray-500">
+                        Start a group bundle and invite friends to split the cost easily
+                      </p>
+                      <Button asChild>
+                        <Link href="/select-template">Create Bundle</Link>
+                      </Button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
