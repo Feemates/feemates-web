@@ -270,7 +270,7 @@ export function MemberTabContent({
                     <div className="flex items-center space-x-2">
                       <AlertCircle className="h-4 w-4 text-blue-600" />
                       <p className="text-sm text-blue-800">
-                        Waiting for {name} to accept the invitation
+                        Waiting for {name ?? email} to accept the invitation
                       </p>
                     </div>
                   </div>
