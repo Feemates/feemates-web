@@ -129,17 +129,18 @@ export function SubscriptionInvitationModule({ id }: { id: string }) {
                     </p>
                   </div>
                 </div>
-                {invite.member.status === 'invited' ? (
+                {invite?.member?.status === 'invited' ? (
                   <Badge variant="secondary" className="bg-green-100 text-green-800">
                     Invited
                   </Badge>
-                ) : invite.member.status === 'declined' ? (
+                ) : invite?.member?.status === 'declined' ? (
                   <Badge variant="secondary" className="bg-red-100 text-red-800">
                     Declined
                   </Badge>
                 ) : (
                   <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                    {invite.member.status.charAt(0).toUpperCase() + invite.member.status.slice(1)}
+                    {invite?.member?.status.charAt(0).toUpperCase() +
+                      invite?.member?.status.slice(1)}
                   </Badge>
                 )}
               </div>
@@ -150,7 +151,7 @@ export function SubscriptionInvitationModule({ id }: { id: string }) {
                   <div>
                     <p className="text-secondary-text text-sm">Your share</p>
                     <p className="font-semibold text-green-600">
-                      ${truncateToTwoDecimals(invite?.member.price)}/ month
+                      ${truncateToTwoDecimals(invite?.per_person_price)}/ month
                     </p>
                   </div>
                 </div>
@@ -169,11 +170,11 @@ export function SubscriptionInvitationModule({ id }: { id: string }) {
                 <div className="mt-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-center text-sm text-yellow-800">
                   This subscription has expired. Please contact the inviter for more information.
                 </div>
-              ) : invite.member.status === 'active' ? (
+              ) : invite?.member?.status === 'active' ? (
                 <div className="mb-4 rounded bg-green-50 p-3 text-center text-sm text-green-800">
                   You are already a member of this bundle.
                 </div>
-              ) : invite.member.status === 'invited' &&
+              ) : invite?.member?.status === 'invited' &&
                 invite.max_no_of_participants - invite.members_count > 0 ? (
                 <div className="mt-4 flex space-x-3">
                   <Button
@@ -190,7 +191,7 @@ export function SubscriptionInvitationModule({ id }: { id: string }) {
                     Decline
                   </Button>
                 </div>
-              ) : invite.member.status === 'declined' ? (
+              ) : invite?.member?.status === 'declined' ? (
                 <div className="mb-4 rounded bg-red-50 p-3 text-center text-sm text-red-800">
                   You have declined this invitation. You cannot join this bundle.
                 </div>
