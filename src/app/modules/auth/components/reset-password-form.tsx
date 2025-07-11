@@ -25,6 +25,7 @@ import {
 import { Eye, EyeOff, Lock, CheckCircle, Loader2 } from 'lucide-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useResetPassword } from '../api/useResetPassword';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 const formSchema = z
   .object({
@@ -52,6 +53,7 @@ export function ResetPasswordForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [urlParams, setUrlParams] = useState<{ token: string; uid: string } | null>(null);
   const [hasValidParams, setHasValidParams] = useState<boolean | null>(null);
+  const { isOffline } = useNetworkStatus();
 
   const { mutate: resetPassword, isPending, isRedirecting } = useResetPassword();
 
@@ -241,7 +243,7 @@ export function ResetPasswordForm() {
             <Button
               type="submit"
               className="h-12 w-full text-base font-medium"
-              disabled={isPending}
+              disabled={isPending || isOffline}
             >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isPending ? 'Resetting Password...' : 'Reset Password'}

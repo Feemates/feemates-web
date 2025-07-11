@@ -26,6 +26,7 @@ import { useForgotPassword } from '../api/useForgotPassword';
 import { errorParser } from '@/lib/error-parser';
 import { useRouter } from 'nextjs-toploader/app';
 import Link from 'next/link';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 const formSchema = z.object({
   email: z.string().email({
@@ -37,6 +38,7 @@ export function ForgotPasswordForm() {
   const router = useRouter();
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const { mutate: forgotPassword, isPending } = useForgotPassword();
+  const { isOffline } = useNetworkStatus();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -131,7 +133,7 @@ export function ForgotPasswordForm() {
             <Button
               type="submit"
               className="h-12 w-full text-base font-medium"
-              disabled={isPending}
+              disabled={isPending || isOffline}
             >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isPending ? 'Sending Reset Link...' : 'Send Reset Link'}

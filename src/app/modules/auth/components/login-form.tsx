@@ -165,12 +165,6 @@ export function LoginForm() {
       <CardHeader className="">
         {/* <CardTitle className="text-center text-2xl font-semibold">Welcome back</CardTitle>
         <CardDescription className="text-center">Sign in to your Feemates account</CardDescription> */}
-        {isOffline && (
-          <div className="flex items-center justify-center gap-2 rounded-md bg-red-50 p-2 text-sm text-red-600">
-            <WifiOff className="h-4 w-4" />
-            <span>No internet connection</span>
-          </div>
-        )}
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
