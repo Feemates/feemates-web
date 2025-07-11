@@ -7,10 +7,10 @@ export interface OverviewSubscription {
   id: number;
   name: string;
   description: string;
-  monthlyCost: string;
+  monthlyCost: any;
   members: number;
   maxMembers: number;
-  yourShare: string;
+  yourShare: any;
   status: string;
   owner: string;
   isOwner: boolean;

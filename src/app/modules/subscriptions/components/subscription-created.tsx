@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { useGetSubscription } from '../api/useGetSubscription';
 import { useRouter } from 'nextjs-toploader/app';
+import { truncateToTwoDecimals } from '@/lib/helper-functions';
+import { toast } from '@/lib/toast';
 
 interface SubscriptionCreatedProps {
   id: string;
@@ -81,11 +83,11 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
 
   const subscription = {
     name: subscriptionData.name,
-    shareLink: `${window.location.origin}/invites`,
-    monthlyShare: Number(subscriptionData.per_person_price.toFixed(2)),
+    shareLink: `${window.location.origin}/invites/${subscriptionData.id}`,
+    monthlyShare: truncateToTwoDecimals(subscriptionData.per_person_price),
     maxMembers: subscriptionData.max_no_of_participants,
     currentMembers: subscriptionData.members_count,
-    totalPrice: Number(subscriptionData.price.toFixed(2)),
+    totalPrice: truncateToTwoDecimals(subscriptionData.price),
     description: subscriptionData.description,
   };
 
@@ -93,7 +95,7 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(subscription.shareLink);
-    alert('Link copied to clipboard!');
+    toast.success('Share link copied to clipboard!');
   };
 
   const handleShare = () => {
@@ -271,7 +273,7 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
               </div>
             </div>
 
-            <div className="flex space-x-2">
+            {/* <div className="flex space-x-2">
               <Button onClick={handleShare} className="flex-1">
                 <Share2 className="mr-2 h-4 w-4" />
                 Share Link
@@ -280,7 +282,7 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
                 <MessageSquare className="mr-2 h-4 w-4" />
                 WhatsApp
               </Button>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 

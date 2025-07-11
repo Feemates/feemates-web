@@ -20,6 +20,7 @@ import { useUpdateSubscription } from '../api/useUpdateSubscription';
 import { useGetSubscription } from '../api/useGetSubscription';
 import { useUploadFile } from '@/api/s3-operations';
 import Image from 'next/image';
+import { truncateToTwoDecimals } from '@/lib/helper-functions';
 
 const formSchema = z
   .object({
@@ -366,7 +367,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                     <div>
                       <FormLabel className="text-gray-500">Total Cost</FormLabel>
                       <Input
-                        value={`$${Number(subscriptionData.price).toFixed(2)}`}
+                        value={`$${truncateToTwoDecimals(subscriptionData.price)}`}
                         disabled
                         className="h-12 bg-gray-100"
                       />
@@ -375,7 +376,7 @@ export function EditSubscription({ id }: EditSubscriptionProps) {
                     <div>
                       <FormLabel className="text-gray-500">Per Person Cost</FormLabel>
                       <Input
-                        value={`$${Number(subscriptionData.per_person_price).toFixed(2)}`}
+                        value={`$${truncateToTwoDecimals(subscriptionData.per_person_price)}`}
                         disabled
                         className="h-12 bg-gray-100"
                       />

@@ -44,6 +44,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useDeleteBundle } from '../api/useDeleteBundle';
+import { truncateToTwoDecimals } from '@/lib/helper-functions';
+import { toast } from '@/lib/toast';
 
 const deleteBundleSchema = z.object({
   bundleName: z.string().min(1, 'Bundle name is required'),
@@ -132,12 +134,12 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
     id: subscriptionData.id,
     name: subscriptionData.name,
     description: subscriptionData.description,
-    monthlyCost: Number(subscriptionData.price).toFixed(2),
+    monthlyCost: truncateToTwoDecimals(subscriptionData.price),
     members: subscriptionData.members_count,
     maxMembers: subscriptionData.max_no_of_participants,
-    yourShare: Number(
+    yourShare: truncateToTwoDecimals(
       subscriptionData.is_owner ? subscriptionData.owner_share : subscriptionData.per_person_price
-    ).toFixed(2),
+    ),
     status: subscriptionData.status,
     owner: subscriptionData.owner.name,
     isOwner: subscriptionData.is_owner,
@@ -214,17 +216,17 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
   };
 
   const handleShareLink = () => {
-    const shareUrl = `${window.location.origin}/invites`;
-    if (navigator.share) {
-      navigator.share({
-        title: `Join ${subscription.name} subscription`,
-        text: `Join my ${subscription.name} subscription and split the cost!`,
-        url: shareUrl,
-      });
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      alert('Invitation link copied to clipboard!');
-    }
+    const shareUrl = `${window.location.origin}/invites/${subscription.id}`;
+    // if (navigator.share) {
+    //   navigator.share({
+    //     title: `Join ${subscription.name} subscription`,
+    //     text: `Join my ${subscription.name} subscription and split the cost!`,
+    //     url: shareUrl,
+    //   });
+    // } else {
+    navigator.clipboard.writeText(shareUrl);
+    toast.success('Share link copied to clipboard!');
+    // }
   };
 
   const addEmailField = () => {
@@ -640,7 +642,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
                 </div>
                 <div className="mb-1 text-2xl font-bold text-[#00A3AD]">
                   {typeof subscriptionStats?.total_paid === 'number' ? (
-                    `$${subscriptionStats.total_paid.toFixed(2)}`
+                    `$${truncateToTwoDecimals(subscriptionStats.total_paid)}`
                   ) : (
                     <Skeleton className="h-8 w-24" />
                   )}
@@ -658,7 +660,7 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
                 </div>
                 <div className="mb-1 text-2xl font-bold text-[#0052CC]">
                   {typeof subscriptionStats?.savings === 'number' ? (
-                    `$${subscriptionStats.savings.toFixed(2)}`
+                    `$${truncateToTwoDecimals(subscriptionStats.savings)}`
                   ) : (
                     <Skeleton className="h-8 w-24" />
                   )}

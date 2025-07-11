@@ -5,6 +5,7 @@ import { CheckCircle, Clock, Loader2, XCircle } from 'lucide-react';
 
 import { useTransactionList } from '../api/useTransactionList';
 import { useInView } from 'react-intersection-observer';
+import { truncateToTwoDecimals } from '@/lib/helper-functions';
 
 type PaymentTabContentProps = {
   subscriptionId: number;
@@ -142,7 +143,7 @@ export function PaymentTabContent({ subscriptionId }: PaymentTabContentProps) {
                   </div>
                   <p className="text-secondary-text pt-1 text-sm">
                     {' '}
-                    ${Number(txn.amount).toFixed(2)}
+                    ${truncateToTwoDecimals(txn.amount)}
                   </p>
                 </div>
               </div>

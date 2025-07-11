@@ -12,6 +12,7 @@ export function OwnedTab() {
     useGetSubscriptionsList({
       type: 'owner',
       limit: 10,
+      status: 'active',
     });
 
   const { ref, inView } = useInView({ threshold: 0, rootMargin: '100px' });

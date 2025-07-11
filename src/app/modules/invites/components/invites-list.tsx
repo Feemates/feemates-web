@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
+import { truncateToTwoDecimals } from '@/lib/helper-functions';
 
 const iconMap: Record<string, any> = {
   Music,
@@ -178,7 +179,7 @@ export function InvitesList() {
                         <div>
                           <p className="text-secondary-text text-sm">Your share</p>
                           <p className="font-semibold text-green-600">
-                            ${Number(invite?.price).toFixed(2)}/ month
+                            ${truncateToTwoDecimals(invite.price)}/ month
                           </p>
                         </div>
                       </div>

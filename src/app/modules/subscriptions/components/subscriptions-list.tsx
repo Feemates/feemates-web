@@ -31,6 +31,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { truncateToTwoDecimals } from '@/lib/helper-functions';
 
 type SortType = 'name' | 'createdAt' | 'per_person_price';
 type SortOrder = 'asc' | 'desc';
@@ -351,7 +352,7 @@ export function SubscriptionsList() {
                         <div className="flex items-center justify-center gap-2">
                           <DollarSign className="h-4 w-4 text-[#00A3AD]" />
                           <p className="font-semibold text-gray-900">
-                            ${Number(subscription.price).toFixed(2)}
+                            ${truncateToTwoDecimals(subscription.price)}
                           </p>
                         </div>
                         <div className="flex items-center justify-center gap-2">
