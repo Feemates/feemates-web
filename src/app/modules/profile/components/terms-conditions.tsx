@@ -19,7 +19,7 @@ export function TermsConditions() {
           </Button>
           <div>
             <h1 className="text-xl font-bold text-gray-900">Terms & Conditions</h1>
-            <p className="text-sm text-gray-500">Last updated: March 2024</p>
+            <p className="text-sm text-gray-500">Last updated: July 2025</p>
           </div>
         </div>
       </header>
