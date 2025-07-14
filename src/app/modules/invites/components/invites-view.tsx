@@ -212,13 +212,6 @@ export function SubscriptionInvitationModule({ id }: { id: string }) {
                   >
                     Join & Pay
                   </Button>
-                  <Button
-                    onClick={() => handleDeclineInvite(invite.subscription_invite_id)}
-                    variant="outline"
-                    className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
-                  >
-                    Decline
-                  </Button>
                 </div>
               ) : invite.max_no_of_participants - invite.members_count <= 0 ? (
                 <div className="mt-4 rounded bg-gray-100 p-3 text-center text-sm text-gray-600">
