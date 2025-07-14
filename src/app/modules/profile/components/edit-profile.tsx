@@ -100,6 +100,24 @@ export function EditProfile() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Check file size (5MB = 5 * 1024 * 1024 bytes)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size >= maxSize) {
+        // Clear the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        // Show error message
+        form.setError('root', {
+          type: 'manual',
+          message: 'Image size must be less than 5MB. Please choose a smaller image.',
+        });
+        return;
+      }
+
+      // Clear any previous error
+      form.clearErrors('root');
+
       setSelectedFile(file);
 
       // Cleanup previous preview URL
@@ -168,7 +186,7 @@ export function EditProfile() {
       router.push('/profile');
     } catch (error) {
       console.log(error);
-      toast.error('Failed to update profile. Please try again.');
+      // toast.error('Failed to update profile. Please try again.');
     }
   };
 
@@ -232,6 +250,15 @@ export function EditProfile() {
                   className="hidden"
                 />
               </div>
+
+              {/* Show file size error */}
+              {form.formState.errors.root && (
+                <p className="mt-2 text-sm text-red-600">{form.formState.errors.root.message}</p>
+              )}
+
+              <p className="text-secondary-text mt-2 text-sm">
+                Upload a profile picture (Max size: 5MB)
+              </p>
             </CardContent>
           </Card>
 
