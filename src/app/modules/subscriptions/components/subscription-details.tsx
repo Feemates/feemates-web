@@ -524,8 +524,10 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
             <AlertDialogTitle className="text-red-600">⚠️ Warning</AlertDialogTitle>
             <AlertDialogDescription className="space-y-2">
               <span>
-                This will permanently delete the bundle and remove all participants. This action
-                cannot be undone.
+                This will permanently delete the bundle and remove all participants. If no members
+                have joined, it will be removed immediately. If there are active members, the bundle
+                stays valid until the end of the billing cycle, and no further payments will be
+                charged. This action cannot be undone.
               </span>
               <span className="text-sm text-gray-600">
                 To confirm deletion, please type the bundle name:{' '}

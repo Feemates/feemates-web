@@ -60,7 +60,7 @@ const formSchema = z.object({
         'Password must be minimum of 8 characters, with upper and lowercase, and a number and a symbol.',
     }),
   agreeToTerms: z.boolean().refine((value) => value === true, {
-    message: 'You must accept the terms and conditions to continue',
+    message: 'You must accept the terms of service and privacy policy to continue',
   }),
 });
 
