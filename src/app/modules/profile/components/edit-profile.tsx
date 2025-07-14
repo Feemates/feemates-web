@@ -47,6 +47,9 @@ export function EditProfile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isImageLoading, setIsImageLoading] = useState(true);
+  const [imageLoadError, setImageLoadError] = useState(false);
 
   const { data: userData, isLoading } = useGetMe(authToken);
   const uploadFile = useUploadFile();
@@ -68,9 +71,23 @@ export function EditProfile() {
         name: userData.user.name || '',
         email: userData.user.email || '',
       });
-      setProfileImage(userData.user.avatar);
+
+      if (userData.user.avatar) {
+        setProfileImage(userData.user.avatar);
+        setIsImageLoading(true);
+        setImageLoadError(false);
+      }
     }
   }, [userData, form]);
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const handleBackClick = () => {
     router.push('/profile');
@@ -84,10 +101,34 @@ export function EditProfile() {
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      // Create object URL for preview
+
+      // Cleanup previous preview URL
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+
+      // Create new object URL for preview
       const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
       setProfileImage(objectUrl);
+      setIsImageLoading(false); // Object URLs load immediately
+      setImageLoadError(false);
     }
+  };
+
+  const handleImageLoad = () => {
+    setIsImageLoading(false);
+    setImageLoadError(false);
+  };
+
+  const handleImageError = () => {
+    setIsImageLoading(false);
+    setImageLoadError(true);
+  };
+
+  const handleImageLoadStart = () => {
+    setIsImageLoading(true);
+    setImageLoadError(false);
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -98,6 +139,12 @@ export function EditProfile() {
       if (selectedFile) {
         const uploadResult = await uploadFile.mutateAsync({ file: selectedFile });
         avatarUrl = uploadResult.key;
+
+        // Immediately update the profile image with the new URL
+        // Note: uploadResult.key might be a full URL or just a key
+        // Since your API returns full URLs, use it directly
+        setProfileImage(uploadResult.key);
+        setIsImageLoading(true); // New image will need to load
       }
 
       // Update profile
@@ -108,14 +155,24 @@ export function EditProfile() {
 
       toast.success('Profile updated successfully!');
 
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['me'] });
+      // Invalidate and refetch queries to refresh data
+      await queryClient.invalidateQueries({ queryKey: ['me'] });
 
+      // Cleanup preview URL if it exists
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+
+      setSelectedFile(null);
       router.push('/profile');
     } catch (error) {
       console.log(error);
+      toast.error('Failed to update profile. Please try again.');
     }
   };
+
+  const displayImage = profileImage;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -141,13 +198,23 @@ export function EditProfile() {
             <CardContent className="p-6 text-center">
               <div className="relative mb-4 inline-block">
                 <Avatar className="h-32 w-32">
-                  <AvatarImage
-                    src={profileImage || undefined}
-                    alt="Profile"
-                    className="object-cover object-center"
-                  />
+                  {displayImage && !imageLoadError && (
+                    <AvatarImage
+                      src={displayImage}
+                      alt="Profile"
+                      className="object-cover object-center"
+                      onLoad={handleImageLoad}
+                      onError={handleImageError}
+                      onLoadStart={handleImageLoadStart}
+                      key={displayImage} // Force re-render when image changes
+                    />
+                  )}
                   <AvatarFallback className="bg-blue-100 text-3xl font-bold text-blue-600">
-                    {userData?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                    {isImageLoading && displayImage && !imageLoadError ? (
+                      <Loader2 className="h-8 w-8 animate-spin" />
+                    ) : (
+                      userData?.user?.name?.charAt(0)?.toUpperCase() || 'U'
+                    )}
                   </AvatarFallback>
                 </Avatar>
                 <button
