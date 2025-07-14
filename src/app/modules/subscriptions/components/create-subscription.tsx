@@ -13,12 +13,33 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2, X } from 'lucide-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCreateSubscription } from '../api/useCreateSubscription';
 import { useUploadFile } from '@/api/s3-operations';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import { TemplateItem } from '../api/useTemplateList';
+import { useSearchParams } from 'next/navigation';
+
+// Helper function to get local date in YYYY-MM-DD format
+const getLocalDateString = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Helper function to parse date string in local timezone
+const parseLocalDate = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+// Helper function to get today's date in local timezone
+const getTodayLocalString = (): string => {
+  return getLocalDateString(new Date());
+};
 
 const formSchema = z
   .object({
@@ -55,7 +76,7 @@ const formSchema = z
       })
       .refine(
         (val) => {
-          const selectedDate = new Date(val);
+          const selectedDate = parseLocalDate(val);
           const today = new Date();
           today.setHours(0, 0, 0, 0); // Reset time to start of day
           return selectedDate >= today;
@@ -71,7 +92,9 @@ const formSchema = z
   .refine(
     (data) => {
       if (!data.startDate || !data.endDate) return true;
-      return new Date(data.endDate) > new Date(data.startDate);
+      const startDate = parseLocalDate(data.startDate);
+      const endDate = parseLocalDate(data.endDate);
+      return endDate > startDate;
     },
     {
       message: 'End date must be after start date.',
@@ -81,11 +104,14 @@ const formSchema = z
 
 export function CreateSubscription() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const createSubscriptionMutation = useCreateSubscription();
   const uploadFile = useUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [thumbnailImage, setThumbnailImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [templateData, setTemplateData] = useState<TemplateItem | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -99,17 +125,52 @@ export function CreateSubscription() {
     },
   });
 
-  const handleBackClick = () => {
-    router.push('/dashboard');
-  };
+  // Extract and parse template data from URL params
+  useEffect(() => {
+    const templateParam = searchParams.get('template');
+    if (templateParam) {
+      try {
+        const parsedTemplate = JSON.parse(decodeURIComponent(templateParam)) as TemplateItem;
+        setTemplateData(parsedTemplate);
 
-  const handleImageUpload = () => {
-    fileInputRef.current?.click();
+        // Prepopulate form fields
+        form.setValue('name', parsedTemplate.name);
+        form.setValue('description', parsedTemplate.description || '');
+        form.setValue('price', parsedTemplate.price.toString());
+
+        // Set template thumbnail
+        setThumbnailImage(parsedTemplate.thumbnail);
+      } catch (error) {
+        console.error('Error parsing template data:', error);
+      }
+    }
+  }, [searchParams, form]);
+
+  const handleBackClick = () => {
+    router.back();
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && !templateData) {
+      // Check file size (5MB = 5 * 1024 * 1024 bytes)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size >= maxSize) {
+        // Clear the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        // Show error message
+        form.setError('root', {
+          type: 'manual',
+          message: 'Image size must be less than 5MB. Please choose a smaller image.',
+        });
+        return;
+      }
+
+      // Clear any previous error
+      form.clearErrors('root');
+
       setSelectedFile(file);
       // Create object URL for preview
       const objectUrl = URL.createObjectURL(file);
@@ -117,16 +178,38 @@ export function CreateSubscription() {
     }
   };
 
+  const handleRemoveImage = () => {
+    if (!templateData) {
+      setSelectedFile(null);
+      setThumbnailImage(null);
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // Prevent multiple submissions
+    if (createSubscriptionMutation.isPending || isRedirecting) {
+      return;
+    }
+
     try {
+      // Set redirecting state immediately to disable button
+      setIsRedirecting(true);
+
       // Calculate per person price by dividing total price by max participants
       const totalPrice = Number(values.price);
       const maxParticipants = Number(values.maxParticipants);
 
       let thumbnail = undefined;
 
-      // If there's a new image file, upload it first
-      if (selectedFile) {
+      // If using template, use template thumbnail_key
+      if (templateData) {
+        thumbnail = templateData.thumbnail_key;
+      } else if (selectedFile) {
+        // If there's a new image file, upload it first
         const uploadResult = await uploadFile.mutateAsync({ file: selectedFile });
         thumbnail = uploadResult.key;
       }
@@ -137,16 +220,24 @@ export function CreateSubscription() {
         status: 'active' as const,
         price: totalPrice,
         max_no_of_participants: maxParticipants,
-        startDate: new Date(values.startDate).toISOString(),
-        endDate: new Date(values.endDate).toISOString(),
+        startDate: values.startDate, // Send date string as-is (YYYY-MM-DD)
+        endDate: values.endDate, // Send date string as-is (YYYY-MM-DD)
         ...(thumbnail && { thumbnail }),
       };
 
-      createSubscriptionMutation.mutate(payload);
+      createSubscriptionMutation.mutate(payload, {
+        onError: () => {
+          setIsRedirecting(false);
+        },
+      });
     } catch (error) {
       console.error('Error creating subscription:', error);
+      setIsRedirecting(false);
     }
   };
+
+  // Get today's date in local timezone for min attribute
+  const todayString = getTodayLocalString();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -156,8 +247,12 @@ export function CreateSubscription() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Create Bundle</h1>
-            <p className="text-sm text-gray-500">Set up a new bundle to share</p>
+            <h1 className="text-xl font-bold">Create Bundle</h1>
+            <p className="text-secondary-text text-sm">
+              {templateData
+                ? 'Using template: ' + templateData.name
+                : 'Set up a new bundle to share'}
+            </p>
           </div>
         </div>
       </header>
@@ -165,7 +260,7 @@ export function CreateSubscription() {
       <main className="px-4 py-6">
         <Card className="border-0 bg-white shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg">Bundle Details</CardTitle>
+            <CardTitle className="text-primary-text text-lg">Bundle Details</CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -203,7 +298,7 @@ export function CreateSubscription() {
                         />
                       </FormControl>
                       <FormMessage />
-                      <p className="text-sm text-gray-500">
+                      <p className="text-secondary-text text-sm">
                         Optional details about the bundle or sharing arrangement
                       </p>
                     </FormItem>
@@ -218,7 +313,7 @@ export function CreateSubscription() {
                       <FormLabel>Total Cost *</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <span className="absolute top-3 left-3 text-gray-500">$</span>
+                          <span className="text-secondary-text absolute top-3 left-3">$</span>
                           <Input
                             type="number"
                             step="0.01"
@@ -236,7 +331,7 @@ export function CreateSubscription() {
                         </div>
                       </FormControl>
                       <FormMessage />
-                      <p className="text-sm text-gray-500">Total bundle cost</p>
+                      <p className="text-secondary-text text-sm">Total bundle cost</p>
                     </FormItem>
                   )}
                 />
@@ -248,15 +343,10 @@ export function CreateSubscription() {
                     <FormItem>
                       <FormLabel>Start Date *</FormLabel>
                       <FormControl>
-                        <Input
-                          type="date"
-                          className="h-12"
-                          min={new Date().toISOString().split('T')[0]}
-                          {...field}
-                        />
+                        <Input type="date" className="h-12" min={todayString} {...field} />
                       </FormControl>
                       <FormMessage />
-                      <p className="text-sm text-gray-500">Bundle cannot start in the past</p>
+                      <p className="text-secondary-text text-sm">Bundle cannot start in the past</p>
                     </FormItem>
                   )}
                 />
@@ -271,12 +361,12 @@ export function CreateSubscription() {
                         <Input
                           type="date"
                           className="h-12"
-                          min={form.watch('startDate') || new Date().toISOString().split('T')[0]}
+                          min={form.watch('startDate') || todayString}
                           {...field}
                         />
                       </FormControl>
                       <FormMessage />
-                      <p className="text-sm text-gray-500">Must be after start date</p>
+                      <p className="text-secondary-text text-sm">Must be after start date</p>
                     </FormItem>
                   )}
                 />
@@ -297,7 +387,7 @@ export function CreateSubscription() {
                         />
                       </FormControl>
                       <FormMessage />
-                      <p className="text-sm text-gray-500">
+                      <p className="text-secondary-text text-sm">
                         Including yourself (minimum 2 participants)
                       </p>
                     </FormItem>
@@ -305,30 +395,73 @@ export function CreateSubscription() {
                 />
 
                 <FormItem>
-                  <FormLabel>Thumbnail Image (Optional)</FormLabel>
-                  <FormControl>
-                    <Input type="file" accept="image/*" onChange={handleFileChange} className="" />
-                  </FormControl>
-                  {thumbnailImage && (
-                    <div className="mt-2">
-                      <Image
-                        src={thumbnailImage}
-                        alt="Thumbnail preview"
-                        className="h-20 w-20 rounded object-cover"
-                        width={40}
-                        height={40}
+                  <FormLabel>
+                    Thumbnail Image{' '}
+                    {!templateData && (
+                      <span className="text-muted-foreground text-xs"> (Max size: 5MB)</span>
+                    )}
+                  </FormLabel>
+                  {!templateData && (
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className=""
+                        disabled={!!templateData}
+                        ref={fileInputRef}
                       />
+                    </FormControl>
+                  )}
+                  {thumbnailImage && (
+                    <div className="relative flex-shrink-0 pt-3">
+                      <div className="relative h-16 w-24 overflow-hidden rounded-lg bg-gray-100">
+                        <Image
+                          src={thumbnailImage}
+                          alt={`Thumbnail preview`}
+                          fill
+                          className="object-fit"
+                        />
+                      </div>
+                      {!templateData && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleRemoveImage}
+                          className="absolute top-1 left-20 h-5 w-5 rounded-full bg-red-500 p-0 hover:bg-red-600"
+                        >
+                          <X className="h-3 w-3 text-white" />
+                        </Button>
+                      )}
                     </div>
                   )}
-                  <p className="text-sm text-gray-500">Upload a thumbnail image for your bundle</p>
+
+                  {/* Show file size error */}
+                  {form.formState.errors.root && (
+                    <p className="text-sm text-red-600">{form.formState.errors.root.message}</p>
+                  )}
+
+                  <p className="text-secondary-text text-sm">
+                    {templateData
+                      ? 'Template thumbnail is being used'
+                      : 'Upload a thumbnail image for your bundle'}
+                  </p>
                 </FormItem>
 
                 <Button
                   type="submit"
                   className="h-12 w-full text-base font-medium"
-                  disabled={createSubscriptionMutation.isPending}
+                  disabled={createSubscriptionMutation.isPending || isRedirecting}
                 >
-                  {createSubscriptionMutation.isPending ? 'Creating...' : 'Create Bundle'}
+                  {createSubscriptionMutation.isPending || isRedirecting ? (
+                    <div className="flex items-center">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {createSubscriptionMutation.isPending ? 'Creating...' : 'Creating...'}
+                    </div>
+                  ) : (
+                    'Create Bundle'
+                  )}
                 </Button>
               </form>
             </Form>
