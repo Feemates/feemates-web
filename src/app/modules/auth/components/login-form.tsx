@@ -98,7 +98,7 @@ export function LoginForm() {
         const data = await response.json();
 
         // Check if OTP verification is required
-        if (!data.user.is_otp_verified) {
+        if (data.user.is_otp_verified === false) {
           // Don't store tokens yet, redirect to OTP verification
           const redirectTo = searchParams.get('redirect') || null;
           let otpUrl = `/verify-otp?email=${encodeURIComponent(data.user.email)}&userId=${data.user.id}`;
