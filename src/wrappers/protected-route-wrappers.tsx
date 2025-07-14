@@ -16,19 +16,24 @@ function ProtectedRoutesWrapper({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
-  const authToken = useAuthStore.getState().authToken;
+  const { authToken, userDetails } = useAuthStore();
 
   useGetMe(authToken);
 
   useEffect(() => {
     if (!isProtectedRoute) {
       if (authToken) {
+        // Check if user has completed OTP verification
+        // if (userDetails && !userDetails.email_verified_at) {
+        //   router.replace(`/verify-otp?email=${encodeURIComponent(userDetails.email)}`);
+        // } else {
         router.replace('/dashboard');
+        // }
       } else {
         setIsLoading(false);
       }
     }
-  }, [authToken, router, isProtectedRoute]);
+  }, [authToken, userDetails, router, isProtectedRoute]);
 
   useEffect(() => {
     if (isProtectedRoute) {
@@ -37,11 +42,15 @@ function ProtectedRoutesWrapper({
           pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
         const loginUrl = `/?redirect=${encodeURIComponent(currentUrl)}`;
         router.replace(loginUrl);
-      } else {
+      }
+      // else if (userDetails && !userDetails.is_otp_verified) {
+      //   router.replace(`/verify-otp?email=${encodeURIComponent(userDetails.email)}`);
+      // }
+      else {
         setIsLoading(false);
       }
     }
-  }, [authToken, router, isProtectedRoute, pathname, searchParams]);
+  }, [authToken, userDetails, router, isProtectedRoute, pathname, searchParams]);
 
   if (isLoading) {
     return <div className="min-h-screen animate-pulse bg-white"></div>;

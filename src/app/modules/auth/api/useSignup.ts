@@ -22,12 +22,14 @@ export interface SignupResponse {
     is_kyc_verified: boolean;
     status: string;
     roles: string[];
+    email_verified_at?: string | null;
   };
-  tokens: {
+  tokens?: {
     access_token: string;
     refresh_token: string;
-  };
+  } | null;
   invited_subscriptions?: number;
+  email_verification_required?: boolean;
 }
 
 const signupApi = async (payload: SignupPayload): Promise<SignupResponse> => {
@@ -67,36 +69,27 @@ export const useSignup = () => {
       // Set redirecting state to true to keep loader active
       setIsRedirecting(true);
 
-      // Store tokens and user details
-      setToken(data.tokens.access_token, data.tokens.refresh_token);
+      // Always store user ID and details for OTP verification
       setUserId(data.user.id.toString());
       setUserDetails(data?.user || null);
 
+      // For signup, always redirect to OTP verification page
       const redirectTo = searchParams.get('redirect') || null;
+      let otpUrl = `/verify-otp?email=${encodeURIComponent(data.user.email)}&userId=${data.user.id}`;
 
-      // Small delay to ensure state updates, then redirect
+      // Pass redirect parameter to OTP page if it exists
+      if (redirectTo) {
+        otpUrl += `&redirect=${encodeURIComponent(redirectTo)}`;
+      }
+
       setTimeout(() => {
-        try {
-          if (redirectTo) {
-            // Use decodeURIComponent to handle encoded URLs properly
-            const decodedRedirectTo = decodeURIComponent(redirectTo);
-            // Prefetch the redirect page to avoid chunk loading issues
-            router.prefetch(decodedRedirectTo);
-            router.replace(decodedRedirectTo);
-          } else if (data.invited_subscriptions && data.invited_subscriptions > 0) {
-            router.push('/invites');
-          } else {
-            router.push('/dashboard');
-          }
-        } catch (error) {
-          console.error('Redirect error:', error);
-          // Fallback to dashboard if redirect fails
-          router.push('/dashboard');
-        }
+        router.push(otpUrl);
       }, 100);
 
-      // Show success message
-      toast.success('Account created successfully! Welcome to Feemates.');
+      toast.success(
+        data.message ||
+          'Account created successfully! Please verify your email with the OTP sent to your inbox.'
+      );
     },
     onError: (error: any) => {
       // Reset redirecting state on error

@@ -15,14 +15,15 @@ export interface LoginPayload {
 
 export interface LoginResponse {
   message: string;
-  access_token: string;
-  refresh_token: string;
+  access_token?: string;
+  refresh_token?: string;
   user: {
     id: number;
     email: string;
     name: string;
     roles: string[];
     is_kyc_verified: boolean;
+    is_otp_verified?: boolean;
     status: string;
   };
   invited_subscriptions?: number;
@@ -72,10 +73,30 @@ export const useLogin = () => {
       // Set redirecting state to true to keep loader active
       setIsRedirecting(true);
 
-      // Store tokens, user details, and remember me preference
-      setToken(data.access_token, data.refresh_token);
+      // Always store user ID for potential OTP verification
       setUserId(data.user.id.toString());
       setUserDetails(data.user);
+
+      // Check if OTP verification is required (no tokens means OTP not verified)
+      if (data.user.is_otp_verified === false) {
+        // Don't store tokens yet, redirect to OTP verification
+        const redirectTo = searchParams.get('redirect') || null;
+        let otpUrl = `/verify-otp?email=${encodeURIComponent(data.user.email)}&userId=${data.user.id}`;
+
+        // Pass redirect parameter to OTP page if it exists
+        if (redirectTo) {
+          otpUrl += `&redirect=${encodeURIComponent(redirectTo)}`;
+        }
+
+        setTimeout(() => {
+          router.push(otpUrl);
+        }, 100);
+        toast.success('Please verify your email with the OTP sent to your inbox.');
+        return;
+      }
+
+      // Store tokens and remember me preference (only when OTP is verified)
+      setToken(data.access_token!, data.refresh_token!);
       setRememberMe(variables.rememberMe);
 
       const redirectTo = searchParams.get('redirect') || null;

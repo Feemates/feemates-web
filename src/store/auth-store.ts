@@ -8,6 +8,7 @@ export type UserDetails = {
   password?: string | null;
   mobile?: string | null;
   is_kyc_verified: boolean;
+  is_otp_verified?: boolean;
   avatar?: string | null;
   google_id?: string | null;
   email_verified_at?: string | null;

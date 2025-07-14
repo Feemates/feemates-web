@@ -117,6 +117,27 @@ export function SignupForm() {
           throw new Error(errorData.message || 'Google authentication failed');
         }
         const data = await response.json();
+
+        // Check if OTP verification is required
+        if (!data.user.is_otp_verified) {
+          // Don't store tokens yet, redirect to OTP verification
+          const redirectTo = searchParams.get('redirect') || null;
+          let otpUrl = `/verify-otp?email=${encodeURIComponent(data.user.email)}&userId=${data.user.id}`;
+
+          // Pass redirect parameter to OTP page if it exists
+          if (redirectTo) {
+            otpUrl += `&redirect=${encodeURIComponent(redirectTo)}`;
+          }
+
+          setTimeout(() => {
+            router.push(otpUrl);
+          }, 100);
+          toast.success(
+            'Account created successfully! Please verify your email with the OTP sent to your inbox.'
+          );
+          return;
+        }
+
         // Store tokens and user details
         setToken(data.access_token, data.refresh_token);
         setUserId(data.user.id.toString());
