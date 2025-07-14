@@ -109,25 +109,23 @@ export const useLogin = () => {
       setIsRedirecting(false);
       clearTimeout(timeoutRef.current!);
 
-      // Handle different types of errors
-      if (isNetworkError(error) || (error as NetworkError)?.type) {
-        const networkError = error as NetworkError;
-        switch (networkError.type) {
-          case NETWORK_ERROR_TYPES.NO_CONNECTION:
-            toast.error('Connection failed. Please check your network and try again.');
-            break;
-          case NETWORK_ERROR_TYPES.TIMEOUT:
-            toast.error('Request timed out. Please check your connection and try again.');
-            break;
-          default:
-            toast.error('Network error occurred. Please try again.');
-        }
-      } else if (error.message?.includes('No internet connection')) {
-        toast.error('No internet connection. Please check your network and try again.');
-      } else {
-        // Show original error message for other types of errors
-        toast.error(error);
-      }
+      // if (isNetworkError(error) || (error as NetworkError)?.type) {
+      //   const networkError = error as NetworkError;
+      //   switch (networkError.type) {
+      //     case NETWORK_ERROR_TYPES.NO_CONNECTION:
+      //       toast.error('Connection failed. Please check your network and try again.');
+      //       break;
+      //     case NETWORK_ERROR_TYPES.TIMEOUT:
+      //       toast.error('Request timed out. Please check your connection and try again.');
+      //       break;
+      //     default:
+      //       toast.error('Network error occurred. Please try again.');
+      //   }
+      // } else if (error.message?.includes('No internet connection')) {
+      //   toast.error('No internet connection. Please check your network and try again.');
+      // } else {
+      toast.error(error);
+      // }
     },
   });
 

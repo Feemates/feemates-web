@@ -68,26 +68,6 @@ const responseInterceptor = (response: AxiosResponse) => {
 
 // Response error interceptor function
 const responseErrorInterceptor = async (error: AxiosError) => {
-  // Handle network connectivity errors first
-  if (isNetworkError(error)) {
-    const networkError = createNetworkError(
-      NETWORK_ERROR_TYPES.NO_CONNECTION,
-      'No internet connection. Please check your network and try again.',
-      error
-    );
-    return Promise.reject(networkError);
-  }
-
-  // Handle timeout errors
-  if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-    const timeoutError = createNetworkError(
-      NETWORK_ERROR_TYPES.TIMEOUT,
-      'Request timed out. Please check your connection and try again.',
-      error
-    );
-    return Promise.reject(timeoutError);
-  }
-
   if (error.response?.status === 401) {
     const authState = useAuthStore.getState();
     const refreshToken = authState.refreshToken;

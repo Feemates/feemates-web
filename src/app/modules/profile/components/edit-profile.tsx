@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { ArrowLeft, Camera, User } from 'lucide-react';
+import { ArrowLeft, Camera, Loader2, User } from 'lucide-react';
 import { useGetMe } from '@/api/get-user';
 import { useUploadFile } from '@/api/s3-operations';
 import { useUpdateProfile } from '@/app/modules/profile/api/useUpdateProfile';
@@ -131,102 +131,110 @@ export function EditProfile() {
         </div>
       </header>
 
-      <main className="px-4 py-6">
-        <Card className="mb-6 border-0 bg-white shadow-sm">
-          <CardContent className="p-6 text-center">
-            <div className="relative mb-4 inline-block">
-              <Avatar className="h-32 w-32">
-                <AvatarImage
-                  src={profileImage || undefined}
-                  alt="Profile"
-                  className="object-cover object-center"
+      {isLoading ? (
+        <div className="flex h-screen items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+        </div>
+      ) : (
+        <main className="px-4 py-6">
+          <Card className="mb-6 border-0 bg-white shadow-sm">
+            <CardContent className="p-6 text-center">
+              <div className="relative mb-4 inline-block">
+                <Avatar className="h-32 w-32">
+                  <AvatarImage
+                    src={profileImage || undefined}
+                    alt="Profile"
+                    className="object-cover object-center"
+                  />
+                  <AvatarFallback className="bg-blue-100 text-3xl font-bold text-blue-600">
+                    {userData?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <button
+                  type="button"
+                  onClick={handleImageUpload}
+                  className="absolute -right-2 -bottom-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 shadow-lg transition-colors hover:bg-blue-700"
+                >
+                  <Camera className="h-5 w-5 text-white" />
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
                 />
-                <AvatarFallback className="bg-blue-100 text-3xl font-bold text-blue-600">
-                  {userData?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <button
-                type="button"
-                onClick={handleImageUpload}
-                className="absolute -right-2 -bottom-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 shadow-lg transition-colors hover:bg-blue-700"
-              >
-                <Camera className="h-5 w-5 text-white" />
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card className="border-0 bg-white shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center text-lg font-semibold">
-              <User className="mr-2 h-5 w-5" />
-              Personal Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input className="h-12" {...field} />
-                      </FormControl>
-                      <div className="text-secondary-text text-right text-xs">
-                        {field.value.length} / 50
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          <Card className="border-0 bg-white shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center text-lg font-semibold">
+                <User className="mr-2 h-5 w-5" />
+                Personal Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input className="h-12" {...field} />
+                        </FormControl>
+                        <div className="text-secondary-text text-right text-xs">
+                          {field.value.length} / 50
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input type="email" className="h-12" disabled {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email Address</FormLabel>
+                        <FormControl>
+                          <Input type="email" className="h-12" disabled {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <div className="flex space-x-3 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleBackClick}
-                    className="text-primary-text flex-1"
-                    disabled={uploadFile.isPending || updateProfile.isPending}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="flex-1"
-                    disabled={uploadFile.isPending || updateProfile.isPending || isLoading}
-                  >
-                    {uploadFile.isPending || updateProfile.isPending ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </main>
+                  <div className="flex space-x-3 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleBackClick}
+                      className="text-primary-text flex-1"
+                      disabled={uploadFile.isPending || updateProfile.isPending}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="flex-1"
+                      disabled={uploadFile.isPending || updateProfile.isPending || isLoading}
+                    >
+                      {uploadFile.isPending || updateProfile.isPending
+                        ? 'Saving...'
+                        : 'Save Changes'}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </main>
+      )}
     </div>
   );
 }

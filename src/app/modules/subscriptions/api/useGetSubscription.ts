@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
-import { apiClient, isNetworkError, NetworkError, NETWORK_ERROR_TYPES } from '@/lib/api-client';
-import { toast } from '@/lib/toast';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { apiClient, NetworkError } from '@/lib/api-client';
+import { toast } from '@/lib/toast';
+import { useQuery } from '@tanstack/react-query';
 
 export interface SubscriptionData {
   id: number;
@@ -62,21 +62,7 @@ export const useGetSubscription = (id: string) => {
 
   // Handle errors using useEffect-like pattern
   if (query.error) {
-    const error = query.error;
-    if (isNetworkError(error) || (error as NetworkError)?.type) {
-      const networkError = error as NetworkError;
-      switch (networkError.type) {
-        case NETWORK_ERROR_TYPES.NO_CONNECTION:
-          // Error will be handled by the component
-          break;
-        case NETWORK_ERROR_TYPES.TIMEOUT:
-          // Error will be handled by the component
-          break;
-        default:
-          // Error will be handled by the component
-          break;
-      }
-    }
+    toast.error(query.error);
   }
 
   return query;
