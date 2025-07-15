@@ -337,12 +337,25 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
 
   const availableSlots = Number(subscription.maxMembers) - Number(subscription.members);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+  const formatDate = (dateString: string): string => {
+    const [year, month, day] = dateString.split('T')[0].split('-');
+
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    return `${monthNames[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
   };
 
   return (
