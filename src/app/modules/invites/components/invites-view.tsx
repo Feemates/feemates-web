@@ -168,7 +168,7 @@ export function SubscriptionInvitationModule({ id }: { id: string }) {
 
                   if (memberStatus === 'active') {
                     return (
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                      <Badge variant="secondary" className="bg-blue-100 text-green-800">
                         Active
                       </Badge>
                     );
