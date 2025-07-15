@@ -92,18 +92,21 @@ export function OverviewTabContent({
           )}
         </CardContent>
       </Card>
-      {subscription.isOwner && subscription.status !== 'expired' && availableSlots > 0 && (
-        <div className="flex space-x-3">
-          <Button onClick={handleInviteMembers} className="flex-1">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Invite Members
-          </Button>
-          <Button variant="outline" onClick={handleShareLink} className="flex-1">
-            <Share2 className="mr-2 h-4 w-4" />
-            Share Link
-          </Button>
-        </div>
-      )}
+      {subscription.isOwner &&
+        subscription.status !== 'expired' &&
+        subscription.status !== 'cancelled' &&
+        availableSlots > 0 && (
+          <div className="flex space-x-3">
+            <Button onClick={handleInviteMembers} className="flex-1">
+              <UserPlus className="mr-2 h-4 w-4" />
+              Invite Members
+            </Button>
+            <Button variant="outline" onClick={handleShareLink} className="flex-1">
+              <Share2 className="mr-2 h-4 w-4" />
+              Share Link
+            </Button>
+          </div>
+        )}
     </div>
   );
 }

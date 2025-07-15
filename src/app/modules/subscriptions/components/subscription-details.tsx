@@ -382,47 +382,48 @@ export function SubscriptionDetails({ id }: SubscriptionDetailsProps) {
             </div>
           </div>
 
-          {(!subscription.isOwner || subscription.isOwner) && (
-            <div className="relative" ref={moreMenuRef}>
-              <Button variant="ghost" size="sm" className="p-2" onClick={handleMoreClick}>
-                <MoreVertical className="h-5 w-5" />
-              </Button>
+          {(!subscription.isOwner || subscription.isOwner) &&
+            subscription.status !== 'cancelled' && (
+              <div className="relative" ref={moreMenuRef}>
+                <Button variant="ghost" size="sm" className="p-2" onClick={handleMoreClick}>
+                  <MoreVertical className="h-5 w-5" />
+                </Button>
 
-              {/* Dropdown Menu */}
-              {showMoreMenu && (
-                <div className="absolute top-10 right-0 z-50 w-48 rounded-md border border-gray-200 bg-white shadow-lg">
-                  {subscription.isOwner ? (
-                    <>
-                      {subscription.status !== 'expired' && (
+                {/* Dropdown Menu */}
+                {showMoreMenu && (
+                  <div className="absolute top-10 right-0 z-50 w-48 rounded-md border border-gray-200 bg-white shadow-lg">
+                    {subscription.isOwner ? (
+                      <>
+                        {subscription.status !== 'expired' && (
+                          <button
+                            onClick={handleEditClick}
+                            className="flex w-full items-center space-x-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <Edit className="h-4 w-4" />
+                            <span>Edit Bundle</span>
+                          </button>
+                        )}
                         <button
-                          onClick={handleEditClick}
-                          className="flex w-full items-center space-x-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={handleDelete}
+                          className="flex w-full items-center space-x-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
                         >
-                          <Edit className="h-4 w-4" />
-                          <span>Edit Bundle</span>
+                          <LogOut className="h-4 w-4" />
+                          <span>Delete Bundle</span>
                         </button>
-                      )}
+                      </>
+                    ) : (
                       <button
-                        onClick={handleDelete}
+                        onClick={handleLeaveClick}
                         className="flex w-full items-center space-x-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
                       >
                         <LogOut className="h-4 w-4" />
-                        <span>Delete Bundle</span>
+                        <span>Leave Bundle</span>
                       </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={handleLeaveClick}
-                      className="flex w-full items-center space-x-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      <span>Leave Bundle</span>
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
         </div>
       </header>
 

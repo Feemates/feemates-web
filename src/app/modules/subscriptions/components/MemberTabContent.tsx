@@ -288,26 +288,29 @@ export function MemberTabContent({
 
         {hasNextPage && !isFetchingNextPage && <div ref={ref} className="h-4" />}
 
-        {subscription.isOwner && subscription.status !== 'expired' && availableSlots > 0 && (
-          <Card className="border-blue-200 bg-blue-50">
-            <CardContent className="p-4 text-center">
-              <UserPlus className="mx-auto mb-2 h-8 w-8 text-blue-600" />
-              <h3 className="mb-1 font-medium !text-blue-900">
-                {availableSlots} slot{availableSlots !== 1 ? 's' : ''} available
-              </h3>
-              <p className="mb-3 text-sm text-blue-700">
-                Invite more members to reduce your monthly cost
-              </p>
-              <Button
-                onClick={handleInviteMembers}
-                size="sm"
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Invite Members
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        {subscription.isOwner &&
+          subscription.status !== 'expired' &&
+          subscription.status !== 'cancelled' &&
+          availableSlots > 0 && (
+            <Card className="border-blue-200 bg-blue-50">
+              <CardContent className="p-4 text-center">
+                <UserPlus className="mx-auto mb-2 h-8 w-8 text-blue-600" />
+                <h3 className="mb-1 font-medium !text-blue-900">
+                  {availableSlots} slot{availableSlots !== 1 ? 's' : ''} available
+                </h3>
+                <p className="mb-3 text-sm text-blue-700">
+                  Invite more members to reduce your monthly cost
+                </p>
+                <Button
+                  onClick={handleInviteMembers}
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Invite Members
+                </Button>
+              </CardContent>
+            </Card>
+          )}
       </div>
 
       <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>

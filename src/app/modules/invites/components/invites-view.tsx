@@ -129,24 +129,67 @@ export function SubscriptionInvitationModule({ id }: { id: string }) {
                     </p>
                   </div>
                 </div>
-                {invite?.member?.status === 'invited' ? (
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    Invited
-                  </Badge>
-                ) : invite?.member?.status === 'declined' ? (
-                  <Badge variant="secondary" className="bg-red-100 text-red-800">
-                    Declined
-                  </Badge>
-                ) : invite.member ? (
-                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                    {invite?.member?.status.charAt(0).toUpperCase() +
-                      invite?.member?.status.slice(1)}
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    Invited
-                  </Badge>
-                )}
+                {(() => {
+                  // Check for cancelled invite status first
+                  if (invite.status === 'cancelled') {
+                    return (
+                      <Badge variant="secondary" className="bg-red-100 text-red-800">
+                        Cancelled
+                      </Badge>
+                    );
+                  }
+
+                  if (invite.status === 'expired') {
+                    return (
+                      <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                        Expired
+                      </Badge>
+                    );
+                  }
+
+                  // Check member status
+                  const memberStatus = invite?.member?.status;
+
+                  if (memberStatus === 'invited') {
+                    return (
+                      <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        Invited
+                      </Badge>
+                    );
+                  }
+
+                  if (memberStatus === 'declined') {
+                    return (
+                      <Badge variant="secondary" className="bg-red-100 text-red-800">
+                        Declined
+                      </Badge>
+                    );
+                  }
+
+                  if (memberStatus === 'active') {
+                    return (
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                        Active
+                      </Badge>
+                    );
+                  }
+
+                  // If member exists but has other status
+                  if (invite.member && memberStatus) {
+                    return (
+                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                        {memberStatus.charAt(0).toUpperCase() + memberStatus.slice(1)}
+                      </Badge>
+                    );
+                  }
+
+                  // Default case - no member (treat as invited)
+                  return (
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                      Invited
+                    </Badge>
+                  );
+                })()}
               </div>
 
               <div className="mb-4 grid grid-cols-2 gap-4">
@@ -170,57 +213,96 @@ export function SubscriptionInvitationModule({ id }: { id: string }) {
                 </div>
               </div>
 
-              {invite.status === 'expired' ? (
-                <div className="mt-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-center text-sm text-yellow-800">
-                  This subscription has expired. Please contact the inviter for more information.
-                </div>
-              ) : invite?.member?.status === 'active' ? (
-                <div className="mb-4 rounded bg-green-50 p-3 text-center text-sm text-green-800">
-                  You are already a member of this bundle.
-                </div>
-              ) : invite?.member?.status === 'invited' &&
-                invite.max_no_of_participants - invite.members_count > 0 ? (
-                <div className="mt-4 flex space-x-3">
-                  <Button
-                    onClick={() => handleJoinSubscription(invite.subscription_invite_id, invite.id)}
-                    className="flex-1 bg-green-600 hover:bg-green-700"
-                  >
-                    Join & Pay
-                  </Button>
-                  <Button
-                    onClick={() => handleDeclineInvite(invite.subscription_invite_id)}
-                    variant="outline"
-                    className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
-                  >
-                    Decline
-                  </Button>
-                </div>
-              ) : invite?.member?.status === 'declined' ? (
-                <div className="mb-4 rounded bg-red-50 p-3 text-center text-sm text-red-800">
-                  You have declined this invitation. You cannot join this bundle.
-                </div>
-              ) : invite.status === 'cancelled' ? (
-                <div className="mb-4 rounded bg-red-50 p-3 text-center text-sm text-red-800">
-                  This subscription bundle has been canceled by the owner and is no longer
-                  available.
-                </div>
-              ) : !invite.member && invite.max_no_of_participants - invite.members_count > 0 ? (
-                <div className="mt-4 flex space-x-3">
-                  <Button
-                    onClick={() => handleJoinSubscription(invite.subscription_invite_id, invite.id)}
-                    className="flex-1 bg-green-600 hover:bg-green-700"
-                  >
-                    Join & Pay
-                  </Button>
-                </div>
-              ) : invite.max_no_of_participants - invite.members_count <= 0 ? (
-                <div className="mt-4 rounded bg-gray-100 p-3 text-center text-sm text-gray-600">
-                  This bundle has reached the maximum number of participants. You cannot join this
-                  bundle.
-                </div>
-              ) : (
-                ''
-              )}
+              {(() => {
+                // Check for cancelled status first
+                if (invite.status === 'cancelled') {
+                  return (
+                    <div className="mb-4 rounded bg-red-50 p-3 text-center text-sm text-red-800">
+                      This bundle has been cancelled and is no longer available.
+                    </div>
+                  );
+                }
+
+                // Check for expired status
+                if (invite.status === 'expired') {
+                  return (
+                    <div className="mt-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-center text-sm text-yellow-800">
+                      This subscription has expired. Please contact the inviter for more
+                      information.
+                    </div>
+                  );
+                }
+
+                // Check if user is already an active member
+                if (invite?.member?.status === 'active') {
+                  return (
+                    <div className="mb-4 rounded bg-green-50 p-3 text-center text-sm text-green-800">
+                      You are already a member of this bundle.
+                    </div>
+                  );
+                }
+
+                // Check if user has declined the invitation
+                if (invite?.member?.status === 'declined') {
+                  return (
+                    <div className="mb-4 rounded bg-red-50 p-3 text-center text-sm text-red-800">
+                      You have declined this invitation. You cannot join this bundle.
+                    </div>
+                  );
+                }
+
+                // Check if bundle is full
+                if (invite.max_no_of_participants - invite.members_count <= 0) {
+                  return (
+                    <div className="mt-4 rounded bg-gray-100 p-3 text-center text-sm text-gray-600">
+                      This bundle has reached the maximum number of participants. You cannot join
+                      this bundle.
+                    </div>
+                  );
+                }
+
+                // Show join buttons for invited users with available slots
+                if (invite?.member?.status === 'invited') {
+                  return (
+                    <div className="mt-4 flex space-x-3">
+                      <Button
+                        onClick={() =>
+                          handleJoinSubscription(invite.subscription_invite_id, invite.id)
+                        }
+                        className="flex-1 bg-green-600 hover:bg-green-700"
+                      >
+                        Join & Pay
+                      </Button>
+                      <Button
+                        onClick={() => handleDeclineInvite(invite.subscription_invite_id)}
+                        variant="outline"
+                        className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                      >
+                        Decline
+                      </Button>
+                    </div>
+                  );
+                }
+
+                // Show join button for non-members with available slots
+                if (!invite.member) {
+                  return (
+                    <div className="mt-4 flex space-x-3">
+                      <Button
+                        onClick={() =>
+                          handleJoinSubscription(invite.subscription_invite_id, invite.id)
+                        }
+                        className="flex-1 bg-green-600 hover:bg-green-700"
+                      >
+                        Join & Pay
+                      </Button>
+                    </div>
+                  );
+                }
+
+                // Default case - return nothing
+                return null;
+              })()}
             </CardContent>
           </Card>
         </div>
