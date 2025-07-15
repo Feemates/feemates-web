@@ -422,6 +422,10 @@ export function SubscriptionsList() {
                     <h2 className="mb-2 text-center text-lg font-semibold text-gray-900">
                       No expired bundles found
                     </h2>
+                  ) : statusFilter === 'active' ? (
+                    <h2 className="mb-2 text-center text-lg font-semibold text-gray-900">
+                      No active bundles found
+                    </h2>
                   ) : (
                     <>
                       <h2 className="mb-2 text-center text-lg font-semibold text-gray-900">
