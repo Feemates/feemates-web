@@ -188,18 +188,21 @@ export function MemberTabContent({
 
           return (
             <Card key={member.id} className="relative border-0 bg-white py-2 shadow-sm">
-              {subscription.isOwner && role !== 'Owner' && member.user_type === 'member' && (
-                <div className="absolute top-1 right-1">
-                  <Button
-                    onClick={() => openRemoveDialog(member)}
-                    size="sm"
-                    variant="ghost"
-                    className="h-8 w-8 rounded-full p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
-                  >
-                    <XCircle className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
+              {subscription.isOwner &&
+                role !== 'Owner' &&
+                member.user_type === 'member' &&
+                subscription.status !== 'cancelled' && (
+                  <div className="absolute top-1 right-1">
+                    <Button
+                      onClick={() => openRemoveDialog(member)}
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 rounded-full p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
+                    >
+                      <XCircle className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               <CardContent className="p-4">
                 <div>
                   <div className="mb-3 flex items-center justify-between">
@@ -252,7 +255,8 @@ export function MemberTabContent({
                   {subscription.isOwner &&
                     role !== 'Owner' &&
                     (memberStatus === 'invited' || memberStatus === 'declined') &&
-                    subscription.status !== 'expired' && (
+                    subscription.status !== 'expired' &&
+                    subscription.status !== 'cancelled' && (
                       <Button
                         onClick={() => handleResendInvite(member.id)}
                         size="sm"
