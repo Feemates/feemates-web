@@ -349,9 +349,9 @@ export function SubscriptionCreated({ id }: SubscriptionCreatedProps) {
 
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
                 <h4 className="mb-1 text-sm font-medium text-blue-900">Invitation Preview</h4>
-                <p className="line-clamp-2 overflow-hidden text-xs break-all text-blue-800">
-                  &quot;Join my {subscription.name} bundle and pay only ${subscription.monthlyShare}
-                  /month!&quot;
+                <p className="line-clamp-2 overflow-hidden text-xs break-words text-blue-800">
+                  Join my {subscription.name} bundle and pay only ${subscription.monthlyShare}
+                  /month
                 </p>
               </div>
 
