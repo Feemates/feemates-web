@@ -216,11 +216,11 @@ export function ChangePassword() {
 
                 <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                   <h4 className="mb-2 font-medium text-blue-900">Password Requirements</h4>
-                  <ul className="space-y-1 text-sm text-blue-800">
-                    <li>• At least 8 characters long</li>
-                    <li>• Include uppercase and lowercase letters</li>
-                    <li>• Include at least one number</li>
-                    <li>• Include at least one special character</li>
+                  <ul className="list-disc space-y-1 pl-5 text-sm text-blue-800">
+                    <li>At least 8 characters long</li>
+                    <li>Include uppercase and lowercase letters</li>
+                    <li>Include at least one number</li>
+                    <li>Include at least one special character</li>
                   </ul>
                 </div>
 

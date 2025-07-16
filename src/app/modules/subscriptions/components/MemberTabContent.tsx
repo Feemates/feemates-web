@@ -256,7 +256,8 @@ export function MemberTabContent({
                     role !== 'Owner' &&
                     (memberStatus === 'invited' || memberStatus === 'declined') &&
                     subscription.status !== 'expired' &&
-                    subscription.status !== 'cancelled' && (
+                    subscription.status !== 'cancelled' &&
+                    availableSlots > 0 && (
                       <Button
                         onClick={() => handleResendInvite(member.id)}
                         size="sm"
