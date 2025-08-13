@@ -191,7 +191,9 @@ export function MemberTabContent({
               {subscription.isOwner &&
                 role !== 'Owner' &&
                 member.user_type === 'member' &&
-                subscription.status !== 'cancelled' && (
+                subscription.status !== 'cancelled' &&
+                memberStatus !== 'cancelled' &&
+                memberStatus !== 'removed' && (
                   <div className="absolute top-1 right-1">
                     <Button
                       onClick={() => openRemoveDialog(member)}
