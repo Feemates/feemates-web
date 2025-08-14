@@ -387,25 +387,24 @@ export function SubscriptionsList() {
                           ? `${availableSlots} slot${availableSlots !== 1 ? 's' : ''} available`
                           : 'Bundle full'}
                       </p>
-                      <Badge
-                        variant="secondary"
-                        className={`${
-                          subscription.member?.status === 'removed' ||
-                          subscription.member?.status === 'cancelled'
-                            ? 'bg-red-100 text-red-800'
-                            : subscription.is_owner
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="secondary"
+                          className={`${
+                            subscription.is_owner
                               ? 'bg-blue-100 text-blue-800'
                               : 'bg-purple-100 text-purple-800'
-                        } `}
-                      >
-                        {subscription.member?.status === 'removed'
-                          ? 'Removed'
-                          : subscription.member?.status === 'cancelled'
-                            ? 'Cancelled'
-                            : subscription.is_owner
-                              ? 'Owner'
-                              : 'Member'}
-                      </Badge>
+                          } `}
+                        >
+                          {subscription.is_owner ? 'Owner' : 'Member'}
+                        </Badge>
+                        {(subscription.member?.status === 'removed' ||
+                          subscription.member?.status === 'cancelled') && (
+                          <Badge variant="secondary" className="bg-red-100 text-red-800">
+                            {subscription.member?.status === 'removed' ? 'Removed' : 'Cancelled'}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
