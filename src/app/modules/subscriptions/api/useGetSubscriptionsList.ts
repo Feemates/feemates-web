@@ -27,6 +27,9 @@ export interface SubscriptionItem {
   thumbnail: string;
   owner: SubscriptionOwner;
   is_owner: boolean;
+  member: {
+    status: string;
+  };
 }
 
 export interface SubscriptionMeta {

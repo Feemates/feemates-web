@@ -390,12 +390,21 @@ export function SubscriptionsList() {
                       <Badge
                         variant="secondary"
                         className={`${
-                          subscription.is_owner
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-purple-100 text-purple-800'
+                          subscription.member?.status === 'removed' ||
+                          subscription.member?.status === 'cancelled'
+                            ? 'bg-red-100 text-red-800'
+                            : subscription.is_owner
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-purple-100 text-purple-800'
                         } `}
                       >
-                        {subscription.is_owner ? 'Owner' : 'Member'}
+                        {subscription.member?.status === 'removed'
+                          ? 'Removed'
+                          : subscription.member?.status === 'cancelled'
+                            ? 'Cancelled'
+                            : subscription.is_owner
+                              ? 'Owner'
+                              : 'Member'}
                       </Badge>
                     </div>
                   </CardContent>
