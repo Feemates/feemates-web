@@ -41,6 +41,15 @@ const getTodayLocalString = (): string => {
   return getLocalDateString(new Date());
 };
 
+// Helper function to get minimum end date (30 days after start date)
+const getMinEndDate = (startDateString: string): string => {
+  if (!startDateString) return getTodayLocalString();
+  const startDate = parseLocalDate(startDateString);
+  const minEndDate = new Date(startDate);
+  minEndDate.setDate(startDate.getDate() + 30);
+  return getLocalDateString(minEndDate);
+};
+
 const formSchema = z
   .object({
     name: z.string().min(2, {
@@ -98,6 +107,20 @@ const formSchema = z
     },
     {
       message: 'End date must be after start date.',
+      path: ['endDate'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (!data.startDate || !data.endDate) return true;
+      const startDate = parseLocalDate(data.startDate);
+      const endDate = parseLocalDate(data.endDate);
+      const thirtyDaysLater = new Date(startDate);
+      thirtyDaysLater.setDate(startDate.getDate() + 30);
+      return endDate >= thirtyDaysLater;
+    },
+    {
+      message: 'End date must be at least 30 days after start date.',
       path: ['endDate'],
     }
   );
@@ -361,12 +384,21 @@ export function CreateSubscription() {
                         <Input
                           type="date"
                           className="h-12"
-                          min={form.watch('startDate') || todayString}
+                          min={
+                            form.watch('startDate')
+                              ? getMinEndDate(form.watch('startDate'))
+                              : todayString
+                          }
+                          disabled={!form.watch('startDate')}
                           {...field}
                         />
                       </FormControl>
                       <FormMessage />
-                      <p className="text-secondary-text text-sm">Must be after start date</p>
+                      <p className="text-secondary-text text-sm">
+                        {!form.watch('startDate')
+                          ? 'Please select a start date first'
+                          : 'Must be at least 30 days after start date'}
+                      </p>
                     </FormItem>
                   )}
                 />
