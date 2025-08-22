@@ -42,7 +42,7 @@ export function Profile() {
   const { data: dashboardData, isLoading: dashboardLoading } = useGetDashboard();
 
   const handleSupport = () => {
-    router.push('/support');
+    window.open('https://feemates.com/contact', '_blank');
   };
 
   const handleLogout = async () => {
