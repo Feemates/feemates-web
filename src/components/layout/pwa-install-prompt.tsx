@@ -140,8 +140,8 @@ export function PWAInstallPrompt() {
             <p className="text-sm text-gray-600 dark:text-gray-300">
               {isIOS ? (
                 <>
-                  Access Feemates instantly from your home screen. Tap the share button below and
-                  select &quot;Add to Home Screen&quot;.
+                  Access Feemates instantly from your home screen. Tap the share button on your
+                  browser and select &quot;Add to Home Screen&quot;.
                 </>
               ) : (
                 <>Enjoy faster loading, offline access, and a native app experience.</>
