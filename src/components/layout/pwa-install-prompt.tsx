@@ -145,7 +145,7 @@ export function PWAInstallPrompt() {
                     <path d="M12 2.5L8.5 6H11v7h2V6h2.5L12 2.5z" />
                     <path d="M6 14v6a2 2 0 002 2h8a2 2 0 002-2v-6h-2v6H8v-6H6z" />
                   </svg>
-                  share button and select &quot;Add to Home Screen&quot;.
+                  share button on your browser and select &quot;Add to Home Screen&quot;.
                 </>
               ) : (
                 <>Enjoy faster loading, offline access, and a native app experience.</>
