@@ -140,8 +140,12 @@ export function PWAInstallPrompt() {
             <p className="text-sm text-gray-600 dark:text-gray-300">
               {isIOS ? (
                 <>
-                  Access Feemates instantly from your home screen. Tap the share button on your
-                  browser and select &quot;Add to Home Screen&quot;.
+                  Access Feemates instantly from your home screen. Tap the{' '}
+                  <svg className="mx-1 inline h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.5L8.5 6H11v7h2V6h2.5L12 2.5z" />
+                    <path d="M6 14v6a2 2 0 002 2h8a2 2 0 002-2v-6h-2v6H8v-6H6z" />
+                  </svg>
+                  share button and select &quot;Add to Home Screen&quot;.
                 </>
               ) : (
                 <>Enjoy faster loading, offline access, and a native app experience.</>
@@ -151,14 +155,7 @@ export function PWAInstallPrompt() {
 
           {/* Actions */}
           <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3">
-            {isIOS ? (
-              <div className="flex items-center justify-center space-x-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
-                <Share className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                  Tap Share → Add to Home Screen
-                </span>
-              </div>
-            ) : (
+            {!isIOS && (
               <button
                 onClick={handleInstallClick}
                 className="flex-1 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 font-medium text-white transition-all hover:from-blue-700 hover:to-purple-700 hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
