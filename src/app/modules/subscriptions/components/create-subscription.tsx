@@ -135,6 +135,9 @@ export function CreateSubscription() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [templateData, setTemplateData] = useState<TemplateItem | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isImageLoading, setIsImageLoading] = useState(false);
+  const [imageLoadError, setImageLoadError] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -163,11 +166,22 @@ export function CreateSubscription() {
 
         // Set template thumbnail
         setThumbnailImage(parsedTemplate.thumbnail);
+        setIsImageLoading(false);
+        setImageLoadError(false);
       } catch (error) {
         console.error('Error parsing template data:', error);
       }
     }
   }, [searchParams, form]);
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const handleBackClick = () => {
     router.back();
@@ -210,9 +224,18 @@ export function CreateSubscription() {
       form.clearErrors('root');
 
       setSelectedFile(file);
-      // Create object URL for preview
+
+      // Cleanup previous preview URL
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+
+      // Create new object URL for preview
       const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
       setThumbnailImage(objectUrl);
+      setIsImageLoading(true); // Start with loading state
+      setImageLoadError(false);
     }
   };
 
@@ -220,11 +243,36 @@ export function CreateSubscription() {
     if (!templateData) {
       setSelectedFile(null);
       setThumbnailImage(null);
+
+      // Cleanup preview URL
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+
       // Clear the file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+
+      setIsImageLoading(false);
+      setImageLoadError(false);
     }
+  };
+
+  const handleImageLoad = () => {
+    setIsImageLoading(false);
+    setImageLoadError(false);
+  };
+
+  const handleImageError = () => {
+    setIsImageLoading(false);
+    setImageLoadError(true);
+  };
+
+  const handleImageLoadStart = () => {
+    setIsImageLoading(true);
+    setImageLoadError(false);
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -264,6 +312,14 @@ export function CreateSubscription() {
       };
 
       createSubscriptionMutation.mutate(payload, {
+        onSuccess: () => {
+          // Cleanup preview URL if it exists
+          if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+            setPreviewUrl(null);
+          }
+          setSelectedFile(null);
+        },
         onError: () => {
           setIsRedirecting(false);
         },
@@ -466,12 +522,31 @@ export function CreateSubscription() {
                   {thumbnailImage && (
                     <div className="relative flex-shrink-0 pt-3">
                       <div className="relative h-16 w-24 overflow-hidden rounded-lg bg-gray-100">
-                        <Image
-                          src={thumbnailImage}
-                          alt={`Thumbnail preview`}
-                          fill
-                          className="object-fit"
-                        />
+                        {selectedFile ? (
+                          // For uploaded files, use regular img tag which works better with object URLs
+                          <img
+                            src={thumbnailImage}
+                            alt="Thumbnail preview"
+                            className="h-full w-full object-cover object-center"
+                            onLoad={handleImageLoad}
+                            onError={handleImageError}
+                          />
+                        ) : thumbnailImage && !imageLoadError ? (
+                          // For template images (URLs), use Next.js Image component
+                          <Image
+                            src={thumbnailImage}
+                            alt="Thumbnail preview"
+                            fill
+                            className="object-cover object-center"
+                            onLoad={handleImageLoad}
+                            onError={handleImageError}
+                            key={thumbnailImage}
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs text-gray-500">
+                            {isImageLoading ? 'Loading...' : imageLoadError ? 'Error' : 'Preview'}
+                          </div>
+                        )}
                       </div>
                       {!templateData && (
                         <Button
