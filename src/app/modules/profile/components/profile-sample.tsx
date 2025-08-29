@@ -33,21 +33,13 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export function Profile() {
   const { reset, userDetails } = useAuthStore();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { data: dashboardData, isLoading: dashboardLoading } = useGetDashboard();
-
-  // Preload avatar image for faster loading
-  useEffect(() => {
-    if (userDetails?.avatar) {
-      const img = new Image();
-      img.src = userDetails.avatar;
-    }
-  }, [userDetails?.avatar]);
 
   const handleSupport = () => {
     window.open('https://feemates.com/contact', '_blank');
@@ -125,8 +117,6 @@ export function Profile() {
                     src={userDetails?.avatar || undefined}
                     alt={userDetails?.name || 'Profile'}
                     className="object-cover object-center"
-                    loading="eager"
-                    fetchPriority="high"
                   />
                   <AvatarFallback className="bg-blue-100 text-2xl font-bold text-blue-600">
                     {getInitials(userDetails?.name)}
