@@ -176,6 +176,21 @@ export function CreateSubscription() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && !templateData) {
+      // Check file type - only allow JPEG, JPG, and PNG
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!allowedTypes.includes(file.type)) {
+        // Clear the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        // Show error message
+        form.setError('root', {
+          type: 'manual',
+          message: 'Only JPEG, JPG, and PNG image formats are allowed.',
+        });
+        return;
+      }
+
       // Check file size (5MB = 5 * 1024 * 1024 bytes)
       const maxSize = 5 * 1024 * 1024;
       if (file.size >= maxSize) {
@@ -430,14 +445,17 @@ export function CreateSubscription() {
                   <FormLabel>
                     Thumbnail Image{' '}
                     {!templateData && (
-                      <span className="text-muted-foreground text-xs"> (Max size: 5MB)</span>
+                      <span className="text-muted-foreground text-xs">
+                        {' '}
+                        (JPEG, JPG, PNG only - Max size: 5MB)
+                      </span>
                     )}
                   </FormLabel>
                   {!templateData && (
                     <FormControl>
                       <Input
                         type="file"
-                        accept="image/*"
+                        accept=".jpg,.jpeg,.png"
                         onChange={handleFileChange}
                         className=""
                         disabled={!!templateData}
@@ -477,7 +495,7 @@ export function CreateSubscription() {
                   <p className="text-secondary-text text-sm">
                     {templateData
                       ? 'Template thumbnail is being used'
-                      : 'Upload a thumbnail image for your bundle'}
+                      : 'Upload a thumbnail image for your bundle (JPEG, JPG, PNG formats only)'}
                   </p>
                 </FormItem>
 
