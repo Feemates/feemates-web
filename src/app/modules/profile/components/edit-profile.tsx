@@ -106,6 +106,21 @@ export function EditProfile() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Check file type - only allow JPEG, JPG, and PNG
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!allowedTypes.includes(file.type)) {
+        // Clear the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        // Show error message
+        form.setError('root', {
+          type: 'manual',
+          message: 'Only JPEG, JPG, and PNG image formats are allowed.',
+        });
+        return;
+      }
+
       // Check file size (5MB = 5 * 1024 * 1024 bytes)
       const maxSize = 5 * 1024 * 1024;
       if (file.size >= maxSize) {
@@ -267,7 +282,7 @@ export function EditProfile() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png"
                   onChange={handleFileChange}
                   className="hidden"
                 />
@@ -279,7 +294,7 @@ export function EditProfile() {
               )}
 
               <p className="text-secondary-text mt-2 text-sm">
-                Upload a profile picture (Max size: 5MB)
+                Upload a profile picture (JPEG, JPG, PNG only - Max size: 5MB)
               </p>
             </CardContent>
           </Card>
