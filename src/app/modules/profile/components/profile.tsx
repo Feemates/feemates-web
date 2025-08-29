@@ -147,7 +147,9 @@ export function Profile() {
                     </Button>
                   </Link>
                 </div>
-                <p className="text-secondary-text mb-1">{userDetails?.email || 'No email'}</p>
+                <p className="text-secondary-text ine-clamp-2 mb-1 overflow-hidden text-sm break-all">
+                  {userDetails?.email || 'No email'}
+                </p>
                 <p className="text-secondary-text text-sm">
                   Member since{' '}
                   {userDetails?.createdAt
