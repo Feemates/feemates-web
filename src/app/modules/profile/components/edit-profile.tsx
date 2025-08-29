@@ -74,8 +74,14 @@ export function EditProfile() {
 
       if (userData.user.avatar) {
         setProfileImage(userData.user.avatar);
-        setIsImageLoading(true);
+        setIsImageLoading(false); // Don't show loading for existing images
         setImageLoadError(false);
+
+        // Preload the image for faster display
+        const img = new Image();
+        img.onload = () => setIsImageLoading(false);
+        img.onerror = () => setImageLoadError(true);
+        img.src = userData.user.avatar;
       }
     }
   }, [userData, form]);
@@ -145,7 +151,10 @@ export function EditProfile() {
   };
 
   const handleImageLoadStart = () => {
-    setIsImageLoading(true);
+    // Only show loading for new uploads, not existing images
+    if (selectedFile) {
+      setIsImageLoading(true);
+    }
     setImageLoadError(false);
   };
 
@@ -170,6 +179,17 @@ export function EditProfile() {
         name: values.name,
         ...(avatarUrl && { avatar: avatarUrl }),
       });
+
+      // Update auth store with new avatar URL for immediate UI update
+      if (avatarUrl) {
+        const currentUserDetails = useAuthStore.getState().userDetails;
+        if (currentUserDetails) {
+          useAuthStore.getState().setUserDetails({
+            ...currentUserDetails,
+            avatar: avatarUrl,
+          });
+        }
+      }
 
       toast.success('Profile updated successfully!');
 
@@ -225,6 +245,8 @@ export function EditProfile() {
                       onError={handleImageError}
                       onLoadStart={handleImageLoadStart}
                       key={displayImage} // Force re-render when image changes
+                      loading="eager"
+                      fetchPriority="high"
                     />
                   )}
                   <AvatarFallback className="bg-blue-100 text-3xl font-bold text-blue-600">
